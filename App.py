@@ -2478,7 +2478,9 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.title("Steering Wheel Display")
     root.geometry("800x480")
-    root.overrideredirect(True)
+
+    ## Csak a kijelzőt mutatja, nincs ablakkeret
+    #root.overrideredirect(True)
 
     M = Master(root)
     M.__call__(mfdPanelIndex)

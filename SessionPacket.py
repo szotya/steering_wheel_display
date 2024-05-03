@@ -1,7 +1,5 @@
 from ctypes import Structure,c_int8, c_uint16, c_uint8, c_uint64, c_float, c_uint32, Union, LittleEndianStructure
 
-import self
-
 
 class MarshalZone(LittleEndianStructure):
     _fields_ = [
