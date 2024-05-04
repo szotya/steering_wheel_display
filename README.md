@@ -8,4 +8,4 @@ A programot a EA SPORTS fejlesztői dokumentációja és saját debuggolási tap
 Zengő Zoltán Ferenc
 
 Verzió szám: 0.1
-
+©Minden jog fenn tartva
