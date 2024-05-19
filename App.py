@@ -31,6 +31,7 @@ data_dict_cartelemetry = {}
 data_dict_carstatus = {}
 data_dict_lapdata = {}
 data_dict_sessionhistory = {}
+data_dict_eventpacket = {}
 
 
 ### IP cím lekérdezése
@@ -133,6 +134,14 @@ def udp_server(host='0.0.0.0', port=20777):
         ## EventPacket (egyenlőre nem használjuk)
         elif h.field6 == 3:
             ep = unpack_eventpacket(telemetry)
+            data_dict_eventpacket = {
+                'eventStringCode': ep.field1,
+            }
+            if ep.field1 == "SEND":
+                mfdPanelIndex = 6
+                mfdPanelIndex_isChanged = True
+
+
 
         ## CarTelemetryDataPacket
         elif h.field6 == 6:
@@ -277,19 +286,30 @@ class ConnectDisplay:
         self.root = root
 
     def create_connect_display(self):
-        self.canvas = tk.Canvas(root, height=480, width=800, bg="black", highlightthickness=0)
+        self.canvas = tk.Canvas(root, height=480, width=800, bg="white", highlightthickness=0)
         self.canvas.pack()
 
-        self.name = tk.Label(self.root, text="Velocity Sim", fg="white", bg="black", font=("Formula1", 45, "bold"))
-        self.name.place(x=242,y=200)
+        self.logo = PilImage.open("Full_logo-06.png")
+        self.logo_resized = self.logo.resize((460,259))
+        self.logo_tk_image = ImageTk.PhotoImage(self.logo_resized)
+        self.canvas.create_image(400, 200, image=self.logo_tk_image)
 
-        self.ip = tk.Label(self.root, text=f"IP: {get_my_ip()}", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.ip = tk.Label(self.root, text=f"IP: {get_my_ip()}", fg="black", bg="white", font=("Formula1", 20, "bold"))
         self.ip.place(x=308, y=370)
 
-        self.port = tk.Label(self.root, text="Port: 20777", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.port = tk.Label(self.root, text="Port: 20777", fg="black", bg="white", font=("Formula1", 20, "bold"))
         self.port.place(x=333, y=400)
 
         return self.canvas
+
+    def update_connection_display(self):
+        if self.canvas is not None and self.canvas.winfo_exists():
+            if "eventStringCode" in data_dict_eventpacket:
+                self.ip.destroy()
+                self.port.destroy()
+
+            self.root.after(100, self.update_connection_display)
+
 class DefaultDisplay:
     def __init__(self, root):
         self.root = root
@@ -442,6 +462,11 @@ class DefaultDisplay:
                     minutes = int(laptime / 60000)
                     seconds = float(laptime - minutes * 60000) / 1000
                     self.laptime_label.config(text=f"{minutes}:{seconds:.3f}")
+
+                if 'currentLapInvalid' == 1:
+                    self.laptime_label.config(fg="red")
+                else:
+                    self.laptime_label.config(fg="white")
 
             if 'currentLapNum' in data_dict_lapdata:
                 self.lapnum_label.config(text=f"L{data_dict_lapdata['currentLapNum']}")
