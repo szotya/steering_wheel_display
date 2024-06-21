@@ -246,7 +246,7 @@ def unpack_eventpacket(telemetry: bytes):
     bytes_list = char1 + char2 + char3 + char4
     ep.field1 =''.join(b.decode('utf-8') for b in bytes_list)
     if ep.field1 == EventStringCode.FASTEST_LAP.value:
-        unpack_fastestlap(telemetry[4:])
+        ep.field2.append(unpack_fastestlap(telemetry[4:]))
     elif ep.field1 == EventStringCode.RETIREMENT.value:
         unpack_retirement(telemetry[4:])
     elif ep.field1 == EventStringCode.DRS_ENABLED.value:
@@ -405,6 +405,8 @@ def unpack_cardamagepacket(telemetry: bytes, carIndex):
 
     return cdp
 
+
+##### Optimalizálni kell az alábbi két függvényt, mert nagyon lassú a feldolgozási idejük
 def unpack_laphistorydata(telemetry: bytes):
     # <H means 2byte <B means 1byte <Q means 8byte <f means 4byte
 
@@ -419,20 +421,30 @@ def unpack_laphistorydata(telemetry: bytes):
     lhd.field8 = rawutil.unpack('<B', telemetry[13:14])[0]
     return lhd
 
-def unpack_sessionhistorypacket(telemetry: bytes):
+def unpack_sessionhistorypacket(telemetry: bytes, carIndex):
     shp = SessionHistoryPacket()
-    shp.field1 = rawutil.unpack('<B', telemetry[:1])[0]
-    shp.field2 = rawutil.unpack('<B', telemetry[1:2])[0]
-    shp.field3 = rawutil.unpack('<B', telemetry[2:3])[0]
-    shp.field4 = rawutil.unpack('<B', telemetry[3:4])[0]
-    shp.field5 = rawutil.unpack('<B', telemetry[4:5])[0]
-    shp.field6 = rawutil.unpack('<B', telemetry[5:6])[0]
-    shp.field7 = rawutil.unpack('<B', telemetry[6:7])[0]
-    offset = 7
-    for i in range(100):
-        shp.field8.append(unpack_laphistorydata(telemetry[offset:offset+14]))
-        offset += 14
-    return shp
+    id = rawutil.unpack('<B', telemetry[:1])[0]
+    if id == carIndex:
+        shp.field1 = id
+        shp.field2 = rawutil.unpack('<B', telemetry[1:2])[0]
+        shp.field3 = rawutil.unpack('<B', telemetry[2:3])[0]
+        shp.field4 = rawutil.unpack('<B', telemetry[3:4])[0]
+        shp.field5 = rawutil.unpack('<B', telemetry[4:5])[0]
+        shp.field6 = rawutil.unpack('<B', telemetry[5:6])[0]
+        shp.field7 = rawutil.unpack('<B', telemetry[6:7])[0]
+        offset = 7
+        for i in range(100):
+            shp.field8.append(unpack_laphistorydata(telemetry[offset:offset+14]))
+            offset += 14
+        return shp
+    else:
+        return 404
+
+########
+
+
+
+
 
 def unpack_tyresetdata(telemetry: bytes):
     tsd = TyreSetData()

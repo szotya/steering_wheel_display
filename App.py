@@ -1,10 +1,14 @@
+from tkinter import *
 import tkinter as tk
 import threading
 import socket
 import time
-from UDPunpack import unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
+import os
 from PIL import Image as PilImage, ImageTk
+from UDPunpack import unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 from listsandconstants import *
+
+
 
 
 ## Egyenlőre használaton kívül
@@ -22,7 +26,7 @@ data_dict_main = {
 mfdPanelIndex = 6
 maximum_energy_storage = 4000000
 besttyresetslist = []
-bestlapmspermeter = []
+log_list = []
 mfdPanelIndex_isChanged = False
 data_dict_tyresets = {}
 data_dict_sessionpacket = {}
@@ -32,6 +36,18 @@ data_dict_carstatus = {}
 data_dict_lapdata = {}
 data_dict_sessionhistory = {}
 data_dict_eventpacket = {}
+currentLapTimeInMs = 0
+lap_distance = 0.0
+throttle = 0.0
+brake = 0.0
+engineRPM = 0
+bestlapms = 0
+speed = 0
+current_lap_record = []
+best_lap_datas = []
+current_lap_datas = []
+delta = 0.000
+isFastestLap = False
 
 
 ### IP cím lekérdezése
@@ -64,6 +80,20 @@ def udp_server(host='0.0.0.0', port=20777):
     global data_dict_carstatus
     global data_dict_lapdata
     global running_or_not
+    global bestlapms
+    global currentLapTimeInMs
+    global lap_distance
+    global throttle
+    global brake
+    global engineRPM
+    global speed
+    global current_lap_datas
+    global delta
+    global isFastestLap
+    global best_lap_datas
+    global current_lap_record
+
+
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -73,28 +103,31 @@ def udp_server(host='0.0.0.0', port=20777):
     # Bind the socket to the port
     server_address = (host, port)
     sock.bind(server_address)
-
     while True:
+        start_time = time.time() * 1000
         data, address = sock.recvfrom(65507)
+        #start_time = time.time()*1000
         # Parse the data
         header = data[:29]
         telemetry = data[29:]
         h = unpack_header(header)
+        #unpacked_packet = h.field6
 
         ## SessionPacket
         if h.field6 == 1:
             sp = unpack_sessionpacket(telemetry)
             data_dict_sessionpacket['sessionType'] = sp.field6
             track_length = sp.field5
-
             data_dict_sessionpacket = {
                 'pitStopWindowIdealLap': sp.field27,
                 'pitStopWindowLatestLap': sp.field28,
                 'pitStopRejoinPosition': sp.field29,
+                'speedUnit': sp.field43,
             }
 
         ## LapDataPacket
         elif h.field6 == 2:
+            lapdata_time = time.time()*1000 - start_time
             ldp = unpack_lapdatapacket(telemetry, h.field11)
             list = []
             ldp.item_from_lapdatapacket(list)
@@ -130,6 +163,11 @@ def udp_server(host='0.0.0.0', port=20777):
                 'pitStopShouldServePen': list[28],
                 'timeTrialPBCarIdx': ldp.field2,
             }
+            currentLapTimeInMs = list[1]
+            lap_distance = list[8]
+
+
+
 
         ## EventPacket (egyenlőre nem használjuk)
         elif h.field6 == 3:
@@ -141,10 +179,19 @@ def udp_server(host='0.0.0.0', port=20777):
                 mfdPanelIndex = 6
                 mfdPanelIndex_isChanged = True
 
+            elif ep.field1 == "FTLP":
+                list = []
+                ep.fasteslap(list)
+                if len(list) > 0:
+                    if list[0] == h.field11:
+                        bestlapms = list[1]
+                        isFastestLap = True
+
 
 
         ## CarTelemetryDataPacket
         elif h.field6 == 6:
+            cartelemetry_time = time.time()*1000 - start_time
             ctp = unpack_cartelemetrydatapacket(telemetry, h.field11)
             list = []
 
@@ -190,6 +237,15 @@ def udp_server(host='0.0.0.0', port=20777):
                 "revLigthsBitValue": list[29],
                 "engineTemperature": list[30],
             }
+            throttle = list[21]
+            brake = list[23]
+            engineRPM = list[26]
+            speed = list[20]
+            if lap_distance >= 0:
+                current_lap_record.extend([currentLapTimeInMs, lap_distance, speed])
+                #current_lap_datas.append([currentLapTimeInMs, lap_distance, speed])
+                #file.write(str(currentLapTimeInMs) + " " + str(lap_distance) + " " + str(speed) + " " + str(engineRPM) + " " + str(throttle) + " " + str(brake) + " " + str(track_length) + " " + str(bestlapms) + "\n")
+
             ## MFD Panel Index változásának ellenőrzése
             if ctp.field2 != mfdPanelIndex:
                 mfdPanelIndex_isChanged = True
@@ -268,10 +324,19 @@ def udp_server(host='0.0.0.0', port=20777):
                 'engineSeized': list[29],
             }
 
-
         ## SessionHistoryPacket (egyenlőre nem használjuk)
         elif h.field6 == 11:
-            shp = unpack_sessionhistorypacket(telemetry)
+            shp = unpack_sessionhistorypacket(telemetry, h.field11)
+            if shp != 404:
+                if shp.field4 < 101:
+                    list = []
+                    shp.lapsofmycar(list)
+                    data_dict_sessionhistory = {
+                        'bestlapms': list[(shp.field4)],
+                    }
+                    bestlapms = list[(shp.field4)]
+            else:
+                pass
 
         ## TyreSetsPacket
         elif h.field6 == 12:
@@ -280,8 +345,46 @@ def udp_server(host='0.0.0.0', port=20777):
                 besttyresetslist.clear()
                 tsp.get_tyresetdata(besttyresetslist)
 
+        ##log_fájlba írás
+        #log_list.append([currentLapTimeInMs, lap_distance, speed, engineRPM, throttle, brake, track_length, bestlapms])
+
+        #end_time = time.time()*1000
+        #print(f"Packet was:{unpacked_packet}, Cost ms: {end_time - start_time}")
+
+
+def delta_calculator():
+    global current_lap_datas
+    global current_lap_record
+    global best_lap_datas
+    global bestlapms
+    global delta
+
+    index = 0
+    prev_meter = 0
+    prev_bestlap = 0
+    while True:
+        print("delta")
+        if len(best_lap_datas) > 0:
+            if prev_meter > (current_lap_record[1] + 100):
+                print("reset")
+                index = 0
+                if prev_bestlap != bestlapms:
+                    best_lap_datas.clear()
+                    best_lap_datas = current_lap_datas.copy()
+                    current_lap_datas.clear()
+            for i in range(index, len(best_lap_datas)):
+                if int(best_lap_datas[i][1]) == int(current_lap_record[1]):
+                    print(delta)
+                    delta = int(current_lap_record[0]) - int(best_lap_datas[i][0]) / 1000
+                    prev_meter = current_lap_record[1]
+                    index = i
+                    current_lap_datas.append([current_lap_record[0], current_lap_record[1], current_lap_record[2]])
+                    prev_bestlap = bestlapms
+                    current_lap_record.clear()
+                    break
 
 class ConnectDisplay:
+
     def __init__(self, root):
         self.root = root
 
@@ -304,11 +407,13 @@ class ConnectDisplay:
 
     def update_connection_display(self):
         if self.canvas is not None and self.canvas.winfo_exists():
-            if "eventStringCode" in data_dict_eventpacket:
-                self.ip.destroy()
-                self.port.destroy()
+            global track_length
 
-            self.root.after(100, self.update_connection_display)
+            if track_length > 0:
+                self.ip.config(fg="white")
+                self.port.config(fg="white")
+
+            self.root.after(5, self.update_connection_display)
 
 class DefaultDisplay:
     def __init__(self, root):
@@ -338,8 +443,11 @@ class DefaultDisplay:
         self.fuelplusframe = tk.Frame(root, height=100, width=202, bg="black")
         self.fuelplusframe.place(x=604, y=0)
 
-        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1", fg="white", bg="black", font=("Formula1", 45, "bold"))
-        self.fuelplus_label.place(relx=0.5, rely=0.5, anchor="center")
+        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1l", fg="white", bg="black", font=("Formula1", 45, "bold"))
+        self.fuelplus_label.place(relx=0.5, rely=0.4, anchor="center")
+
+        self.fuelpluslaps_label = tk.Label(self.fuelplusframe, text="(+1.2 laps)", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
+        self.fuelpluslaps_label.place(relx=0.5, rely=0.8, anchor="center")
 
         self.lapnumframe = tk.Frame(self.root, height=120, width=200, bg="black")
         self.lapnumframe.place(x=0, y=101)
@@ -379,8 +487,11 @@ class DefaultDisplay:
                                          font=("Formula1", 35, "bold"))
         self.righttyres_rear_label.place(relx=0.5, rely=0.7, anchor="center")
 
-        self.spaceframe = tk.Frame(self.root, height=40, width=806, bg="black")
-        self.spaceframe.place(x=0, y=342)
+        self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
+        self.ersframe.place(x=0, y=342)
+
+        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
 
         self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
         self.brakeindicatorframe.place(x=0, y=382.5)
@@ -393,7 +504,6 @@ class DefaultDisplay:
         child_width_ers = float(0.82 * 402)
         self.ersindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_ers, bg="#ffff00")
         self.ersindicatorfillframe.place(x=201, y=382.5)
-        # anvas.create_text(360, 385, text="82%", fill="black", font=("Formula1", 35, "bold"))
         self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 35, "bold"))
         self.ers_percentage_label.place(in_=self.root, x=360, y=375)
 
@@ -412,6 +522,13 @@ class DefaultDisplay:
             global data_dict_sessionhistory
             global data_dict_carstatus
             global data_dict_lapdata
+
+            if 'speedUnit' in data_dict_sessionpacket:
+                if data_dict_sessionpacket['speedUnit'] == 0:
+                    self.kmph_text_label.config(text="MPH")
+                else:
+                    self.kmph_text_label.config(text="KM/H")
+
             if 'speed' in data_dict_cartelemetry:
                 self.kmph_label.config(text=f"{data_dict_cartelemetry['speed']}")
 
@@ -435,13 +552,55 @@ class DefaultDisplay:
                     width=float((data_dict_carstatus['ersStoreEnergy'] / maximum_energy_storage) * 402))
                 self.ers_percentage_label.config(text=f"{stored_energy_in_percentage:.0f}%", font=("Formula1", 35, "bold"))
 
+            if 'ersDeployMode' in data_dict_carstatus:
+                if data_dict_carstatus['ersDeployMode'] == 0:
+                    self.ers_label.config(text="NONE")
+                    self.ers_label.config(fg="white")
+                    self.ersframe.config(bg="black")
+                    self.ersframe.config(bg="black")
+                elif data_dict_carstatus['ersDeployMode'] == 1:
+                    self.ers_label.config(text="MEDIUM")
+                    self.ers_label.config(fg="black")
+                    self.ers_label.config(bg="#15F522")
+                    self.ersframe.config(bg="#15F522")
+                elif data_dict_carstatus['ersDeployMode'] == 2:
+                    self.ers_label.config(text="HOTLAP")
+                    self.ers_label.config(fg="black")
+                    self.ers_label.config(bg="#F5F414")
+                    self.ersframe.config(bg="#F5F414")
+                elif data_dict_carstatus['ersDeployMode'] == 3:
+                    self.ers_label.config(text="OVERTAKE")
+                    self.ers_label.config(fg="black")
+                    self.ers_label.config(bg="#E02900")
+                    self.ersframe.config(bg="#E02900")
+
             if 'RLTyreInnerTemperature' in data_dict_cartelemetry:
                 self.lefttyres_front_label.config(text=f"{data_dict_cartelemetry['FLTyreInnerTemperature']}°C")
                 self.lefttyres_rear_label.config(text=f"{data_dict_cartelemetry['RLTyreInnerTemperature']}°C")
                 self.righttyres_front_label.config(text=f"{data_dict_cartelemetry['FRTyreInnerTemperature']}°C")
                 self.righttyres_rear_label.config(text=f"{data_dict_cartelemetry['RRTyreInnerTemperature']}°C")
+
             if 'fuelInTank' in data_dict_carstatus:
-                self.fuelplus_label.config(text=f"{data_dict_carstatus['fuelRemainingLaps']:.0f}")
+                self.fuelplus_label.config(text=f"{data_dict_carstatus['fuelInTank']:.1f}l")
+
+            if 'fuelRemainingLaps' in data_dict_carstatus:
+                if data_dict_carstatus['fuelRemainingLaps'] > 0:
+                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+                    self.fuelpluslaps_label.config(fg="#00ff00")
+                else:
+                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+                    self.fuelpluslaps_label.config(fg="red")
+
+            if len(best_lap_datas)>0:
+                if delta < 0:
+                    self.laptime_delta_label.config(text=f"-{delta:.3f}",fg="#00ff00")
+                elif delta == 0.000:
+                    self.laptime_delta_label.config(text=f"+/-{delta:.3f}",fg="white")
+                else:
+                    self.laptime_delta_label.config(text=f"#{delta:.3f}",fg="red")
+
+
+
             if 'currentLapTimeInMs' in data_dict_lapdata:
                 laptime = data_dict_lapdata['currentLapTimeInMs']
                 if laptime < 59999:
@@ -463,7 +622,10 @@ class DefaultDisplay:
                     seconds = float(laptime - minutes * 60000) / 1000
                     self.laptime_label.config(text=f"{minutes}:{seconds:.3f}")
 
-                if 'currentLapInvalid' == 1:
+
+            if 'currentLapInvalid' in data_dict_lapdata:
+                if data_dict_lapdata['currentLapInvalid'] == 1:
+                    print("Lap Invalid")
                     self.laptime_label.config(fg="red")
                 else:
                     self.laptime_label.config(fg="white")
@@ -2430,11 +2592,11 @@ class Master:
 
     def Master(self):
         mfdnum = self.mfdnum
-
         if mfdnum == 6:
             if self.displayed_canvas is not None:
                 self.displayed_canvas.destroy()
             self.displayed_canvas = self.connect.create_connect_display()
+            root.after(5, self.connect.update_connection_display)
 
         elif mfdnum == 255:
             if self.displayed_canvas is not None:
@@ -2478,6 +2640,62 @@ class Master:
         self.root.after(5, self.update_mfd)
 
 
+def log():
+    global track_length
+    global tyresetslist
+    global bestlapmillisecpermetertodeltacalc
+    global data_dict_main
+    global mfdPanelIndex_isChanged
+    global mfdPanelIndex
+    global data_dict_sessionhistory
+    global data_dict_sessionpacket
+    global data_dict_cartelemetry
+    global data_dict_cardamage
+    global data_dict_carstatus
+    global data_dict_lapdata
+    global currentLapTimeInMs
+    global lap_distance
+    global throttle
+    global brake
+    global engineRPM
+    global bestlapms
+    global speed
+
+
+    if 'currentLapTimeInMs' in data_dict_lapdata:
+        currentLapTimeInMs= data_dict_lapdata['currentLapTimeInMs']
+    if 'trackLength' in data_dict_main:
+        track_length = data_dict_main['trackLength']
+    if 'lapDistance' in data_dict_lapdata:
+        lap_distance = data_dict_lapdata['lapDistance']
+    if 'throttle' in data_dict_cartelemetry:
+        throttle = data_dict_cartelemetry['throttle']
+    if 'brake' in data_dict_cartelemetry:
+        brake = data_dict_cartelemetry['brake']
+    if 'engineRPM' in data_dict_cartelemetry:
+        engineRPM = data_dict_cartelemetry['engineRPM']
+    if 'bestlapms' in data_dict_sessionhistory and data_dict_sessionhistory['bestlapms'] != 0:
+        bestlapms = data_dict_sessionhistory['bestlapms']
+    if 'speed' in data_dict_cartelemetry:
+        speed = data_dict_cartelemetry['speed']
+    log_list.append([currentLapTimeInMs, lap_distance, speed, engineRPM, throttle, brake, track_length, bestlapms])
+    #print(
+    #f"currentLapTimeInMs: {currentLapTimeInMs},  lap_distance: {lap_distance}, speed: {speed}, engineRPM: {engineRPM}, throttle: {throttle}, brake: {brake}, track_length: {track_length}, bestlapms: {bestlapms}")
+
+def log_write_out():
+    global log_list
+    print("log_write_out")
+    with open('Bahrain_20perSec.txt', 'w') as file:
+        while True:
+            for i in log_list:
+                print(i)
+                for j in i:
+                    file.write(str(j) + " ")
+                file.write("\n")
+                log_list.remove(i)
+            time.sleep(100)
+
+
 
 def event_handler():
     global data_dict_main
@@ -2500,6 +2718,12 @@ if __name__ == '__main__':
     # Start the new thread
     udp_thread.start()
 
+    delta_thread = threading.Thread(target=delta_calculator)
+    delta_thread.start()
+
+    #log_write_out_thread = threading.Thread(target=log_write_out)
+    #log_write_out_thread.start()
+
     root = tk.Tk()
     root.title("Steering Wheel Display")
     root.geometry("800x480")
@@ -2507,9 +2731,16 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    M = Master(root)
+    df = DefaultDisplay(root)
+    df.create_default_display()
+
+    '''M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)
+    root.after(5, M.update_mfd)'''
 
     # Run the Tkinter main loop
     root.mainloop()
+    udp_thread.join()
+    delta_thread.join()
+    #log_write_out_thread.join()
+    print("Threads joined")

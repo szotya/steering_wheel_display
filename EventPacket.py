@@ -142,7 +142,15 @@ class EventDataDetails(Union):
     ]
 
 class EventPacket(LittleEndianStructure):
+    def __init__(self):
+        self.field2 = []
+
     _fields_ = [
         ('eventStringCode', c_uint8 * 4),
         ('eventDetails', EventDataDetails),
     ]
+
+    def fasteslap(self, list):
+        if self.field1 == "FTLP":
+            list.append(self.field2.FastestLap.field1)
+            list.append(self.field2.FastestLap.field2)
