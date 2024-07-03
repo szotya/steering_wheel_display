@@ -7,6 +7,7 @@ import os
 from PIL import Image as PilImage, ImageTk
 from UDPunpack import unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 from listsandconstants import *
+from rpi_ws281x import *
 
 
 
@@ -425,72 +426,72 @@ class DefaultDisplay:
         self.kmphframe = tk.Frame(self.root, height=100, width=200, bg="black")
         self.kmphframe.place(x=0, y=0)
 
-        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 40, "bold"))
+        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 30, "bold"))
         self.kmph_label.place(relx=0.5, rely=0.35, anchor="center")
-        self.kmph_text_label = tk.Label(self.kmphframe, text="KM/H", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.kmph_text_label = tk.Label(self.kmphframe, text="KM/H", fg="white", bg="black", font=("Formula1", 10, "bold"))
         self.kmph_text_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.laptimeframe = tk.Frame(root, height=100, width=402, bg="black")
         self.laptimeframe.place(x=201, y=0)
 
-        self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 58, "bold"))
+        self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 48, "bold"))
         self.laptime_label.place(relx=0.5, rely=0.25, anchor="center")
 
-        self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
+        self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 10, "bold"))
         self.laptime_delta_label.place(relx=0.5, rely=0.8, anchor="center")
 
 
         self.fuelplusframe = tk.Frame(root, height=100, width=202, bg="black")
         self.fuelplusframe.place(x=604, y=0)
 
-        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1l", fg="white", bg="black", font=("Formula1", 45, "bold"))
+        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1l", fg="white", bg="black", font=("Formula1", 35, "bold"))
         self.fuelplus_label.place(relx=0.5, rely=0.4, anchor="center")
 
-        self.fuelpluslaps_label = tk.Label(self.fuelplusframe, text="(+1.2 laps)", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
+        self.fuelpluslaps_label = tk.Label(self.fuelplusframe, text="(+1.2 laps)", fg="#00ff00", bg="black", font=("Formula1", 10, "bold"))
         self.fuelpluslaps_label.place(relx=0.5, rely=0.8, anchor="center")
 
         self.lapnumframe = tk.Frame(self.root, height=120, width=200, bg="black")
         self.lapnumframe.place(x=0, y=101)
 
-        self.lapnum_label = tk.Label(self.lapnumframe, text="L1", fg="cyan", bg="black", font=("Formula1", 50, "bold"))
+        self.lapnum_label = tk.Label(self.lapnumframe, text="L1", fg="cyan", bg="black", font=("Formula1", 40, "bold"))
         self.lapnum_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.lefttyresframe = tk.Frame(self.root, height=119, width=200, bg="black")
         self.lefttyresframe.place(x=0, y=222)
 
         self.lefttyres_front_label = tk.Label(self.lefttyresframe, text="92°C", fg="#ffdb4d", bg="black",
-                                         font=("Formula1", 35, "bold"))
+                                         font=("Formula1", 25, "bold"))
         self.lefttyres_front_label.place(relx=0.5, rely=0.3, anchor="center")
         self.lefttyres_rear_label = tk.Label(self.lefttyresframe, text="94°C", fg="#ffdb4d", bg="black",
-                                        font=("Formula1", 35, "bold"))
+                                        font=("Formula1", 25, "bold"))
         self.lefttyres_rear_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.gear_frame = tk.Frame(self.root, height=240, width=402, bg="black")
         self.gear_frame.place(x=201, y=101)
 
-        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 120, "bold"))
+        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 110, "bold"))
         self.gear_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.placeframe = tk.Frame(self.root, height=120, width=202, bg="black")
         self.placeframe.place(x=604, y=101)
 
-        self.place_label = tk.Label(self.placeframe, text="P7", fg="cyan", bg="black", font=("Formula1", 50, "bold"))
+        self.place_label = tk.Label(self.placeframe, text="P7", fg="cyan", bg="black", font=("Formula1", 40, "bold"))
         self.place_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.righttyresframe = tk.Frame(self.root, height=119, width=202, bg="black")
         self.righttyresframe.place(x=604, y=222)
 
         self.righttyres_front_label = tk.Label(self.righttyresframe, text="92°C", fg="#ffdb4d", bg="black",
-                                          font=("Formula1", 35, "bold"))
+                                          font=("Formula1", 25, "bold"))
         self.righttyres_front_label.place(relx=0.5, rely=0.3, anchor="center")
         self.righttyres_rear_label = tk.Label(self.righttyresframe, text="94°C", fg="#ffdb4d", bg="black",
-                                         font=("Formula1", 35, "bold"))
+                                         font=("Formula1", 25, "bold"))
         self.righttyres_rear_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
         self.ersframe.place(x=0, y=342)
 
-        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 10, "bold"))
         self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
 
         self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
@@ -504,7 +505,7 @@ class DefaultDisplay:
         child_width_ers = float(0.82 * 402)
         self.ersindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_ers, bg="#ffff00")
         self.ersindicatorfillframe.place(x=201, y=382.5)
-        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 35, "bold"))
+        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 25, "bold"))
         self.ers_percentage_label.place(in_=self.root, x=360, y=375)
 
         self.acceleratorindicatorframe = tk.Frame(self.root, height=114, width=202, bg="darkgreen")
@@ -2696,6 +2697,69 @@ def log_write_out():
             time.sleep(100)
 
 
+def rpm_leds():
+    global data_dict_cartelemetry
+    MAX_LED_COUNT = 18  # Number of LED pixels.
+    LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
+    # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
+    LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
+    LED_DMA = 10  # DMA channel to use for generating signal (try 10)
+    LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
+    LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
+    LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
+    DRS = 0 # DRS is not active
+
+    strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    strip.begin()
+
+
+    while True:
+        if 'engineRPM' in data_dict_cartelemetry:
+            LED_COUNT = int(MAX_LED_COUNT * int(data_dict_cartelemetry['revLightsPercent']))
+        else:
+            LED_COUNT = 0
+
+        if 'drs' in data_dict_cartelemetry:
+            DRS = data_dict_cartelemetry['drs']
+
+        if DRS == 1:
+            strip.setPixelColor(0, Color(0, 255, 0))
+            strip.setPixelColor(1, Color(0, 255, 0))
+
+            for x in range(6, MAX_LED_COUNT):
+                if x <= LED_COUNT:
+                    if x < 12:
+                        strip.setPixelColor(x, Color(255, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(102, 0, 255))
+                else:
+                    if x < 12:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+
+
+        else:
+            for x in range(0, MAX_LED_COUNT):
+                if x <= LED_COUNT:
+                    if x < 6:
+                        strip.setPixelColor(x, Color(0, 255, 0))
+                    elif x < 12:
+                        strip.setPixelColor(x, Color(255, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(102, 0, 255))
+                else:
+                    if x < 6:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    elif x < 12:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+
+        strip.show()
+
+
+
 
 def event_handler():
     global data_dict_main
@@ -2718,8 +2782,11 @@ if __name__ == '__main__':
     # Start the new thread
     udp_thread.start()
 
-    delta_thread = threading.Thread(target=delta_calculator)
-    delta_thread.start()
+    #delta_thread = threading.Thread(target=delta_calculator)
+    #delta_thread.start()
+
+    rpm_thread = threading.Thread(target=rpm_leds)
+    rpm_thread.start()
 
     #log_write_out_thread = threading.Thread(target=log_write_out)
     #log_write_out_thread.start()
@@ -2731,16 +2798,17 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    df = DefaultDisplay(root)
-    df.create_default_display()
+    #df = DefaultDisplay(root)
+    #df.create_default_display()
 
-    '''M = Master(root)
+    M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)'''
+    root.after(5, M.update_mfd)
 
     # Run the Tkinter main loop
     root.mainloop()
     udp_thread.join()
-    delta_thread.join()
+    #delta_thread.join()
+    rpm_thread.join()
     #log_write_out_thread.join()
     print("Threads joined")
