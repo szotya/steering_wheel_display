@@ -2633,6 +2633,7 @@ class Master:
         global mfdPanelIndex_isChanged
         global mfdPanelIndex
         self.mfdnum = mfdPanelIndex
+        rpm_leds()
         if mfdPanelIndex_isChanged == True:
             self.__call__(self.mfdnum)
             mfdPanelIndex_isChanged = False
@@ -2757,6 +2758,7 @@ def rpm_leds():
                         strip.setPixelColor(x, Color(0, 0, 0))
 
         strip.show()
+        root.after(5, rpm_leds)
 
 
 
@@ -2785,8 +2787,8 @@ if __name__ == '__main__':
     #delta_thread = threading.Thread(target=delta_calculator)
     #delta_thread.start()
 
-    rpm_thread = threading.Thread(target=rpm_leds)
-    rpm_thread.start()
+    #rpm_thread = threading.Thread(target=rpm_leds)
+    #rpm_thread.start()
 
     #log_write_out_thread = threading.Thread(target=log_write_out)
     #log_write_out_thread.start()
@@ -2796,7 +2798,7 @@ if __name__ == '__main__':
     root.geometry("800x480")
 
     ## Csak a kijelzőt mutatja, nincs ablakkeret
-    #root.overrideredirect(True)
+    root.overrideredirect(True)
 
     #df = DefaultDisplay(root)
     #df.create_default_display()
@@ -2807,8 +2809,8 @@ if __name__ == '__main__':
 
     # Run the Tkinter main loop
     root.mainloop()
-    udp_thread.join()
+    #udp_thread.join()
     #delta_thread.join()
-    rpm_thread.join()
+    #rpm_thread.join()
     #log_write_out_thread.join()
     print("Threads joined")
