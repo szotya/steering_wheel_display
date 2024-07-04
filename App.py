@@ -2709,56 +2709,59 @@ def rpm_leds():
     LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
     LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
     DRS = 0 # DRS is not active
+    RPM = 0
+    LED_COUNT = 0
 
     strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
 
+    if 'revLightsPercent' in data_dict_cartelemetry:
+        LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent']/100))
+        RPM = data_dict_cartelemetry['revLightsPercent']
 
-    while True:
-        if 'engineRPM' in data_dict_cartelemetry:
-            LED_COUNT = int(MAX_LED_COUNT * int(data_dict_cartelemetry['revLightsPercent']))
-        else:
-            LED_COUNT = 0
+    else:
+        LED_COUNT = 0
 
-        if 'drs' in data_dict_cartelemetry:
-            DRS = data_dict_cartelemetry['drs']
+    if 'drs' in data_dict_cartelemetry:
+        DRS = data_dict_cartelemetry['drs']
 
-        if DRS == 1:
-            strip.setPixelColor(0, Color(0, 255, 0))
-            strip.setPixelColor(1, Color(0, 255, 0))
+    if DRS == 1:
+        strip.setPixelColor(0, Color(0, 255, 0))
+        strip.setPixelColor(1, Color(0, 255, 0))
 
-            for x in range(6, MAX_LED_COUNT):
-                if x <= LED_COUNT:
-                    if x < 12:
-                        strip.setPixelColor(x, Color(255, 0, 0))
-                    else:
-                        strip.setPixelColor(x, Color(102, 0, 255))
+        for x in range(6, MAX_LED_COUNT):
+            if x <= LED_COUNT:
+                if x < 12:
+                    strip.setPixelColor(x, Color(255, 0, 0))
                 else:
-                    if x < 12:
-                        strip.setPixelColor(x, Color(0, 0, 0))
-                    else:
-                        strip.setPixelColor(x, Color(0, 0, 0))
-
-
-        else:
-            for x in range(0, MAX_LED_COUNT):
-                if x <= LED_COUNT:
-                    if x < 6:
-                        strip.setPixelColor(x, Color(0, 255, 0))
-                    elif x < 12:
-                        strip.setPixelColor(x, Color(255, 0, 0))
-                    else:
-                        strip.setPixelColor(x, Color(102, 0, 255))
+                    strip.setPixelColor(x, Color(102, 0, 255))
+            else:
+                if x < 12:
+                    strip.setPixelColor(x, Color(0, 0, 0))
                 else:
-                    if x < 6:
-                        strip.setPixelColor(x, Color(0, 0, 0))
-                    elif x < 12:
-                        strip.setPixelColor(x, Color(0, 0, 0))
-                    else:
-                        strip.setPixelColor(x, Color(0, 0, 0))
+                    strip.setPixelColor(x, Color(0, 0, 0))
 
-        strip.show()
-        root.after(5, rpm_leds)
+
+    else:
+        for x in range(0, MAX_LED_COUNT):
+            if x <= LED_COUNT:
+                if x < 6:
+                    strip.setPixelColor(x, Color(0, 255, 0))
+                elif x < 12:
+                    strip.setPixelColor(x, Color(255, 0, 0))
+                else:
+                    strip.setPixelColor(x, Color(102, 0, 255))
+            else:
+                if x < 6:
+                    strip.setPixelColor(x, Color(0, 0, 0))
+                elif x < 12:
+                    strip.setPixelColor(x, Color(0, 0, 0))
+                else:
+                    strip.setPixelColor(x, Color(0, 0, 0))
+
+    strip.show()
+    #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
+    root.after(5, rpm_leds)
 
 
 
