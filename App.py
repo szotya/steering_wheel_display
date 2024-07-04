@@ -2633,7 +2633,7 @@ class Master:
         global mfdPanelIndex_isChanged
         global mfdPanelIndex
         self.mfdnum = mfdPanelIndex
-        rpm_leds()
+        #rpm_leds()
         if mfdPanelIndex_isChanged == True:
             self.__call__(self.mfdnum)
             mfdPanelIndex_isChanged = False
@@ -2715,53 +2715,54 @@ def rpm_leds():
     strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
 
-    if 'revLightsPercent' in data_dict_cartelemetry:
-        LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent']/100))
-        RPM = data_dict_cartelemetry['revLightsPercent']
+    while True:
 
-    else:
-        LED_COUNT = 0
+        if 'revLightsPercent' in data_dict_cartelemetry:
+            LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent']/100))
+            RPM = data_dict_cartelemetry['revLightsPercent']
 
-    if 'drs' in data_dict_cartelemetry:
-        DRS = data_dict_cartelemetry['drs']
+        else:
+            LED_COUNT = 0
 
-    if DRS == 1:
-        strip.setPixelColor(0, Color(0, 255, 0))
-        strip.setPixelColor(1, Color(0, 255, 0))
+        if 'drs' in data_dict_cartelemetry:
+            DRS = data_dict_cartelemetry['drs']
 
-        for x in range(6, MAX_LED_COUNT):
-            if x <= LED_COUNT:
-                if x < 12:
-                    strip.setPixelColor(x, Color(255, 0, 0))
+        if DRS == 1:
+            strip.setPixelColor(0, Color(0, 255, 0))
+            strip.setPixelColor(1, Color(0, 255, 0))
+
+            for x in range(6, MAX_LED_COUNT):
+                if x <= LED_COUNT:
+                    if x < 12:
+                        strip.setPixelColor(x, Color(255, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(102, 0, 255))
                 else:
-                    strip.setPixelColor(x, Color(102, 0, 255))
-            else:
-                if x < 12:
-                    strip.setPixelColor(x, Color(0, 0, 0))
-                else:
-                    strip.setPixelColor(x, Color(0, 0, 0))
+                    if x < 12:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(0, 0, 0))
 
 
-    else:
-        for x in range(0, MAX_LED_COUNT):
-            if x <= LED_COUNT:
-                if x < 6:
-                    strip.setPixelColor(x, Color(0, 255, 0))
-                elif x < 12:
-                    strip.setPixelColor(x, Color(255, 0, 0))
+        else:
+            for x in range(0, MAX_LED_COUNT):
+                if x <= LED_COUNT:
+                    if x < 6:
+                        strip.setPixelColor(x, Color(0, 255, 0))
+                    elif x < 12:
+                        strip.setPixelColor(x, Color(255, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(102, 0, 255))
                 else:
-                    strip.setPixelColor(x, Color(102, 0, 255))
-            else:
-                if x < 6:
-                    strip.setPixelColor(x, Color(0, 0, 0))
-                elif x < 12:
-                    strip.setPixelColor(x, Color(0, 0, 0))
-                else:
-                    strip.setPixelColor(x, Color(0, 0, 0))
+                    if x < 6:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    elif x < 12:
+                        strip.setPixelColor(x, Color(0, 0, 0))
+                    else:
+                        strip.setPixelColor(x, Color(0, 0, 0))
 
-    strip.show()
-    #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
-    root.after(5, rpm_leds)
+        strip.show()
+        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
 
 
 
@@ -2790,8 +2791,8 @@ if __name__ == '__main__':
     #delta_thread = threading.Thread(target=delta_calculator)
     #delta_thread.start()
 
-    #rpm_thread = threading.Thread(target=rpm_leds)
-    #rpm_thread.start()
+    rpm_thread = threading.Thread(target=rpm_leds)
+    rpm_thread.start()
 
     #log_write_out_thread = threading.Thread(target=log_write_out)
     #log_write_out_thread.start()
