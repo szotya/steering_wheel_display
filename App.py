@@ -423,7 +423,7 @@ def asd():
 
             else:
                 if data_dict_delta['currentLapTimeInMs'] > 0:
-                    data_dict_bestlap_meters.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
+                    #data_dict_bestlap_meters.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
 
                     if 'sector1TimeInMs' in data_dict_delta:
                         data_bestlap_sectors = {
