@@ -350,7 +350,6 @@ def udp_server(host='0.0.0.0', port=20777):
             if shp != 404:
                 bestlap.clear()
                 shp.get_bestlaptimedata(bestlap, shp.field4)
-                print(bestlap)
             else:
                 pass
             '''if shp != 404:

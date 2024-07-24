@@ -38,13 +38,6 @@ class SessionHistoryPacket(LittleEndianStructure):
             alllaplist.append(lap)
 
         bestlapdatalist.extend(alllaplist[bestlapnum - 1])
-        print("asd1")
-        print(alllaplist)
-        print("asd2")
-        print(bestlapnum)
-        print("asd3")
-        print(bestlapdatalist)
-        print(len(alllaplist))
         pass
 
 
