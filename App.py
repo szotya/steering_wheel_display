@@ -4,10 +4,11 @@ import threading
 import socket
 import time
 import os
+from SessionHistoryPacket import *
 from PIL import Image as PilImage, ImageTk
 from UDPunpack import unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 from listsandconstants import *
-#from rpi_ws281x import *
+from rpi_ws281x import *
 
 
 
@@ -50,6 +51,8 @@ isFastestLap = False
 bestlapnum = 0
 sessionType = 255
 packetType = -1
+data_dict_delta = {}
+bestlap = []
 
 
 ### IP cím lekérdezése
@@ -95,6 +98,8 @@ def udp_server(host='0.0.0.0', port=20777):
     global bestlapnum
     global sessionType
     global packetType
+    global data_dict_delta
+    global bestlap
 
 
     # Create a UDP socket
@@ -135,6 +140,7 @@ def udp_server(host='0.0.0.0', port=20777):
             ldp = unpack_lapdatapacket(telemetry, h.field11)
             list = []
             ldp.item_from_lapdatapacket(list)
+            #print(list[1])
             data_dict_lapdata = {
                 'lastLapTime': list[0],
                 'currentLapTimeInMs': list[1],
@@ -167,8 +173,15 @@ def udp_server(host='0.0.0.0', port=20777):
                 'pitStopShouldServePen': list[28],
                 'timeTrialPBCarIdx': ldp.field2,
             }
-            currentLapTimeInMs = list[1]
-            lap_distance = list[8]
+            data_dict_delta = {
+                'lastLapTime': list[0],
+                'currentLapTimeInMs': list[1],
+                'sector1TimeInMs': list[2],
+                'sector2TimeInMs': list[4],
+                'lapDistance': int(list[8]),
+                'currentLapNum': list[12],
+                'sector': list[15],
+            }
 
 
 
@@ -248,6 +261,7 @@ def udp_server(host='0.0.0.0', port=20777):
             if lap_distance >= 0:
                 current_lap_record.clear()
                 current_lap_record.extend([currentLapTimeInMs, int(lap_distance), speed])
+                #print(current_lap_record)
                 #current_lap_datas.append([currentLapTimeInMs, lap_distance, speed])
                 #file.write(str(currentLapTimeInMs) + " " + str(lap_distance) + " " + str(speed) + " " + str(engineRPM) + " " + str(throttle) + " " + str(brake) + " " + str(track_length) + " " + str(bestlapms) + "\n")
 
@@ -332,8 +346,14 @@ def udp_server(host='0.0.0.0', port=20777):
         ## SessionHistoryPacket (egyenlőre nem használjuk)
         elif h.field6 == 11:
             shp = unpack_sessionhistorypacket(telemetry, h.field11)
-            #bestlapnum = shp.field4
+
             if shp != 404:
+                bestlap.clear()
+                shp.get_bestlaptimedata(bestlap, shp.field4)
+                print(bestlap)
+            else:
+                pass
+            '''if shp != 404:
                 if shp.field4 < 101:
                     list = []
                     shp.lapsofmycar(list)
@@ -342,7 +362,7 @@ def udp_server(host='0.0.0.0', port=20777):
                     }
                     bestlapms = list[(shp.field4)]
             else:
-                pass
+                pass'''
 
         ## TyreSetsPacket
         elif h.field6 == 12:
@@ -359,9 +379,11 @@ def udp_server(host='0.0.0.0', port=20777):
 
 
 ### A dict törlések és legjobb kör csekkolása még nincs megoldva
-def delta_calculator():
+def asd():
     global current_lap_record
-    data_dict_bestlap = {}
+    data_dict_bestlap_meters = {}
+    data_bestlap_sectors = {}
+    data_dict_currentlap_sectors = {}
     data_dict_currentlap_odd = {}
     data_dict_currentlap_even = {}
     global delta
@@ -369,51 +391,57 @@ def delta_calculator():
     prev_bestlap = 0
     prev_meter = 0
     global packetType
+    global data_dict_delta
+    global bestlap
 
 
     while True:
         if packetType == 2:
-            # print(delta)
-            if 'currentLapNum' in data_dict_lapdata:
-                lapnum = data_dict_lapdata['currentLapNum']
+            if (bool(data_dict_bestlap_meters) or bool(data_bestlap_sectors)) and data_dict_delta['currentLapTimeInMs'] > 0:
+                print(delta)
+                sector = data_dict_delta['sector']
+                match sector:
+                    case 0:
+                        delta = 0.000
+                    case 1:
+                        delta = data_bestlap_sectors['sector1TimeInMs'] - data_dict_delta['sector1TimeInMs']
+                        data_dict_currentlap_sectors.update({'sector1TimeInMs': data_dict_delta['sector1TimeInMs']})
+                    case 2:
+                        delta = data_bestlap_sectors['sector2TimeInMs'] - data_dict_delta['sector2TimeInMs']
+                        data_dict_currentlap_sectors.update({'sector2TimeInMs': data_dict_delta['sector2TimeInMs']})
+
+                if data_dict_delta['lastLapTime'] == bestlap[0]:
+                    data_bestlap_sectors = data_dict_currentlap_sectors
+
+
+
+            elif data_dict_delta['currentLapNum'] > 1 and data_dict_delta['currentLapTimeInMs'] > 0 and len(bestlap)>0:
+                if 'sector2TimeInMs' not in data_bestlap_sectors:
+                    data_bestlap_sectors = {
+                        'sector1TimeInMs': bestlap[1],
+                        'sector2TimeInMs': bestlap[3],
+                    }
+
             else:
-                lapnum = 0
+                if data_dict_delta['currentLapTimeInMs'] > 0:
+                    data_dict_bestlap_meters.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
 
-            if len(current_lap_record) > 0:
-                if len(data_dict_bestlap) > 0:
-                    if lapnum > 0:
-                        if lapnum % 2 == 0:
-                            if f'{current_lap_record[1]}' in data_dict_bestlap:
-                                prev_meter = data_dict_bestlap[f'{current_lap_record[1]}']
-                                delta = current_lap_record[0] - data_dict_bestlap[f'{current_lap_record[1]}']
+                    if 'sector1TimeInMs' in data_dict_delta:
+                        data_bestlap_sectors = {
+                            'sector1TimeInMs': data_dict_delta['sector1TimeInMs'],
+                        }
+                    if 'sector2TimeInMs' in data_dict_delta:
+                        data_bestlap_sectors = {
+                            'sector2TimeInMs': data_dict_delta['sector2TimeInMs'],
+                        }
 
-                            data_dict_currentlap_even = {f'{current_lap_record[1]}': current_lap_record[0]}
 
-                        elif lapnum % 2 == 1:
 
-                            if f'{current_lap_record[1]}' in data_dict_bestlap:
-                                prev_meter = data_dict_bestlap[f'{current_lap_record[1]}']
-                                delta = current_lap_record[0] - data_dict_bestlap[f'{current_lap_record[1]}']
 
-                            data_dict_currentlap_odd = {f'{current_lap_record[1]}': current_lap_record[0]}
 
-                    if current_lap_record[1] < (prev_meter - 1000):
-                        if prev_bestlap != bestlapnum:
-                            if lapnum % 2 == 0:
-                                data_dict_bestlap = data_dict_currentlap_odd
-                            elif lapnum % 2 == 1:
-                                data_dict_bestlap = data_dict_currentlap_even
-                                # data_dict_currentlap_even.clear()
 
-                        if lapnum % 2 == 0:
-                            data_dict_currentlap_odd.clear()
-                        elif lapnum % 2 == 1:
-                            data_dict_currentlap_even.clear()
 
-                        prev_bestlap = bestlapnum
-                else:
-                    if current_lap_record[1] >= 0:
-                        data_dict_bestlap = {f'{current_lap_record[1]}': current_lap_record[0]}
+
 
 
 class ConnectDisplay:
@@ -2744,7 +2772,7 @@ def rpm_leds():
     RPM = 0
     LED_COUNT = 0
 
-    '''strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
 
     while True:
@@ -2799,7 +2827,7 @@ def rpm_leds():
                         strip.setPixelColor(x, Color(0, 0, 0))
 
         strip.show()
-        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")'''
+        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
 
 
 
@@ -2825,11 +2853,11 @@ if __name__ == '__main__':
     # Start the new thread
     udp_thread.start()
 
-    #delta_thread = threading.Thread(target=delta_calculator)
-    #delta_thread.start()
+    #flying_delta_thread = threading.Thread(target=asd)
+    #flying_delta_thread.start()
 
-    #rpm_thread = threading.Thread(target=rpm_leds)
-    #rpm_thread.start()
+    rpm_thread = threading.Thread(target=rpm_leds)
+    rpm_thread.start()
 
     #log_write_out_thread = threading.Thread(target=log_write_out)
     #log_write_out_thread.start()

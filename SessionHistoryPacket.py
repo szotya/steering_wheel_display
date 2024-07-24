@@ -29,13 +29,26 @@ class SessionHistoryPacket(LittleEndianStructure):
         ('lapHistoryData', LapHistoryData),
         ]
 
-    def lapsofmycar(self, list):
+    def get_bestlaptimedata(self, bestlapdatalist, bestlapnum):
+        alllaplist = []
         for obj in self.field8:
+            lap = []
             for attr, value in obj.__dict__.items():
-                if attr == "field1":
-                    list.append(value)
+                lap.append(value)
+            alllaplist.append(lap)
+
+        bestlapdatalist.extend(alllaplist[bestlapnum - 1])
+        print("asd1")
+        print(alllaplist)
+        print("asd2")
+        print(bestlapnum)
+        print("asd3")
+        print(bestlapdatalist)
+        print(len(alllaplist))
         pass
-            
+
+
+
 
 
 
