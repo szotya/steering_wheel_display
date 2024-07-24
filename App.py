@@ -7,7 +7,7 @@ import os
 from PIL import Image as PilImage, ImageTk
 from UDPunpack import unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 from listsandconstants import *
-from rpi_ws281x import *
+#from rpi_ws281x import *
 
 
 
@@ -45,10 +45,11 @@ engineRPM = 0
 bestlapms = 0
 speed = 0
 current_lap_record = []
-best_lap_datas = []
-current_lap_datas = []
-delta = 0.000
+delta = -100.000
 isFastestLap = False
+bestlapnum = 0
+sessionType = 255
+packetType = -1
 
 
 ### IP cím lekérdezése
@@ -56,7 +57,7 @@ def get_my_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         # doesn't even have to be reachable
-        s.connect(('255.255.255.255', 1))
+        s.connect(('8.8.8.8', 1))
         IP = s.getsockname()[0]
     except Exception:
         IP = '127.0.0.1'
@@ -88,11 +89,12 @@ def udp_server(host='0.0.0.0', port=20777):
     global brake
     global engineRPM
     global speed
-    global current_lap_datas
     global delta
     global isFastestLap
-    global best_lap_datas
     global current_lap_record
+    global bestlapnum
+    global sessionType
+    global packetType
 
 
     # Create a UDP socket
@@ -113,11 +115,12 @@ def udp_server(host='0.0.0.0', port=20777):
         telemetry = data[29:]
         h = unpack_header(header)
         #unpacked_packet = h.field6
+        packetType = h.field6
 
         ## SessionPacket
         if h.field6 == 1:
             sp = unpack_sessionpacket(telemetry)
-            data_dict_sessionpacket['sessionType'] = sp.field6
+            sessionType = sp.field6
             track_length = sp.field5
             data_dict_sessionpacket = {
                 'pitStopWindowIdealLap': sp.field27,
@@ -180,13 +183,13 @@ def udp_server(host='0.0.0.0', port=20777):
                 mfdPanelIndex = 6
                 mfdPanelIndex_isChanged = True
 
-            elif ep.field1 == "FTLP":
+            '''elif ep.field1 == "FTLP":
                 list = []
                 ep.fasteslap(list)
                 if len(list) > 0:
                     if list[0] == h.field11:
                         bestlapms = list[1]
-                        isFastestLap = True
+                        isFastestLap = True'''
 
 
 
@@ -243,7 +246,8 @@ def udp_server(host='0.0.0.0', port=20777):
             engineRPM = list[26]
             speed = list[20]
             if lap_distance >= 0:
-                current_lap_record.extend([currentLapTimeInMs, lap_distance, speed])
+                current_lap_record.clear()
+                current_lap_record.extend([currentLapTimeInMs, int(lap_distance), speed])
                 #current_lap_datas.append([currentLapTimeInMs, lap_distance, speed])
                 #file.write(str(currentLapTimeInMs) + " " + str(lap_distance) + " " + str(speed) + " " + str(engineRPM) + " " + str(throttle) + " " + str(brake) + " " + str(track_length) + " " + str(bestlapms) + "\n")
 
@@ -328,6 +332,7 @@ def udp_server(host='0.0.0.0', port=20777):
         ## SessionHistoryPacket (egyenlőre nem használjuk)
         elif h.field6 == 11:
             shp = unpack_sessionhistorypacket(telemetry, h.field11)
+            #bestlapnum = shp.field4
             if shp != 404:
                 if shp.field4 < 101:
                     list = []
@@ -353,36 +358,63 @@ def udp_server(host='0.0.0.0', port=20777):
         #print(f"Packet was:{unpacked_packet}, Cost ms: {end_time - start_time}")
 
 
+### A dict törlések és legjobb kör csekkolása még nincs megoldva
 def delta_calculator():
-    global current_lap_datas
     global current_lap_record
-    global best_lap_datas
-    global bestlapms
+    data_dict_bestlap = {}
+    data_dict_currentlap_odd = {}
+    data_dict_currentlap_even = {}
     global delta
-
-    index = 0
-    prev_meter = 0
+    global bestlapnum
     prev_bestlap = 0
+    prev_meter = 0
+    global packetType
+
+
     while True:
-        print("delta")
-        if len(best_lap_datas) > 0:
-            if prev_meter > (current_lap_record[1] + 100):
-                print("reset")
-                index = 0
-                if prev_bestlap != bestlapms:
-                    best_lap_datas.clear()
-                    best_lap_datas = current_lap_datas.copy()
-                    current_lap_datas.clear()
-            for i in range(index, len(best_lap_datas)):
-                if int(best_lap_datas[i][1]) == int(current_lap_record[1]):
-                    print(delta)
-                    delta = int(current_lap_record[0]) - int(best_lap_datas[i][0]) / 1000
-                    prev_meter = current_lap_record[1]
-                    index = i
-                    current_lap_datas.append([current_lap_record[0], current_lap_record[1], current_lap_record[2]])
-                    prev_bestlap = bestlapms
-                    current_lap_record.clear()
-                    break
+        if packetType == 2:
+            # print(delta)
+            if 'currentLapNum' in data_dict_lapdata:
+                lapnum = data_dict_lapdata['currentLapNum']
+            else:
+                lapnum = 0
+
+            if len(current_lap_record) > 0:
+                if len(data_dict_bestlap) > 0:
+                    if lapnum > 0:
+                        if lapnum % 2 == 0:
+                            if f'{current_lap_record[1]}' in data_dict_bestlap:
+                                prev_meter = data_dict_bestlap[f'{current_lap_record[1]}']
+                                delta = current_lap_record[0] - data_dict_bestlap[f'{current_lap_record[1]}']
+
+                            data_dict_currentlap_even = {f'{current_lap_record[1]}': current_lap_record[0]}
+
+                        elif lapnum % 2 == 1:
+
+                            if f'{current_lap_record[1]}' in data_dict_bestlap:
+                                prev_meter = data_dict_bestlap[f'{current_lap_record[1]}']
+                                delta = current_lap_record[0] - data_dict_bestlap[f'{current_lap_record[1]}']
+
+                            data_dict_currentlap_odd = {f'{current_lap_record[1]}': current_lap_record[0]}
+
+                    if current_lap_record[1] < (prev_meter - 1000):
+                        if prev_bestlap != bestlapnum:
+                            if lapnum % 2 == 0:
+                                data_dict_bestlap = data_dict_currentlap_odd
+                            elif lapnum % 2 == 1:
+                                data_dict_bestlap = data_dict_currentlap_even
+                                # data_dict_currentlap_even.clear()
+
+                        if lapnum % 2 == 0:
+                            data_dict_currentlap_odd.clear()
+                        elif lapnum % 2 == 1:
+                            data_dict_currentlap_even.clear()
+
+                        prev_bestlap = bestlapnum
+                else:
+                    if current_lap_record[1] >= 0:
+                        data_dict_bestlap = {f'{current_lap_record[1]}': current_lap_record[0]}
+
 
 class ConnectDisplay:
 
@@ -592,7 +624,7 @@ class DefaultDisplay:
                     self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="red")
 
-            if len(best_lap_datas)>0:
+            if delta > -100:
                 if delta < 0:
                     self.laptime_delta_label.config(text=f"-{delta:.3f}",fg="#00ff00")
                 elif delta == 0.000:
@@ -2712,7 +2744,7 @@ def rpm_leds():
     RPM = 0
     LED_COUNT = 0
 
-    strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    '''strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
 
     while True:
@@ -2730,6 +2762,11 @@ def rpm_leds():
         if DRS == 1:
             strip.setPixelColor(0, Color(0, 255, 0))
             strip.setPixelColor(1, Color(0, 255, 0))
+            strip.setPixelColor(2, Color(0, 0, 0))
+            strip.setPixelColor(3, Color(0, 0, 0))
+            strip.setPixelColor(4, Color(0, 0, 0))
+            strip.setPixelColor(5, Color(0, 0, 0))
+
 
             for x in range(6, MAX_LED_COUNT):
                 if x <= LED_COUNT:
@@ -2762,7 +2799,7 @@ def rpm_leds():
                         strip.setPixelColor(x, Color(0, 0, 0))
 
         strip.show()
-        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
+        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")'''
 
 
 
@@ -2791,8 +2828,8 @@ if __name__ == '__main__':
     #delta_thread = threading.Thread(target=delta_calculator)
     #delta_thread.start()
 
-    rpm_thread = threading.Thread(target=rpm_leds)
-    rpm_thread.start()
+    #rpm_thread = threading.Thread(target=rpm_leds)
+    #rpm_thread.start()
 
     #log_write_out_thread = threading.Thread(target=log_write_out)
     #log_write_out_thread.start()
@@ -2802,7 +2839,7 @@ if __name__ == '__main__':
     root.geometry("800x480")
 
     ## Csak a kijelzőt mutatja, nincs ablakkeret
-    root.overrideredirect(True)
+    #root.overrideredirect(True)
 
     #df = DefaultDisplay(root)
     #df.create_default_display()
