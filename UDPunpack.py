@@ -7,6 +7,7 @@ from CarStatusPacket import CarStatusData, CarStatusPacket
 from CarDamagePacket import CarDamageData, CarDamagePacket
 from SessionHistoryPacket import LapHistoryData, SessionHistoryPacket
 from TyreSetsPacket import TyreSetData, TyreSetsPacket
+from CarSetupPacket import CarSetupData, CarSetupPacket
 from Header import Header
 
 
@@ -314,6 +315,37 @@ def unpack_cartelemetrydata(telemetry: bytes):
         offset += 1
 
     return ctd
+
+def unpack_carsetupdata(telemetry: bytes):
+    csdp = CarSetupData()
+    csdp.field1 = rawutil.unpack('<B', telemetry[:1])[0]
+    csdp.field2 = rawutil.unpack('<B', telemetry[1:2])[0]
+    csdp.field3 = rawutil.unpack('<B', telemetry[2:3])[0]
+    csdp.field4 = rawutil.unpack('<B', telemetry[3:4])[0]
+    csdp.field5 = rawutil.unpack('<f', telemetry[4:8])[0]
+    csdp.field6 = rawutil.unpack('<f', telemetry[8:12])[0]
+    csdp.field7 = rawutil.unpack('<f', telemetry[12:16])[0]
+    csdp.field8 = rawutil.unpack('<f', telemetry[16:20])[0]
+    csdp.field9 = rawutil.unpack('<B', telemetry[20:21])[0]
+    csdp.field10 = rawutil.unpack('<B', telemetry[21:22])[0]
+    csdp.field11 = rawutil.unpack('<B', telemetry[22:23])[0]
+    csdp.field12 = rawutil.unpack('<B', telemetry[23:24])[0]
+    csdp.field13 = rawutil.unpack('<B', telemetry[24:25])[0]
+    csdp.field14 = rawutil.unpack('<B', telemetry[25:26])[0]
+    csdp.field15 = rawutil.unpack('<B', telemetry[26:27])[0]
+    csdp.field16 = rawutil.unpack('<B', telemetry[27:28])[0]
+    csdp.field17 = rawutil.unpack('<f', telemetry[28:32])[0]
+    csdp.field18 = rawutil.unpack('<f', telemetry[32:36])[0]
+    csdp.field19 = rawutil.unpack('<f', telemetry[36:40])[0]
+    csdp.field20 = rawutil.unpack('<f', telemetry[40:44])[0]
+    csdp.field21 = rawutil.unpack('<B', telemetry[44:45])[0]
+    csdp.field22 = rawutil.unpack('<f', telemetry[45:49])[0]
+
+def unpack_carsetupdatapacket(telemetry: bytes, carIndex):
+    csp = CarSetupPacket()
+    offset = carIndex * 49
+    csp.field1.append(unpack_carsetupdata(telemetry[offset:offset+49]))
+    return csp
 
 def unpack_cartelemetrydatapacket(telemetry: bytes, carIndex):
     ctdp = CarTelemetryDataPacket()

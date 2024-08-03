@@ -1,3 +1,13 @@
+maximum_energy_storage = 4000000
+
+## Segítség a listaként érkező adatok feldolgozásához
+'''
+0 – Rear Left (RL)
+1 – Rear Right (RR)
+2 – Front Left (FL)
+3 – Front Right (FR)
+'''
+
 listoffronttyres = [
     "car_temp_pngs/coldfronttyre.png",
     "car_temp_pngs/midtempfronttyre.png",
