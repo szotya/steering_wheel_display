@@ -1,7 +1,6 @@
 from ctypes import Structure,c_int8, c_uint16, c_uint8, c_uint64, c_float, c_uint32, Union, LittleEndianStructure
 
 class CarSetupData(LittleEndianStructure):
-
     _fields_ = [
         ('frontWing', c_uint8),                             # Front wing aero
         ('rearWing', c_uint8),                              # Rear wing aero
@@ -33,7 +32,7 @@ class CarSetupPacket(LittleEndianStructure):
         self.field1 = []
 
     _fields_ = [
-        ('carSetups', CarSetupData),
+        ('carSetupData', CarSetupData),
     ]
 
     def item_from_carsetupdata(self, list):

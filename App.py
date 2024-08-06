@@ -9,11 +9,6 @@ from SharedVars import *
 ###Ez kell a ledekhez
 '''from rpi_ws281x import *'''
 
-####Ezek nem tudom kellenek e
-'''import os
-from SessionHistoryPacket import *
-from PIL import Image as PilImage, ImageTk
-import time'''
 
 ### IP cím lekérdezése
 def get_my_ip():
@@ -203,31 +198,32 @@ def udp_server(host='0.0.0.0', port=20777):
                 case 5:
                     csd = unpack_carsetupdatapacket(telemetry, h.field11)
                     list = []
-                    csd.item_from_carsetupdatapacket(list)
-                    data_dict_carsetup.update({
-                        'frontWing': list[0],
-                        'rearWing': list[1],
-                        'onThrottle': list[2],
-                        'offThrottle': list[3],
-                        'frontCamber': list[4],
-                        'rearCamber': list[5],
-                        'frontToe': list[6],
-                        'rearToe': list[7],
-                        'frontSuspension': list[8],
-                        'rearSuspension': list[9],
-                        'frontAntiRollBar': list[10],
-                        'rearAntiRollBar': list[11],
-                        'frontSuspensionHeight': list[12],
-                        'rearSuspensionHeight': list[13],
-                        'brakePressure': list[14],
-                        'brakeBias': list[15],
-                        'rearLeftTyrePressure': list[16],
-                        'rearRightTyrePressure': list[17],
-                        'frontLeftTyrePressure': list[18],
-                        'frontRightTyrePressure': list[19],
-                        'ballast': list[20],
-                        'fuelLoad': list[21],
-                    })
+                    csd.item_from_carsetupdata(list)
+                    if len(list) > 0:
+                        data_dict_carsetup.update({
+                            'frontWing': list[0],
+                            'rearWing': list[1],
+                            'onThrottle': list[2],
+                            'offThrottle': list[3],
+                            'frontCamber': list[4],
+                            'rearCamber': list[5],
+                            'frontToe': list[6],
+                            'rearToe': list[7],
+                            'frontSuspension': list[8],
+                            'rearSuspension': list[9],
+                            'frontAntiRollBar': list[10],
+                            'rearAntiRollBar': list[11],
+                            'frontSuspensionHeight': list[12],
+                            'rearSuspensionHeight': list[13],
+                            'brakePressure': list[14],
+                            'brakeBias': list[15],
+                            'rearLeftTyrePressure': list[16],
+                            'rearRightTyrePressure': list[17],
+                            'frontLeftTyrePressure': list[18],
+                            'frontRightTyrePressure': list[19],
+                            'ballast': list[20],
+                            'fuelLoad': list[21],
+                        })
 
                 case 6:
                     ctp = unpack_cartelemetrydatapacket(telemetry, h.field11)
@@ -361,16 +357,6 @@ def udp_server(host='0.0.0.0', port=20777):
             print(f"Socket error: {e}")
             break
 
-
-def flying_delta_calculation():
-    global data_dict_delta, delta, bestlap, packetType
-
-
-
-    while True:
-        pass
-
-
 def rpm_leds():
     global data_dict_cartelemetry
     MAX_LED_COUNT = 18  # Number of LED pixels.
@@ -444,13 +430,6 @@ def rpm_leds():
             print(f"Error in rpm_leds: {e}")
         '''
         #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
-
-def update_telemetry_data():
-    global data_dict_cartelemetry
-    # Simulate updating the dictionary
-    data_dict_cartelemetry['speed'] = 100
-    data_dict_cartelemetry['gear'] = 3
-    # Other updates...
 
 class Master:
     def __init__(self,root):
@@ -676,12 +655,12 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()
+    '''defdisplay = DefaultDisplay(root)
+    defdisplay.create_default_display()'''
 
-    #M = Master(root)
-    #M.__call__(mfdPanelIndex)
-    #root.after(5, M.update_mfd)
+    M = Master(root)
+    M.__call__(mfdPanelIndex)
+    root.after(5, M.update_mfd)
 
     # Run the Tkinter main loop
     root.mainloop()

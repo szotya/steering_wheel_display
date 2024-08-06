@@ -340,6 +340,7 @@ def unpack_carsetupdata(telemetry: bytes):
     csdp.field20 = rawutil.unpack('<f', telemetry[40:44])[0]
     csdp.field21 = rawutil.unpack('<B', telemetry[44:45])[0]
     csdp.field22 = rawutil.unpack('<f', telemetry[45:49])[0]
+    return csdp
 
 def unpack_carsetupdatapacket(telemetry: bytes, carIndex):
     csp = CarSetupPacket()

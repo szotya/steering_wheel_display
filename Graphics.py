@@ -54,15 +54,14 @@ class DefaultDisplay:
         self.laptimeframe = tk.Frame(self.root, height=100, width=402, bg="black")
         self.laptimeframe.place(x=201, y=0)
 
-        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="black", bg="black", font=("Formula1", 50, "bold"))
-        self.pitlimiter_label.place(relx=0.5, rely=0.5, anchor="center")
-
         self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 48, "bold"))
         self.laptime_label.place(relx=0.5, rely=0.25, anchor="center")
 
         self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
         self.laptime_delta_label.place(relx=0.5, rely=0.8, anchor="center")
 
+        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="black", bg="black",font=("Formula1", 50, "bold"))
+        self.pitlimiter_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.fuelplusframe = tk.Frame(self.root, height=100, width=202, bg="black")
         self.fuelplusframe.place(x=604, y=0)
@@ -253,8 +252,10 @@ class DefaultDisplay:
                 self.laptime_label.config(fg="black")
                 self.laptime_delta_label.config(fg="black")
                 self.pitlimiter_label.config(fg="white")
+                self.pitlimiter_label.lift()
             else:
                 self.pitlimiter_label.config(fg="black")
+                self.pitlimiter_label.lower()
 
             if 'currentLapTimeInMs' in data_dict_lapdata:
                 laptime = data_dict_lapdata['currentLapTimeInMs']
