@@ -60,8 +60,14 @@ class DefaultDisplay:
         self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
         self.laptime_delta_label.place(relx=0.5, rely=0.8, anchor="center")
 
-        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="black", bg="black",font=("Formula1", 50, "bold"))
+        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="white", bg="black",font=("Formula1", 50, "bold"))
         self.pitlimiter_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.formationlapframe = tk.Frame(self.root, height=100, width=402, bg="black")
+        self.formationlapframe.place(x=201, y=0)
+
+        self.formationlap_label = tk.Label(self.formationlapframe, text="FORMATION LAP", fg="white", bg="black",font=("Formula1", 35, "bold"))
+        self.formationlap_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.fuelplusframe = tk.Frame(self.root, height=100, width=202, bg="black")
         self.fuelplusframe.place(x=604, y=0)
@@ -102,6 +108,9 @@ class DefaultDisplay:
 
         self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 110, "bold"))
         self.gear_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.safetycartext = tk.Label(self.gear_frame, text=f"VIRTUAL\nSAFETY CAR", fg="#ffff00", bg="black",font=("Formula1", 30, "bold"))
+        self.safetycartext.place(relx=0.5, rely=0.15, anchor="center")
 
         self.placeframe = tk.Frame(self.root, height=80, width=202, bg="black")
         self.placeframe.place(x=604, y=101)
@@ -237,16 +246,50 @@ class DefaultDisplay:
                     self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="red")
 
-            if 'delta' in data_dict_flyingdelta and data_dict_carstatus['pitLimiterStatus'] == 0:
-                flyingdelta = data_dict_flyingdelta['delta']
-                if flyingdelta == -100.000:
-                    self.laptime_delta_label.config(text="error", fg="red")
-                elif flyingdelta < 0:
-                    self.laptime_delta_label.config(text=f"-{flyingdelta:.3f}",fg="#00ff00")
-                elif flyingdelta == 0.000 or flyingdelta == 1000.000:
-                    self.laptime_delta_label.config(text=f"+/-{flyingdelta:.3f}",fg="white")
+            if 'safetyCarStatus' in data_dict_sessionpacket and data_dict_sessionpacket['safetyCarStatus'] == 0:
+                self.safetycartext.config(fg="black")
+                self.formationlapframe.lower()
+                if 'delta' in data_dict_flyingdelta and data_dict_carstatus['pitLimiterStatus'] == 0:
+                    flyingdelta = data_dict_flyingdelta['delta']
+                    if flyingdelta == -100.000:
+                        self.laptime_delta_label.config(text="error", fg="red")
+                    elif flyingdelta < 0:
+                        self.laptime_delta_label.config(text=f"-{flyingdelta:.3f}",fg="#00ff00")
+                    elif flyingdelta == 0.000 or flyingdelta == 1000.000:
+                        self.laptime_delta_label.config(text=f"+/-{flyingdelta:.3f}",fg="white")
+                    else:
+                        self.laptime_delta_label.config(text=f"+{flyingdelta:.3f}",fg="red")
+
+            elif 'safetyCarStatus' in data_dict_sessionpacket and (data_dict_sessionpacket['safetyCarStatus'] == 1 or data_dict_sessionpacket['safetyCarStatus'] == 2):
+                self.formationlapframe.lower()
+                if data_dict_sessionpacket['safetyCarStatus'] == 1:
+                    self.safetycartext.config(text="SAFETY CAR", fg="#ffff00")
+                elif data_dict_sessionpacket['safetyCarStatus'] == 2:
+                    self.safetycartext.config(text="VIRTUAL\nSAFETY CAR", fg="#ffff00")
+
+                if data_dict_lapdata['safetyCarDelta'] > 0.000:
+                    self.laptime_delta_label.config(text=f"+{data_dict_lapdata['safetyCarDelta']:.3f}", fg="#00ff00")
+                elif data_dict_lapdata['safetyCarDelta'] < 0.000:
+                    self.laptime_delta_label.config(text=f"-{data_dict_lapdata['safetyCarDelta']:.3f}", fg="red")
                 else:
-                    self.laptime_delta_label.config(text=f"+{flyingdelta:.3f}",fg="red")
+                    self.laptime_delta_label.config(text=f"+/-{data_dict_lapdata['safetyCarDelta']:.3f}", fg="white")
+
+            elif 'safetyCarStatus' in data_dict_sessionpacket and data_dict_sessionpacket['safetyCarStatus'] == 3:
+                self.safetycartext.config(fg="black")
+                self.laptime_delta_label.config(text="0.000", fg="black")
+                self.formationlapframe.lift()
+
+            else:
+                if 'delta' in data_dict_flyingdelta and data_dict_carstatus['pitLimiterStatus'] == 0:
+                    flyingdelta = data_dict_flyingdelta['delta']
+                    if flyingdelta == -100.000:
+                        self.laptime_delta_label.config(text="error", fg="red")
+                    elif flyingdelta < 0:
+                        self.laptime_delta_label.config(text=f"-{flyingdelta:.3f}", fg="#00ff00")
+                    elif flyingdelta == 0.000 or flyingdelta == 1000.000:
+                        self.laptime_delta_label.config(text=f"+/-{flyingdelta:.3f}", fg="white")
+                    else:
+                        self.laptime_delta_label.config(text=f"+{flyingdelta:.3f}", fg="red")
 
             if 'pitLimiterStatus' in data_dict_carstatus and data_dict_carstatus['pitLimiterStatus'] == 1:
                 self.laptime_label.config(fg="black")

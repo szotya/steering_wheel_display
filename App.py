@@ -74,6 +74,7 @@ def udp_server(host='0.0.0.0', port=20777):
                     data_dict_sessionpacket.update({
                         'sessionType': sp.field6,
                         'trackLength': sp.field5,
+                        'safetyCarStatus': sp.field18,
                         'pitStopWindowIdealLap': sp.field27,
                         'pitStopWindowLatestLap': sp.field28,
                         'pitStopRejoinPosition': sp.field29,
@@ -655,12 +656,12 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    '''defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()'''
+    defdisplay = DefaultDisplay(root)
+    defdisplay.create_default_display()
 
-    M = Master(root)
+    '''M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)
+    root.after(5, M.update_mfd)'''
 
     # Run the Tkinter main loop
     root.mainloop()
