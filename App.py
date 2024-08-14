@@ -374,23 +374,27 @@ def udp_server(host='0.0.0.0', port=20777):
                         'networkPaused': list[24],
                     })
 
-                    if 'vehicleFiaFlags' in data_dict_carstatus:
-                        if data_dict_carstatus['vehicleFiaFlags'] == 1:
-                            for x in range(19, 24):
-                                strip.setPixelColor(x, Color(0, 255, 0))
+                    try:
+                        if 'vehicleFiaFlags' in data_dict_carstatus:
+                            if data_dict_carstatus['vehicleFiaFlags'] == 1:
+                                for x in range(19, 24):
+                                    strip.setPixelColor(x, Color(0, 255, 0))
 
-                        elif data_dict_carstatus['vehicleFiaFlags'] == 2:
-                            for x in range(19, 24):
-                                strip.setPixelColor(x, Color(0, 0, 255))
+                            elif data_dict_carstatus['vehicleFiaFlags'] == 2:
+                                for x in range(19, 24):
+                                    strip.setPixelColor(x, Color(0, 0, 255))
 
-                        elif data_dict_carstatus['vehicleFiaFlags'] == 3:
-                            for x in range(19, 24):
-                                strip.setPixelColor(x, Color(255, 255, 0))
-                        else:
-                            for x in range(19, 24):
-                                strip.setPixelColor(x, Color(0, 0, 0))
+                            elif data_dict_carstatus['vehicleFiaFlags'] == 3:
+                                for x in range(19, 24):
+                                    strip.setPixelColor(x, Color(255, 255, 0))
+                            else:
+                                for x in range(19, 24):
+                                    strip.setPixelColor(x, Color(0, 0, 0))
 
-                        strip.show()
+                            strip.show()
+
+                    except Exception as e:
+                        print(f"Error in LED handling (flags): {e}")
 
                 case 10:
                     cdp = unpack_cardamagepacket(telemetry, h.field11)
