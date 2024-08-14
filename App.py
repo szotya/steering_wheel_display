@@ -7,7 +7,7 @@ from UDPunpack import unpack_carsetupdatapacket, unpack_header, unpack_eventpack
 from SharedVars import *
 
 ###Ez kell a ledekhez
-'''from rpi_ws281x import *'''
+from rpi_ws281x import *
 
 
 ### IP cím lekérdezése
@@ -47,6 +47,20 @@ def udp_server(host='0.0.0.0', port=20777):
     data_dict_currentlap_meters_odd = {}
     delta =  0.000
     deltaSector1 = 0.000
+    MAX_LED_COUNT = 18  # Number of LED pixels.
+    LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
+    # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
+    LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
+    LED_DMA = 10  # DMA channel to use for generating signal (try 10)
+    LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
+    LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
+    LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
+    DRS = 0  # DRS is not active
+    RPM = 0
+    LED_COUNT = 0
+
+    strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    strip.begin()
 
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -133,8 +147,10 @@ def udp_server(host='0.0.0.0', port=20777):
                                 data_dict_flyingdelta.update({'delta': delta})
 
                             if data_dict_delta['currentLapNum'] % 2 == 0:
+                                print("even")
                                 data_dict_currentlap_meters_even.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
                             else:
+                                print("odd")
                                 data_dict_currentlap_meters_odd.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
                             '''match sector:
                                 case 0:
@@ -156,11 +172,13 @@ def udp_server(host='0.0.0.0', port=20777):
                             if data_dict_delta['lastLapTime'] == bestlap[0] and data_dict_delta['currentLapNum'] >= 3:
                                 print("end of lap")
                                 #data_bestlap_sectors = data_dict_currentlap_sectors
-                                if data_dict_delta['currentLapNum'] % 2 == 0:
-                                    data_dict_bestlap_meters = data_dict_currentlap_meters_odd
+                                if data_dict_delta['currentLapNum'] % 2 == 0 and len(data_dict_currentlap_meters_odd) > 0:
+                                    print("prev: odd")
+                                    data_dict_bestlap_meters = data_dict_currentlap_meters_odd.copy()
                                     data_dict_currentlap_meters_odd.clear()
-                                else:
-                                    data_dict_bestlap_meters = data_dict_currentlap_meters_even
+                                elif data_dict_delta['currentLapNum'] % 2 != 0 and len(data_dict_currentlap_meters_even) > 0:
+                                    print("prev: even")
+                                    data_dict_bestlap_meters = data_dict_currentlap_meters_even.copy()
                                     data_dict_currentlap_meters_even.clear()
                         elif data_dict_delta['currentLapNum'] > 1 and data_dict_delta['currentLapTimeInMs'] > 0 and len(bestlap) > 0:
                             '''if not bool(data_bestlap_sectors):
@@ -193,6 +211,7 @@ def udp_server(host='0.0.0.0', port=20777):
                     if ep.field1 == "SEND":
                         mfdPanelIndex = 6
                         mfdPanelIndex_isChanged = True
+                        delta_reset(data_bestlap_sectors, data_dict_bestlap_meters)
                     elif ep.field1 == "CHQF":
                         mfdPanelIndex = 6
                         mfdPanelIndex_isChanged = True
@@ -263,6 +282,59 @@ def udp_server(host='0.0.0.0', port=20777):
                         "revLigthsBitValue": list[29],
                         "engineTemperature": list[30],
                     })
+
+                    try:
+                        if 'revLightsPercent' in data_dict_cartelemetry:
+                            LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent'] / 100))
+                            RPM = data_dict_cartelemetry['revLightsPercent']
+
+                        else:
+                            LED_COUNT = 0
+
+                        if 'drs' in data_dict_cartelemetry:
+                            DRS = data_dict_cartelemetry['drs']
+
+                        if DRS == 1:
+                            strip.setPixelColor(0, Color(0, 255, 0))
+                            strip.setPixelColor(1, Color(0, 255, 0))
+                            strip.setPixelColor(2, Color(0, 0, 0))
+                            strip.setPixelColor(3, Color(0, 0, 0))
+                            strip.setPixelColor(4, Color(0, 0, 0))
+                            strip.setPixelColor(5, Color(0, 0, 0))
+
+                            for x in range(6, MAX_LED_COUNT):
+                                if x <= LED_COUNT:
+                                    if x < 12:
+                                        strip.setPixelColor(x, Color(255, 0, 0))
+                                    else:
+                                        strip.setPixelColor(x, Color(102, 0, 255))
+                                else:
+                                    if x < 12:
+                                        strip.setPixelColor(x, Color(0, 0, 0))
+                                    else:
+                                        strip.setPixelColor(x, Color(0, 0, 0))
+
+
+                        else:
+                            for x in range(0, MAX_LED_COUNT):
+                                if x <= LED_COUNT:
+                                    if x < 6:
+                                        strip.setPixelColor(x, Color(0, 255, 0))
+                                    elif x < 12:
+                                        strip.setPixelColor(x, Color(255, 0, 0))
+                                    else:
+                                        strip.setPixelColor(x, Color(102, 0, 255))
+                                else:
+                                    if x < 6:
+                                        strip.setPixelColor(x, Color(0, 0, 0))
+                                    elif x < 12:
+                                        strip.setPixelColor(x, Color(0, 0, 0))
+                                    else:
+                                        strip.setPixelColor(x, Color(0, 0, 0))
+
+                        strip.show()
+                    except Exception as e:
+                        print(f"Error in LED handling: {e}")
 
                     ## MFD Panel Index változásának ellenőrzése
                     if ctp.field2 != mfdPanelIndex:
@@ -357,6 +429,14 @@ def udp_server(host='0.0.0.0', port=20777):
         except socket.error as e:
             print(f"Socket error: {e}")
             break
+
+
+def delta_reset(bestlapsector: dict, bestlapmeters: dict):
+    global data_dict_flyingdelta
+    data_dict_flyingdelta.update({'delta': 0.000})
+    bestlapsector.clear()
+    bestlapmeters.clear()
+
 
 def rpm_leds():
     global data_dict_cartelemetry
@@ -656,12 +736,12 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()
+    '''defdisplay = DefaultDisplay(root)
+    defdisplay.create_default_display()'''
 
-    '''M = Master(root)
+    M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)'''
+    root.after(5, M.update_mfd)
 
     # Run the Tkinter main loop
     root.mainloop()

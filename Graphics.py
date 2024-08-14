@@ -3,6 +3,7 @@ from PIL import Image as PilImage, ImageTk
 from App import *
 from SharedVars import *
 from listsandconstants import *
+from imageswap import *
 
 class ConnectDisplay:
 
@@ -846,7 +847,9 @@ class CarDamage:
                 elif frdamage < 100:
                     self.front_wing_right_damage(listoffrontwingrightstatus[9])
                 else:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[10])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[10])
+                    swapImages(self,listoffrontwingrightstatus[10],68,60,self.frontright, self.frontright_tk_image)
+
 
             if 'FLTyreDamage' in data_dict_cardamage:
                 fltdamage = int(data_dict_cardamage['FLTyreDamage'])
