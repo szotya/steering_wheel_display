@@ -47,33 +47,33 @@ class DefaultDisplay:
         self.kmphframe = tk.Frame(self.root, height=100, width=200, bg="black")
         self.kmphframe.place(x=0, y=0)
 
-        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 30, "bold"))
+        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 25, "bold"))
         self.kmph_label.place(relx=0.5, rely=0.35, anchor="center")
-        self.kmph_text_label = tk.Label(self.kmphframe, text="KM/H", fg="white", bg="black", font=("Formula1", 10, "bold"))
+        self.kmph_text_label = tk.Label(self.kmphframe, text="KM/H", fg="white", bg="black", font=("Formula1", 9, "bold"))
         self.kmph_text_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.laptimeframe = tk.Frame(self.root, height=100, width=402, bg="black")
         self.laptimeframe.place(x=201, y=0)
 
-        self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 48, "bold"))
+        self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 38, "bold"))
         self.laptime_label.place(relx=0.5, rely=0.25, anchor="center")
 
-        self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 20, "bold"))
+        self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 15, "bold"))
         self.laptime_delta_label.place(relx=0.5, rely=0.8, anchor="center")
 
-        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="white", bg="black",font=("Formula1", 50, "bold"))
+        self.pitlimiter_label = tk.Label(self.laptimeframe, text="PIT LIMITER", fg="white", bg="black",font=("Formula1", 40, "bold"))
         self.pitlimiter_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.formationlapframe = tk.Frame(self.root, height=100, width=402, bg="black")
         self.formationlapframe.place(x=201, y=0)
 
-        self.formationlap_label = tk.Label(self.formationlapframe, text="FORMATION LAP", fg="white", bg="black",font=("Formula1", 35, "bold"))
+        self.formationlap_label = tk.Label(self.formationlapframe, text="FORMATION LAP", fg="white", bg="black",font=("Formula1", 25, "bold"))
         self.formationlap_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.fuelplusframe = tk.Frame(self.root, height=100, width=202, bg="black")
         self.fuelplusframe.place(x=604, y=0)
 
-        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1l", fg="white", bg="black", font=("Formula1", 35, "bold"))
+        self.fuelplus_label = tk.Label(self.fuelplusframe, text="3.1l", fg="white", bg="black", font=("Formula1", 30, "bold"))
         self.fuelplus_label.place(relx=0.5, rely=0.4, anchor="center")
 
         self.fuelpluslaps_label = tk.Label(self.fuelplusframe, text="(+1.2 laps)", fg="#00ff00", bg="black", font=("Formula1", 10, "bold"))
@@ -82,64 +82,61 @@ class DefaultDisplay:
         self.lapnumframe = tk.Frame(self.root, height=80, width=200, bg="black")
         self.lapnumframe.place(x=0, y=101)
 
-        self.lapnum_label = tk.Label(self.lapnumframe, text="L1", fg="cyan", bg="black", font=("Formula1", 40, "bold"))
+        self.lapnum_label = tk.Label(self.lapnumframe, text="L1", fg="cyan", bg="black", font=("Formula1", 33, "bold"))
         self.lapnum_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.lefttyresframe = tk.Frame(self.root, height=79, width=200, bg="black")
         self.lefttyresframe.place(x=0, y=182)
 
-        self.lefttyres_front_label = tk.Label(self.lefttyresframe, text="92°C", fg="#ffdb4d", bg="black",
-                                         font=("Formula1", 25, "bold"))
+        self.lefttyres_front_label = tk.Label(self.lefttyresframe, text="92°C", fg="#ffdb4d", bg="black",font=("Formula1", 20, "bold"))
         self.lefttyres_front_label.place(relx=0.5, rely=0.3, anchor="center")
-        self.lefttyres_rear_label = tk.Label(self.lefttyresframe, text="94°C", fg="#ffdb4d", bg="black",
-                                        font=("Formula1", 25, "bold"))
+        self.lefttyres_rear_label = tk.Label(self.lefttyresframe, text="94°C", fg="#ffdb4d", bg="black",font=("Formula1", 20, "bold"))
         self.lefttyres_rear_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.differential_frame = tk.Frame(self.root, height=79, width=200, bg="black")
         self.differential_frame.place(x=0, y=262)
 
-        self.differential_percentage_label = tk.Label(self.differential_frame, text="50%", fg="white", bg="black",font=("Formula1", 30, "bold"))
+        self.differential_percentage_label = tk.Label(self.differential_frame, text="50%", fg="white", bg="black",font=("Formula1", 25, "bold"))
         self.differential_percentage_label.place(relx=0.5, rely=0.35, anchor="center")
 
-        self.differential_text_label = tk.Label(self.differential_frame, text="DIFFERENTIAL", fg="white", bg="black",font=("Formula1", 10, "bold"))
+        self.differential_text_label = tk.Label(self.differential_frame, text="DIFFERENTIAL", fg="white", bg="black",font=("Formula1", 9, "bold"))
         self.differential_text_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.gear_frame = tk.Frame(self.root, height=240, width=402, bg="black")
         self.gear_frame.place(x=201, y=101)
 
-        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 110, "bold"))
+        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 90, "bold"))
         self.gear_label.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.safetycartext = tk.Label(self.gear_frame, text=f"VIRTUAL\nSAFETY CAR", fg="#ffff00", bg="black",font=("Formula1", 30, "bold"))
+        self.safetycartext = tk.Label(self.gear_frame, text=f"VIRTUAL\nSAFETY CAR", fg="#ffff00", bg="black",font=("Formula1", 25, "bold"))
         self.safetycartext.place(relx=0.5, rely=0.15, anchor="center")
 
         self.placeframe = tk.Frame(self.root, height=80, width=202, bg="black")
         self.placeframe.place(x=604, y=101)
 
-        self.place_label = tk.Label(self.placeframe, text="P7", fg="cyan", bg="black", font=("Formula1", 40, "bold"))
+        self.place_label = tk.Label(self.placeframe, text="P7", fg="cyan", bg="black", font=("Formula1", 33, "bold"))
         self.place_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.righttyresframe = tk.Frame(self.root, height=79, width=202, bg="black")
         self.righttyresframe.place(x=604, y=182)
 
-        self.righttyres_front_label = tk.Label(self.righttyresframe, text="92°C", fg="#ffdb4d", bg="black", font=("Formula1", 25, "bold"))
+        self.righttyres_front_label = tk.Label(self.righttyresframe, text="92°C", fg="#ffdb4d", bg="black", font=("Formula1", 20, "bold"))
         self.righttyres_front_label.place(relx=0.5, rely=0.3, anchor="center")
-        self.righttyres_rear_label = tk.Label(self.righttyresframe, text="94°C", fg="#ffdb4d", bg="black", font=("Formula1", 25, "bold"))
+        self.righttyres_rear_label = tk.Label(self.righttyresframe, text="94°C", fg="#ffdb4d", bg="black", font=("Formula1", 20, "bold"))
         self.righttyres_rear_label.place(relx=0.5, rely=0.7, anchor="center")
 
         self.brake_bias_frame = tk.Frame(self.root, height=79, width=202, bg="black")
         self.brake_bias_frame.place(x=604, y=262)
 
-        self.brake_bias_percentage_label = tk.Label(self.brake_bias_frame, text="56%", fg="white", bg="black", font=("Formula1", 30, "bold"))
+        self.brake_bias_percentage_label = tk.Label(self.brake_bias_frame, text="56%", fg="white", bg="black", font=("Formula1", 25, "bold"))
         self.brake_bias_percentage_label.place(relx=0.5, rely=0.35, anchor="center")
 
-        self.brake_bias_text_label = tk.Label(self.brake_bias_frame, text="FRONT BRAKE BIAS", fg="white", bg="black", font=("Formula1", 10, "bold"))
+        self.brake_bias_text_label = tk.Label(self.brake_bias_frame, text="FRONT BRAKE BIAS", fg="white", bg="black", font=("Formula1", 9, "bold"))
         self.brake_bias_text_label.place(relx=0.5, rely=0.7, anchor="center")
 
-        self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
-        self.ersframe.place(x=0, y=342)
 
-        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 10, "bold"))
+
+        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
 
         self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
@@ -153,8 +150,11 @@ class DefaultDisplay:
         child_width_ers = float(0.82 * 402)
         self.ersindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_ers, bg="#ffff00")
         self.ersindicatorfillframe.place(x=201, y=382.5)
-        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.ers_percentage_label.place(in_=self.root, x=360, y=375)
+
+        self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
+        self.ersframe.place(x=0, y=342)
 
         self.acceleratorindicatorframe = tk.Frame(self.root, height=114, width=202, bg="darkgreen")
         self.acceleratorindicatorframe.place(x=604, y=382.5)
@@ -343,77 +343,73 @@ class PitStop:
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="black", highlightthickness=0)
         self.canvas.pack()
 
-        self.pitwindow_text = tk.Label(self.canvas, text="Pit Window", fg="white", bg="black", font=("Formula1", 30, "bold"))
+        self.pitwindow_text = tk.Label(self.canvas, text="Pit Window", fg="white", bg="black", font=("Formula1", 25, "bold"))
         self.pitwindow_text.place(x=400, y=20, anchor="center")
 
-        self.pitwindowlaps_text = tk.Label(self.canvas, text="LAP 13 - 17", fg="cyan", bg="black", font=("Formula1", 70, "bold"))
+        self.pitwindowlaps_text = tk.Label(self.canvas, text="LAP 13 - 17", fg="cyan", bg="black", font=("Formula1", 60, "bold"))
         self.pitwindowlaps_text.place(x=400, y=120, anchor="center")
 
-        self.rejoin_text = tk.Label(self.canvas, text="Pit Now Rejoin Position", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.rejoin_text = tk.Label(self.canvas, text="Pit Now Rejoin Position", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.rejoin_text.place(x=370, y=170, anchor="center")
 
-        self.rejoinpositon = tk.Label(self.canvas, text="20th", fg="cyan", bg="black",
-                                    font=("Formula1", 20, "bold"))
+        self.rejoinpositon = tk.Label(self.canvas, text="20th", fg="cyan", bg="black",font=("Formula1", 15, "bold"))
         self.rejoinpositon.place(x=540, y=170, anchor="center")
 
-        self.availablebest_text = tk.Label(self.canvas, text="Available Best Sets", fg="white", bg="black", font=("Formula1", 15, "bold"))
-        self.availablebest_text.place(x=110, y=380, anchor="center")
+        self.availablebest_text = tk.Label(self.canvas, text="Available Best Sets", fg="white", bg="black", font=("Formula1", 10, "bold"))
+        self.availablebest_text.place(x=130, y=380, anchor="center")
 
         self.soft_img = PilImage.open('tyres/soft.png')
-        self.soft_img_resized = self.soft_img.resize((55, 55))
+        self.soft_img_resized = self.soft_img.resize((50, 50))
         # Convert the image to a format Tkinter can use
         self.soft_tk_image = ImageTk.PhotoImage(self.soft_img_resized)
         self.canvas.create_image(50, 430, image=self.soft_tk_image)
 
-        self.soft_newest = tk.Label(self.canvas, text="Used", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.soft_newest = tk.Label(self.canvas, text="Used", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.soft_newest.place(x=80, y=397)
-        self.soft_best_percent = tk.Label(self.canvas, text="7%", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.soft_best_percent = tk.Label(self.canvas, text="7%", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.soft_best_percent.place(x=82, y=427)
 
         self.medium_img = PilImage.open('tyres/medium.png')
-        self.medium_img_resized = self.medium_img.resize((55, 55))
+        self.medium_img_resized = self.medium_img.resize((50, 50))
         # Convert the image to a format Tkinter can use
         self.medium_tk_image = ImageTk.PhotoImage(self.medium_img_resized)
         self.canvas.create_image(210, 430, image=self.medium_tk_image)
 
-        self.medium_newest = tk.Label(self.canvas, text="Used", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.medium_newest = tk.Label(self.canvas, text="Used", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.medium_newest.place(x=240, y=397)
-        self.medium_best_percent = tk.Label(self.canvas, text="12%", fg="white", bg="black", font=("Formula1", 20, "bold"))
+        self.medium_best_percent = tk.Label(self.canvas, text="12%", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.medium_best_percent.place(x=242, y=427)
 
         self.hard_img = PilImage.open('tyres/hard.png')
-        self.hard_img_resized = self.hard_img.resize((55, 55))
+        self.hard_img_resized = self.hard_img.resize((50, 50))
         # Convert the image to a format Tkinter can use
         self.hard_tk_image = ImageTk.PhotoImage(self.hard_img_resized)
         self.canvas.create_image(370, 430, image=self.hard_tk_image)
 
-        self.hard_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.hard_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.hard_newest.place(x=400, y=397)
-        self.hard_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",
-                                            font=("Formula1", 20, "bold"))
+        self.hard_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",font=("Formula1", 15, "bold"))
         self.hard_best_percent.place(x=402, y=427)
 
         self.inter_img = PilImage.open('tyres/inter.png')
-        self.inter_img_resized = self.inter_img.resize((55, 55))
+        self.inter_img_resized = self.inter_img.resize((50, 50))
         # Convert the image to a format Tkinter can use
         self.inter_tk_image = ImageTk.PhotoImage(self.inter_img_resized)
         self.canvas.create_image(520, 430, image=self.inter_tk_image)
 
-        self.inter_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.inter_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.inter_newest.place(x=550, y=397)
-        self.inter_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",
-                                          font=("Formula1", 20, "bold"))
+        self.inter_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",font=("Formula1", 15, "bold"))
         self.inter_best_percent.place(x=552, y=427)
 
         self.wet_img = PilImage.open('tyres/wet.png')
-        self.wet_img_resized = self.wet_img.resize((55, 55))
+        self.wet_img_resized = self.wet_img.resize((50, 50))
         self.wet_tk_image = ImageTk.PhotoImage(self.wet_img_resized)
         self.canvas.create_image(670, 430, image=self.wet_tk_image)
 
-        self.wet_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.wet_newest = tk.Label(self.canvas, text="New", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.wet_newest.place(x=700, y=397)
-        self.wet_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",
-                                           font=("Formula1", 20, "bold"))
+        self.wet_best_percent = tk.Label(self.canvas, text="0%", fg="white", bg="black",font=("Formula1", 15, "bold"))
         self.wet_best_percent.place(x=702, y=427)
 
         return self.canvas
@@ -625,19 +621,19 @@ class CarDamage:
         self.rearrightpercent = self.canvas.create_image(562, 370, image=self.frontleftpercent_tk_image)
 
         # front left percent text
-        self.fl_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 25, "bold"))
+        self.fl_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 15, "bold"))
         self.fl_percent_label.place(x=201.5, y=109.5)
 
         # front right percent text
-        self.fr_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 25, "bold"))
+        self.fr_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 15, "bold"))
         self.fr_percent_label.place(x=531, y=109.5)
 
         # rear left percent text
-        self.rl_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 25, "bold"))
+        self.rl_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 15, "bold"))
         self.rl_percent_label.place(x=191.5, y=351)
 
         # rear right percent text
-        self.rr_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 25, "bold"))
+        self.rr_percent_label = tk.Label(self.root, text="0%", fg="red", bg="black", font=("Formula1", 15, "bold"))
         self.rr_percent_label.place(x=521, y=351)
 
         #ERS indicator
