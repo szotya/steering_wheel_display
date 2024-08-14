@@ -761,7 +761,7 @@ if __name__ == '__main__':
     # Call the update function periodically
     #root.after(1000, update_telemetry_data)
     ## Csak a kijelzőt mutatja, nincs ablakkeret
-    #root.overrideredirect(True)
+    root.overrideredirect(True)
 
     '''defdisplay = DefaultDisplay(root)
     defdisplay.create_default_display()'''
