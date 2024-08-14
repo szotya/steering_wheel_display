@@ -47,7 +47,7 @@ def udp_server(host='0.0.0.0', port=20777):
     data_dict_currentlap_meters_odd = {}
     delta =  0.000
     deltaSector1 = 0.000
-    MAX_LED_COUNT = 18  # Number of LED pixels.
+    MAX_LED_COUNT = 24  # Number of LED pixels.
     LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
     # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
     LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -285,8 +285,7 @@ def udp_server(host='0.0.0.0', port=20777):
 
                     try:
                         if 'revLightsPercent' in data_dict_cartelemetry:
-                            LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent'] / 100))
-                            RPM = data_dict_cartelemetry['revLightsPercent']
+                            LED_COUNT = int(18 * (data_dict_cartelemetry['revLightsPercent'] / 100))
 
                         else:
                             LED_COUNT = 0
@@ -374,6 +373,25 @@ def udp_server(host='0.0.0.0', port=20777):
                         'ersDeployedThisLap': list[23],
                         'networkPaused': list[24],
                     })
+
+                    if 'vehicleFiaFlags' in data_dict_carstatus:
+                        if data_dict_carstatus['vehicleFiaFlags'] == 1:
+                            for x in range(19, 24):
+                                strip.setPixelColor(x, Color(0, 255, 0))
+
+                        elif data_dict_carstatus['vehicleFiaFlags'] == 2:
+                            for x in range(19, 24):
+                                strip.setPixelColor(x, Color(0, 0, 255))
+
+                        elif data_dict_carstatus['vehicleFiaFlags'] == 3:
+                            for x in range(19, 24):
+                                strip.setPixelColor(x, Color(255, 255, 0))
+                        else:
+                            for x in range(19, 24):
+                                strip.setPixelColor(x, Color(0, 0, 0))
+
+                        strip.show()
+
                 case 10:
                     cdp = unpack_cardamagepacket(telemetry, h.field11)
                     list = []
@@ -425,6 +443,11 @@ def udp_server(host='0.0.0.0', port=20777):
                         tsp.get_tyresetdata(besttyresetslist)
                 case _:
                     pass
+
+            for x in range(19, 24):
+                strip.setPixelColor(x, Color(0, 0, 0))
+
+            strip.show()
 
         except socket.error as e:
             print(f"Socket error: {e}")

@@ -47,7 +47,7 @@ class DefaultDisplay:
         self.kmphframe = tk.Frame(self.root, height=100, width=200, bg="black")
         self.kmphframe.place(x=0, y=0)
 
-        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 25, "bold"))
+        self.kmph_label = tk.Label(self.kmphframe, text=f"250", fg="white", bg="black", font=("Formula1", 30, "bold"))
         self.kmph_label.place(relx=0.5, rely=0.35, anchor="center")
         self.kmph_text_label = tk.Label(self.kmphframe, text="KM/H", fg="white", bg="black", font=("Formula1", 9, "bold"))
         self.kmph_text_label.place(relx=0.5, rely=0.7, anchor="center")
@@ -56,7 +56,7 @@ class DefaultDisplay:
         self.laptimeframe.place(x=201, y=0)
 
         self.laptime_label = tk.Label(self.laptimeframe, text="-:--.---", fg="white", bg="black", font=("Formula1", 38, "bold"))
-        self.laptime_label.place(relx=0.5, rely=0.25, anchor="center")
+        self.laptime_label.place(relx=0.5, rely=0.3, anchor="center")
 
         self.laptime_delta_label = tk.Label(self.laptimeframe, text="-0.000", fg="#00ff00", bg="black", font=("Formula1", 15, "bold"))
         self.laptime_delta_label.place(relx=0.5, rely=0.8, anchor="center")
@@ -105,7 +105,7 @@ class DefaultDisplay:
         self.gear_frame = tk.Frame(self.root, height=240, width=402, bg="black")
         self.gear_frame.place(x=201, y=101)
 
-        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 90, "bold"))
+        self.gear_label = tk.Label(self.gear_frame, text="8", fg="white", bg="black", font=("Formula1", 85, "bold"))
         self.gear_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.safetycartext = tk.Label(self.gear_frame, text=f"VIRTUAL\nSAFETY CAR", fg="#ffff00", bg="black",font=("Formula1", 25, "bold"))
@@ -149,8 +149,8 @@ class DefaultDisplay:
         child_width_ers = float(0.82 * 402)
         self.ersindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_ers, bg="#ffff00")
         self.ersindicatorfillframe.place(x=201, y=382.5)
-        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 20, "bold"))
-        self.ers_percentage_label.place(in_=self.root, x=360, y=375)
+        self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 18, "bold"))
+        self.ers_percentage_label.place(in_=self.root, x=360, y=385)
 
         self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
         self.ersframe.place(x=0, y=342)
@@ -346,7 +346,7 @@ class PitStop:
         self.canvas.pack()
 
         self.pitwindow_text = tk.Label(self.canvas, text="Pit Window", fg="white", bg="black", font=("Formula1", 25, "bold"))
-        self.pitwindow_text.place(x=400, y=20, anchor="center")
+        self.pitwindow_text.place(x=400, y=25, anchor="center")
 
         self.pitwindowlaps_text = tk.Label(self.canvas, text="LAP 13 - 17", fg="cyan", bg="black", font=("Formula1", 60, "bold"))
         self.pitwindowlaps_text.place(x=400, y=120, anchor="center")
@@ -825,25 +825,35 @@ class CarDamage:
             if 'frontRightWingDamage' in data_dict_cardamage:
                 frdamage = int(data_dict_cardamage['frontRightWingDamage'])
                 if frdamage < 10:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[0])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[0])
+                    swapImages(self, listoffrontwingrightstatus[0], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 20:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[1])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[1])
+                    swapImages(self, listoffrontwingrightstatus[1], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 30:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[2])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[2])
+                    swapImages(self, listoffrontwingrightstatus[2], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 40:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[3])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[3])
+                    swapImages(self, listoffrontwingrightstatus[3], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 50:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[4])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[4])
+                    swapImages(self, listoffrontwingrightstatus[4], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 60:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[5])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[5])
+                    swapImages(self, listoffrontwingrightstatus[5], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 70:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[6])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[6])
+                    swapImages(self, listoffrontwingrightstatus[6], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 80:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[7])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[7])
+                    swapImages(self, listoffrontwingrightstatus[7], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 90:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[8])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[8])
+                    swapImages(self, listoffrontwingrightstatus[8], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 100:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[9])
+                    #self.front_wing_right_damage(listoffrontwingrightstatus[9])
+                    swapImages(self, listoffrontwingrightstatus[9], 68, 60, self.frontright, self.frontright_tk_image)
                 else:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[10])
                     swapImages(self,listoffrontwingrightstatus[10],68,60,self.frontright, self.frontright_tk_image)
