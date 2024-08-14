@@ -331,7 +331,6 @@ def udp_server(host='0.0.0.0', port=20777):
                                     else:
                                         strip.setPixelColor(x, Color(0, 0, 0))
 
-                        strip.show()
                     except Exception as e:
                         print(f"Error in LED handling: {e}")
 
@@ -391,7 +390,6 @@ def udp_server(host='0.0.0.0', port=20777):
                                 for x in range(19, 24):
                                     strip.setPixelColor(x, Color(0, 0, 0))
 
-                            strip.show()
 
                     except Exception as e:
                         print(f"Error in LED handling (flags): {e}")
