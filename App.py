@@ -446,8 +446,7 @@ def udp_server(host='0.0.0.0', port=20777):
                 case _:
                     pass
 
-            for x in range(19, 24):
-                strip.setPixelColor(x, Color(0, 0, 0))
+
 
             strip.show()
 
