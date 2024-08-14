@@ -142,16 +142,16 @@ def udp_server(host='0.0.0.0', port=20777):
                     try:
                         if len(data_dict_bestlap_meters) >= 3000 and len(data_bestlap_sectors) == 2 and data_dict_delta['currentLapTimeInMs'] > 0 and data_dict_delta['currentLapNum'] > 1:
                             sector = data_dict_delta['sector']
-                            if f'{data_dict_delta['lapDistance']}' in data_dict_bestlap_meters:
-                                delta = (data_dict_delta['currentLapTimeInMs'] - data_dict_bestlap_meters[f'{data_dict_delta['lapDistance']}'])/1000
+                            if f"{data_dict_delta['lapDistance']}" in data_dict_bestlap_meters:
+                                delta = (data_dict_delta['currentLapTimeInMs'] - data_dict_bestlap_meters[f"{data_dict_delta['lapDistance']}"])/1000
                                 data_dict_flyingdelta.update({'delta': delta})
 
                             if data_dict_delta['currentLapNum'] % 2 == 0:
                                 print("even")
-                                data_dict_currentlap_meters_even.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
+                                data_dict_currentlap_meters_even.update({f"{data_dict_delta['lapDistance']}": data_dict_delta['currentLapTimeInMs']})
                             else:
                                 print("odd")
-                                data_dict_currentlap_meters_odd.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
+                                data_dict_currentlap_meters_odd.update({f"{data_dict_delta['lapDistance']}": data_dict_delta['currentLapTimeInMs']})
                             '''match sector:
                                 case 0:
                                     delta = 0.000
@@ -190,7 +190,7 @@ def udp_server(host='0.0.0.0', port=20777):
                             pass
                         else:
                             if data_dict_delta['currentLapTimeInMs'] > 0:
-                                data_dict_bestlap_meters.update({f'{data_dict_delta['lapDistance']}': data_dict_delta['currentLapTimeInMs']})
+                                data_dict_bestlap_meters.update({f"{data_dict_delta['lapDistance']}": data_dict_delta['currentLapTimeInMs']})
 
                                 if 'sector1TimeInMs' in data_dict_delta and data_dict_delta['sector1TimeInMs'] > 0:
                                     data_bestlap_sectors.update({
