@@ -136,8 +136,7 @@ class DefaultDisplay:
 
 
 
-        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 15, "bold"))
-        self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
+
 
         self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
         self.brakeindicatorframe.place(x=0, y=382.5)
@@ -155,6 +154,9 @@ class DefaultDisplay:
 
         self.ersframe = tk.Frame(self.root, height=40, width=806, bg="black")
         self.ersframe.place(x=0, y=342)
+
+        self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 15, "bold"))
+        self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
 
         self.acceleratorindicatorframe = tk.Frame(self.root, height=114, width=202, bg="darkgreen")
         self.acceleratorindicatorframe.place(x=604, y=382.5)
