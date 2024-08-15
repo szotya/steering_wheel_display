@@ -1,4 +1,6 @@
 maximum_energy_storage = 4000000
+maximum_energy_harvested = 2000000
+maximum_energy_deployed = 4000000
 
 ## Segítség a listaként érkező adatok feldolgozásához
 '''

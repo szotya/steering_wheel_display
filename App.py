@@ -8,7 +8,7 @@ from SharedVars import *
 import time
 
 ###Ez kell a ledekhez
-from rpi_ws281x import *
+#from rpi_ws281x import *
 
 
 ### IP cím lekérdezése
@@ -60,8 +60,8 @@ def udp_server(host='0.0.0.0', port=20777):
     RPM = 0
     LED_COUNT = 0
 
-    strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    strip.begin()
+    '''strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    strip.begin()'''
 
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -285,7 +285,7 @@ def udp_server(host='0.0.0.0', port=20777):
                         "engineTemperature": list[30],
                     })
 
-                    try:
+                    '''try:
                         if 'revLightsPercent' in data_dict_cartelemetry:
                             LED_COUNT = int(18 * (data_dict_cartelemetry['revLightsPercent'] / 100))
 
@@ -334,7 +334,7 @@ def udp_server(host='0.0.0.0', port=20777):
                                         strip.setPixelColor(x, Color(0, 0, 0))
 
                     except Exception as e:
-                        print(f"Error in LED handling: {e}")
+                        print(f"Error in LED handling: {e}")'''
 
                     ## MFD Panel Index változásának ellenőrzése
                     if ctp.field2 != mfdPanelIndex:
@@ -375,7 +375,7 @@ def udp_server(host='0.0.0.0', port=20777):
                         'networkPaused': list[24],
                     })
 
-                    try:
+                    '''try:
                         current_time = int(time.time())
                         if 'vehicleFiaFlags' in data_dict_carstatus:
                             if current_time - start_time % 2 == 0:
@@ -399,7 +399,7 @@ def udp_server(host='0.0.0.0', port=20777):
 
 
                     except Exception as e:
-                        print(f"Error in LED handling (flags): {e}")
+                        print(f"Error in LED handling (flags): {e}")'''
 
                 case 10:
                     cdp = unpack_cardamagepacket(telemetry, h.field11)
@@ -455,7 +455,7 @@ def udp_server(host='0.0.0.0', port=20777):
 
 
 
-            strip.show()
+            #strip.show()
 
         except socket.error as e:
             print(f"Socket error: {e}")
@@ -690,14 +690,14 @@ if __name__ == '__main__':
     # Call the update function periodically
     #root.after(1000, update_telemetry_data)
     ## Csak a kijelzőt mutatja, nincs ablakkeret
-    root.overrideredirect(True)
+    #root.overrideredirect(True)
 
-    '''defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()'''
+    defdisplay = DefaultDisplay(root)
+    defdisplay.create_default_display()
 
-    M = Master(root)
+    '''M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)
+    root.after(5, M.update_mfd)'''
 
     # Run the Tkinter main loop
     root.mainloop()

@@ -41,7 +41,7 @@ class DefaultDisplay:
         self.root = root
 
     def create_default_display(self):
-        self.canvas = tk.Canvas(self.root, height=480, width=800, bg="white")
+        self.canvas = tk.Canvas(self.root, height=500, width=800, bg="white")
         self.canvas.pack()
         self.kmphframe = tk.Frame(self.root, height=100, width=200, bg="black")
         self.kmphframe.place(x=0, y=0)
@@ -133,20 +133,52 @@ class DefaultDisplay:
         self.brake_bias_text_label = tk.Label(self.brake_bias_frame, text="FRONT BRAKE BIAS", fg="white", bg="black", font=("Formula1", 9, "bold"))
         self.brake_bias_text_label.place(relx=0.5, rely=0.7, anchor="center")
 
+        #self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
+        #self.brakeindicatorframe.place(x=0, y=382.5)
+
+        self.ers_harvest_25_indicator = tk.Frame(self.root, height=113, width=49, bg="darkred")
+        self.ers_harvest_25_indicator.place(x=0, y=382.5)
+        self.ers_harvest_50_indicator = tk.Frame(self.root, height=113, width=49, bg="darkred")
+        self.ers_harvest_50_indicator.place(x=50, y=382.5)
+        self.ers_harvest_75_indicator = tk.Frame(self.root, height=113, width=49, bg="darkred")
+        self.ers_harvest_75_indicator.place(x=100, y=382.5)
+        self.ers_harvest_100_indicator = tk.Frame(self.root, height=113, width=49, bg="darkred")
+        self.ers_harvest_100_indicator.place(x=150, y=382.5)
 
 
 
+        child_width_brake = float(0.23 * 200)
+        self.ers_harvest_indicatorfillframe = tk.Frame(self.root, height=113, width=child_width_brake, bg="red")
+        self.ers_harvest_indicatorfillframe.place(x=0, y=382.5)
 
-        self.brakeindicatorframe = tk.Frame(self.root, height=114, width=200, bg="darkred")
-        self.brakeindicatorframe.place(x=0, y=382.5)
-        child_width_brake = float(0.8 * 200)
-        self.brakeindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_brake, bg="red")
-        self.brakeindicatorfillframe.place(x=0, y=382.5)
+        #self.ersindicatorframe = tk.Frame(self.root, height=114, width=402, bg="#cca300")
+        #self.ersindicatorframe.place(x=201, y=382.5)
 
-        self.ersindicatorframe = tk.Frame(self.root, height=114, width=402, bg="#cca300")
-        self.ersindicatorframe.place(x=201, y=382.5)
-        child_width_ers = float(0.82 * 402)
-        self.ersindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_ers, bg="#ffff00")
+        self.ers_10_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_10_indicator.place(x=201.9, y=382.5)
+        self.ers_20_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_20_indicator.place(x=241.9, y=382.5)
+        self.ers_30_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_30_indicator.place(x=281.9, y=382.5)
+        self.ers_40_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_40_indicator.place(x=321.9, y=382.5)
+        self.ers_50_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_50_indicator.place(x=361.9, y=382.5)
+        self.ers_60_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_60_indicator.place(x=401.9, y=382.5)
+        self.ers_70_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_70_indicator.place(x=442, y=382.5)
+        self.ers_80_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_80_indicator.place(x=482.1, y=382.5)
+        self.ers_90_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_90_indicator.place(x=522.2, y=382.5)
+        self.ers_100_indicator = tk.Frame(self.root, height=113, width=39, bg="#cca300")
+        self.ers_100_indicator.place(x=562.3, y=382.5)
+
+
+
+        child_width_ers = float(0.82 * 401)
+        self.ersindicatorfillframe = tk.Frame(self.root, height=113, width=child_width_ers, bg="#ffff00")
         self.ersindicatorfillframe.place(x=201, y=382.5)
         self.ers_percentage_label = tk.Label(self.root, text="82%", fg="white", bg="black", font=("Formula1", 18, "bold"))
         self.ers_percentage_label.place(in_=self.root, x=360, y=385)
@@ -157,11 +189,22 @@ class DefaultDisplay:
         self.ers_label = tk.Label(self.ersframe, text="NONE", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.ers_label.place(relx=0.5, rely=0.45, anchor="center")
 
-        self.acceleratorindicatorframe = tk.Frame(self.root, height=114, width=202, bg="darkgreen")
-        self.acceleratorindicatorframe.place(x=604, y=382.5)
+        #self.acceleratorindicatorframe = tk.Frame(self.root, height=114, width=202, bg="darkgreen")
+        #self.acceleratorindicatorframe.place(x=604, y=382.5)
+
+        self.ers_deploy_25_indicator = tk.Frame(self.root, height=113, width=49, bg="darkgreen")
+        self.ers_deploy_25_indicator.place(x=604, y=382.5)
+        self.ers_deploy_50_indicator = tk.Frame(self.root, height=113, width=49, bg="darkgreen")
+        self.ers_deploy_50_indicator.place(x=654, y=382.5)
+        self.ers_deploy_75_indicator = tk.Frame(self.root, height=113, width=49, bg="darkgreen")
+        self.ers_deploy_75_indicator.place(x=704, y=382.5)
+        self.ers_deploy_100_indicator = tk.Frame(self.root, height=113, width=49, bg="darkgreen")
+        self.ers_deploy_100_indicator.place(x=754, y=382.5)
+
+
         child_width_accelator = float(0.3 * 202)
-        self.acceleratorindicatorfillframe = tk.Frame(self.root, height=114, width=child_width_accelator, bg="#00ff00")
-        self.acceleratorindicatorfillframe.place(x=604, y=382.5)
+        self.ers_deploy_indicatorfillframe = tk.Frame(self.root, height=114, width=child_width_accelator, bg="#00ff00")
+        self.ers_deploy_indicatorfillframe.place(x=604, y=382.5)
 
         return self.canvas
 
@@ -197,11 +240,11 @@ class DefaultDisplay:
                 else:
                     self.gear_label.config(text=f"{data_dict_cartelemetry['gear']}")
 
-            if 'throttle' in data_dict_cartelemetry:
-                self.acceleratorindicatorfillframe.config(width=float(data_dict_cartelemetry['throttle'] * 202))
+            if 'ersDeployedThisLap' in data_dict_carstatus:
+                self.ers_deploy_indicatorfillframe.config(width=float((data_dict_carstatus['ersDeployedThisLap']/maximum_energy_deployed) * 202))
 
-            if 'brake' in data_dict_cartelemetry:
-                self.brakeindicatorfillframe.config(width=float(data_dict_cartelemetry['brake'] * 200))
+            if 'ersHarvestedThisLapMGUK' in data_dict_carstatus:
+                self.ers_harvest_indicatorfillframe.config(width=float(((data_dict_carstatus['ersHarvestedThisLapMGUK'] + data_dict_carstatus['ersHarvestedThisLapMGUH']) / maximum_energy_harvested) * 200))
 
             if 'ersStoreEnergy' in data_dict_carstatus:
                 stored_energy_in_percentage = data_dict_carstatus['ersStoreEnergy'] / maximum_energy_storage * 100
