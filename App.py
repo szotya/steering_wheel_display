@@ -5,6 +5,7 @@ import socket
 from Graphics import *
 from UDPunpack import unpack_carsetupdatapacket, unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 from SharedVars import *
+import time
 
 ###Ez kell a ledekhez
 from rpi_ws281x import *
@@ -71,6 +72,7 @@ def udp_server(host='0.0.0.0', port=20777):
     # Bind the socket to the port
     server_address = (host, port)
     sock.bind(server_address)
+    start_time = int(time.time())
 
     while True:
 
@@ -374,20 +376,25 @@ def udp_server(host='0.0.0.0', port=20777):
                     })
 
                     try:
+                        current_time = int(time.time())
                         if 'vehicleFiaFlags' in data_dict_carstatus:
-                            if data_dict_carstatus['vehicleFiaFlags'] == 1:
-                                for x in range(19, 24):
-                                    strip.setPixelColor(x, Color(0, 255, 0))
+                            if current_time - start_time % 2 == 0:
+                                if data_dict_carstatus['vehicleFiaFlags'] == 1:
+                                    for x in range(19, 25):
+                                        strip.setPixelColor(x, Color(0, 255, 0))
 
-                            elif data_dict_carstatus['vehicleFiaFlags'] == 2:
-                                for x in range(19, 24):
-                                    strip.setPixelColor(x, Color(0, 0, 255))
+                                elif data_dict_carstatus['vehicleFiaFlags'] == 2:
+                                    for x in range(19, 25):
+                                        strip.setPixelColor(x, Color(0, 0, 255))
 
-                            elif data_dict_carstatus['vehicleFiaFlags'] == 3:
-                                for x in range(19, 24):
-                                    strip.setPixelColor(x, Color(255, 255, 0))
+                                elif data_dict_carstatus['vehicleFiaFlags'] == 3:
+                                    for x in range(19, 25):
+                                        strip.setPixelColor(x, Color(255, 255, 0))
+                                else:
+                                    for x in range(19, 25):
+                                        strip.setPixelColor(x, Color(0, 0, 0))
                             else:
-                                for x in range(19, 24):
+                                for x in range(19, 25):
                                     strip.setPixelColor(x, Color(0, 0, 0))
 
 
@@ -460,81 +467,6 @@ def delta_reset(bestlapsector: dict, bestlapmeters: dict):
     data_dict_flyingdelta.update({'delta': 0.000})
     bestlapsector.clear()
     bestlapmeters.clear()
-
-
-def rpm_leds():
-    global data_dict_cartelemetry
-    MAX_LED_COUNT = 18  # Number of LED pixels.
-    LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
-    # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
-    LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-    LED_DMA = 10  # DMA channel to use for generating signal (try 10)
-    LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
-    LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
-    LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
-    DRS = 0 # DRS is not active
-    RPM = 0
-    LED_COUNT = 0
-
-    '''strip = Adafruit_NeoPixel(MAX_LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    strip.begin()
-
-    while True:
-        try:
-            if 'revLightsPercent' in data_dict_cartelemetry:
-                LED_COUNT = int(MAX_LED_COUNT * (data_dict_cartelemetry['revLightsPercent']/100))
-                RPM = data_dict_cartelemetry['revLightsPercent']
-    
-            else:
-                LED_COUNT = 0
-    
-            if 'drs' in data_dict_cartelemetry:
-                DRS = data_dict_cartelemetry['drs']
-    
-            if DRS == 1:
-                strip.setPixelColor(0, Color(0, 255, 0))
-                strip.setPixelColor(1, Color(0, 255, 0))
-                strip.setPixelColor(2, Color(0, 0, 0))
-                strip.setPixelColor(3, Color(0, 0, 0))
-                strip.setPixelColor(4, Color(0, 0, 0))
-                strip.setPixelColor(5, Color(0, 0, 0))
-    
-    
-                for x in range(6, MAX_LED_COUNT):
-                    if x <= LED_COUNT:
-                        if x < 12:
-                            strip.setPixelColor(x, Color(255, 0, 0))
-                        else:
-                            strip.setPixelColor(x, Color(102, 0, 255))
-                    else:
-                        if x < 12:
-                            strip.setPixelColor(x, Color(0, 0, 0))
-                        else:
-                            strip.setPixelColor(x, Color(0, 0, 0))
-    
-    
-            else:
-                for x in range(0, MAX_LED_COUNT):
-                    if x <= LED_COUNT:
-                        if x < 6:
-                            strip.setPixelColor(x, Color(0, 255, 0))
-                        elif x < 12:
-                            strip.setPixelColor(x, Color(255, 0, 0))
-                        else:
-                            strip.setPixelColor(x, Color(102, 0, 255))
-                    else:
-                        if x < 6:
-                            strip.setPixelColor(x, Color(0, 0, 0))
-                        elif x < 12:
-                            strip.setPixelColor(x, Color(0, 0, 0))
-                        else:
-                            strip.setPixelColor(x, Color(0, 0, 0))
-    
-            strip.show()
-        expect Exception as e:
-            print(f"Error in rpm_leds: {e}")
-        '''
-        #print(f"led szám: {LED_COUNT}, revLights érték: {RPM} DRS?: {DRS}")
 
 class Master:
     def __init__(self,root):
