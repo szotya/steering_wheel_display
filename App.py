@@ -41,6 +41,7 @@ def udp_server(host='0.0.0.0', port=20777):
     global besttyresetslist
     global packetType
     global data_dict_flyingdelta
+    whereIsHeJoin = "notmid"
     data_dict_bestlap_meters = {}
     data_bestlap_sectors = {}
     data_dict_currentlap_sectors = {}
@@ -172,28 +173,28 @@ def udp_server(host='0.0.0.0', port=20777):
                                     data_dict_flyingdelta.update({'delta': delta})'''
 
                             if data_dict_delta['lastLapTime'] == bestlap[0] and data_dict_delta['currentLapNum'] >= 3:
-                                print("end of lap")
-                                #data_bestlap_sectors = data_dict_currentlap_sectors
+                                #data_bestlap_sectors = data_dict_currentlap_sectors.copy()
                                 if data_dict_delta['currentLapNum'] % 2 == 0 and len(data_dict_currentlap_meters_odd) > 0:
-                                    print("prev: odd")
                                     data_dict_bestlap_meters = data_dict_currentlap_meters_odd.copy()
                                     data_dict_currentlap_meters_odd.clear()
                                 elif data_dict_delta['currentLapNum'] % 2 != 0 and len(data_dict_currentlap_meters_even) > 0:
-                                    print("prev: even")
                                     data_dict_bestlap_meters = data_dict_currentlap_meters_even.copy()
                                     data_dict_currentlap_meters_even.clear()
                         elif data_dict_delta['currentLapNum'] > 1 and data_dict_delta['currentLapTimeInMs'] > 0 and len(bestlap) > 0:
-                            '''if not bool(data_bestlap_sectors):
+                            if not bool(data_bestlap_sectors):
                                 print("midgamejoin")
+                                whereIsHeJoin = "mid"
                                 data_bestlap_sectors = {
                                     'sector1TimeInMs': bestlap[1],
                                     'sector2TimeInMs': bestlap[3],
-                                }'''
+                                }
                             pass
                         else:
                             if data_dict_delta['currentLapTimeInMs'] > 0:
+                                #Első körös mérer és másodpercgyűjtés
                                 data_dict_bestlap_meters.update({f"{data_dict_delta['lapDistance']}": data_dict_delta['currentLapTimeInMs']})
 
+                                # Első körös szektor
                                 if 'sector1TimeInMs' in data_dict_delta and data_dict_delta['sector1TimeInMs'] > 0:
                                     data_bestlap_sectors.update({
                                         'sector1TimeInMs': data_dict_delta['sector1TimeInMs'],
@@ -558,6 +559,7 @@ class Master:
                     self.root.after(5, self.e.update_engine_display)
 
             elif data_dict_sessionpacket['sessionType'] == 13:
+                print("time trial")
                 if mfdnum == 6:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
@@ -667,37 +669,19 @@ if __name__ == '__main__':
     udp_thread = threading.Thread(target=udp_server)
     udp_thread.start()
 
-    '''delta_thread = FlyingDeltaCalc()
-    delta_thread.start()
-
-    controll_thread = ThreadControllerByEvent()
-    controll_thread.start()'''
-
-    #flying_delta_thread = threading.Thread(target=flying_delta_calculation, daemon=True)
-    #flying_delta_thread.start()
-
-    #rpm_thread = threading.Thread(target=rpm_leds)
-    #rpm_thread.start()
-
     root = tk.Tk()
     root.title("Steering Wheel Display")
     root.geometry("800x480")
 
-    #root.attributes('-fullscreen', True)
-    #root.bind("<F11>", lambda event: root.attributes("-fullscreen",
-    #                                                  not root.attributes("-fullscreen")))
-    #root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
-    # Call the update function periodically
-    #root.after(1000, update_telemetry_data)
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()
+    #defdisplay = DefaultDisplay(root)
+    #defdisplay.create_default_display()
 
-    '''M = Master(root)
+    M = Master(root)
     M.__call__(mfdPanelIndex)
-    root.after(5, M.update_mfd)'''
+    root.after(5, M.update_mfd)
 
     # Run the Tkinter main loop
     root.mainloop()

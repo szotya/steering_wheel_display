@@ -241,10 +241,10 @@ class DefaultDisplay:
                     self.gear_label.config(text=f"{data_dict_cartelemetry['gear']}")
 
             if 'ersDeployedThisLap' in data_dict_carstatus:
-                self.ers_deploy_indicatorfillframe.config(width=float((data_dict_carstatus['ersDeployedThisLap']/maximum_energy_deployed) * 202))
+                self.ers_deploy_indicatorfillframe.config(width=float((1 - (data_dict_carstatus['ersDeployedThisLap']/maximum_energy_deployed)) * 202))
 
             if 'ersHarvestedThisLapMGUK' in data_dict_carstatus:
-                self.ers_harvest_indicatorfillframe.config(width=float(((data_dict_carstatus['ersHarvestedThisLapMGUK'] + data_dict_carstatus['ersHarvestedThisLapMGUH']) / maximum_energy_harvested) * 200))
+                self.ers_harvest_indicatorfillframe.config(width=float((data_dict_carstatus['ersHarvestedThisLapMGUK'] / maximum_energy_harvested) * 200))
 
             if 'ersStoreEnergy' in data_dict_carstatus:
                 stored_energy_in_percentage = data_dict_carstatus['ersStoreEnergy'] / maximum_energy_storage * 100
@@ -698,77 +698,78 @@ class CarDamage:
     def update_damage_display(self):
         if self.canvas is not None and self.canvas.winfo_exists():
             global data_dict_cardamage
+            imgswp = ImageSwapper()
             if 'frontLeftWingDamage' in data_dict_cardamage:
                 fldamage = int(data_dict_cardamage['frontLeftWingDamage'])
                 if fldamage < 10:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[0])
-                    swapImages(self, listoffrontwingrightstatus[0], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[0], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 20:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[1])
-                    swapImages(self, listoffrontwingrightstatus[1], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[1], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 30:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[2])
-                    swapImages(self, listoffrontwingrightstatus[2], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[2], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 40:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[3])
-                    swapImages(self, listoffrontwingrightstatus[3], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[3], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 50:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[4])
-                    swapImages(self, listoffrontwingrightstatus[4], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[4], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 60:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[5])
-                    swapImages(self, listoffrontwingrightstatus[5], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[5], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 70:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[6])
-                    swapImages(self, listoffrontwingrightstatus[6], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[6], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 80:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[7])
-                    swapImages(self, listoffrontwingrightstatus[7], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[7], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 90:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[8])
-                    swapImages(self, listoffrontwingrightstatus[8], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[8], 68, 60, self.frontleft, self.frontleft_tk_image)
                 elif fldamage < 100:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[9])
-                    swapImages(self, listoffrontwingrightstatus[9], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[9], 68, 60, self.frontleft, self.frontleft_tk_image)
                 else:
                     #self.front_wing_left_damage(listoffrontwingleftstatus[10])
-                    swapImages(self, listoffrontwingrightstatus[10], 68, 60, self.frontleft, self.frontleft_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingleftstatus[10], 68, 60, self.frontleft, self.frontleft_tk_image)
 
             if 'frontRightWingDamage' in data_dict_cardamage:
                 frdamage = int(data_dict_cardamage['frontRightWingDamage'])
                 if frdamage < 10:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[0])
-                    swapImages(self, listoffrontwingrightstatus[0], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[0], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 20:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[1])
-                    swapImages(self, listoffrontwingrightstatus[1], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[1], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 30:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[2])
-                    swapImages(self, listoffrontwingrightstatus[2], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[2], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 40:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[3])
-                    swapImages(self, listoffrontwingrightstatus[3], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[3], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 50:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[4])
-                    swapImages(self, listoffrontwingrightstatus[4], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[4], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 60:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[5])
-                    swapImages(self, listoffrontwingrightstatus[5], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[5], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 70:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[6])
-                    swapImages(self, listoffrontwingrightstatus[6], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[6], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 80:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[7])
-                    swapImages(self, listoffrontwingrightstatus[7], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[7], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 90:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[8])
-                    swapImages(self, listoffrontwingrightstatus[8], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[8], 68, 60, self.frontright, self.frontright_tk_image)
                 elif frdamage < 100:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[9])
-                    swapImages(self, listoffrontwingrightstatus[9], 68, 60, self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas, listoffrontwingrightstatus[9], 68, 60, self.frontright, self.frontright_tk_image)
                 else:
                     #self.front_wing_right_damage(listoffrontwingrightstatus[10])
-                    swapImages(self,listoffrontwingrightstatus[10],68,60,self.frontright, self.frontright_tk_image)
+                    imgswp.swapImages(self.canvas,listoffrontwingrightstatus[10],68,60,self.frontright, self.frontright_tk_image)
 
             if 'FLTyreDamage' in data_dict_cardamage:
                 fltdamage = int(data_dict_cardamage['FLTyreDamage'])
@@ -777,57 +778,57 @@ class CarDamage:
                     self.fl_percent_label.config(fg="#00ff00")
                     self.fl_percent_label.place(x=211.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[0])
-                    swapImages(self, listoffronttyrestatus[0], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[0], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 20:
                     self.fl_percent_label.config(fg="#88f612")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[1])
-                    swapImages(self, listoffronttyrestatus[1], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[1], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 30:
                     self.fl_percent_label.config(fg="#aef317")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[2])
-                    swapImages(self, listoffronttyrestatus[2], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[2], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 40:
                     self.fl_percent_label.config(fg="#cff11b")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[3])
-                    swapImages(self, listoffronttyrestatus[3], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[3], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 50:
                     self.fl_percent_label.config(fg="#ebef1f")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[4])
-                    swapImages(self, listoffronttyrestatus[4], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[4], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 60:
                     self.fl_percent_label.config(fg="#fcee21")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[5])
-                    swapImages(self, listoffronttyrestatus[5], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[5], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 70:
                     self.fl_percent_label.config(fg="#fccc1f")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[6])
-                    swapImages(self, listoffronttyrestatus[6], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[6], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 80:
                     self.fl_percent_label.config(fg="#fda61d")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[7])
-                    swapImages(self, listoffronttyrestatus[7], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[7], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 90:
                     self.fl_percent_label.config(fg="#fd7e1b")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[8])
-                    swapImages(self, listoffronttyrestatus[8], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[8], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 elif fltdamage < 100:
                     self.fl_percent_label.config(fg="#fe5519")
                     self.fl_percent_label.place(x=201.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[9])
-                    swapImages(self, listoffronttyrestatus[9], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[9], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
                 else:
                     self.fl_percent_label.config(fg="#ff0015")
                     self.fl_percent_label.place(x=191.5, y=109.5)
                     #self.front_left_tyre_damage(listoffronttyrestatus[10])
-                    swapImages(self, listoffronttyrestatus[10], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[10], 29, 53, self.frontlefttyre, self.frontlefttyre_tk_image)
 
             if 'FRTyreDamage' in data_dict_cardamage:
                 frtdamage = int(data_dict_cardamage['FRTyreDamage'])
@@ -836,57 +837,57 @@ class CarDamage:
                     self.fr_percent_label.config(fg="#00ff00")
                     self.fr_percent_label.place(x=541, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[0])
-                    swapImages(self, listoffronttyrestatus[0], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[0], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 20:
                     self.fr_percent_label.config(fg="#88f612")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[1])
-                    swapImages(self, listoffronttyrestatus[1], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[1], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 30:
                     self.fr_percent_label.config(fg="#aef317")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[2])
-                    swapImages(self, listoffronttyrestatus[2], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[2], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 40:
                     self.fr_percent_label.config(fg="#cff11b")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[3])
-                    swapImages(self, listoffronttyrestatus[3], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[3], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 50:
                     self.fr_percent_label.config(fg="#ebef1f")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[4])
-                    swapImages(self, listoffronttyrestatus[4], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[4], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 60:
                     self.fr_percent_label.config(fg="#fcee21")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[5])
-                    swapImages(self, listoffronttyrestatus[5], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[5], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 70:
                     self.fr_percent_label.config(fg="#fccc1f")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[6])
-                    swapImages(self, listoffronttyrestatus[6], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[6], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 80:
                     self.fr_percent_label.config(fg="#fda61d")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[7])
-                    swapImages(self, listoffronttyrestatus[7], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[7], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 90:
                     self.fr_percent_label.config(fg="#fd7e1b")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[8])
-                    swapImages(self, listoffronttyrestatus[8], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[8], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 elif frtdamage < 100:
                     self.fr_percent_label.config(fg="#fe5519")
                     self.fr_percent_label.place(x=531, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[9])
-                    swapImages(self, listoffronttyrestatus[9], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[9], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
                 else:
                     self.fr_percent_label.config(fg="#ff0015")
                     self.fr_percent_label.place(x=521, y=109.5)
                     #self.front_right_tyre_damage(listoffronttyrestatus[10])
-                    swapImages(self, listoffronttyrestatus[10], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyrestatus[10], 29, 53, self.frontrighttyre, self.frontrighttyre_tk_image)
 
             if 'RLTyreDamage' in data_dict_cardamage:
                 rltdamage = int(data_dict_cardamage['RLTyreDamage'])
@@ -895,57 +896,57 @@ class CarDamage:
                     self.rl_percent_label.config(fg="#00ff00")
                     self.rl_percent_label.place(x=211.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[0])
-                    swapImages(self, listofreartyrestatus[0], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[0], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 20:
                     self.rl_percent_label.config(fg="#88f612")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[1])
-                    swapImages(self, listofreartyrestatus[1], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[1], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 30:
                     self.rl_percent_label.config(fg="#aef317")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[2])
-                    swapImages(self, listofreartyrestatus[2], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[2], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 40:
                     self.rl_percent_label.config(fg="#cff11b")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[3])
-                    swapImages(self, listofreartyrestatus[3], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[3], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 50:
                     self.rl_percent_label.config(fg="#ebef1f")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[4])
-                    swapImages(self, listofreartyrestatus[4], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[4], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 60:
                     self.rl_percent_label.config(fg="#fcee21")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[5])
-                    swapImages(self, listofreartyrestatus[5], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[5], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 70:
                     self.rl_percent_label.config(fg="#fccc1f")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[6])
-                    swapImages(self, listofreartyrestatus[6], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[6], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 80:
                     self.rl_percent_label.config(fg="#fda61d")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[7])
-                    swapImages(self, listofreartyrestatus[7], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[7], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 90:
                     self.rl_percent_label.config(fg="#fd7e1b")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[8])
-                    swapImages(self, listofreartyrestatus[8], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[8], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 elif rltdamage < 100:
                     self.rl_percent_label.config(fg="#fe5519")
                     self.rl_percent_label.place(x=201.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[9])
-                    swapImages(self, listofreartyrestatus[9], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[9], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
                 else:
                     self.rl_percent_label.config(fg="#ff0015")
                     self.rl_percent_label.place(x=191.5, y=351)
                     #self.rear_left_tyre_damage(listofreartyrestatus[10])
-                    swapImages(self, listofreartyrestatus[10], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[10], 32, 53, self.rearlefttyre, self.rearlefttyre_tk_image)
 
             if 'RRTyreDamage' in data_dict_cardamage:
                 rrtdamage = int(data_dict_cardamage['RRTyreDamage'])
@@ -954,457 +955,457 @@ class CarDamage:
                     self.rr_percent_label.config(fg="#00ff00")
                     self.rr_percent_label.place(x=541, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[0])
-                    swapImages(self, listofreartyrestatus[0], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[0], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 20:
                     self.rr_percent_label.config(fg="#88f612")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[1])
-                    swapImages(self, listofreartyrestatus[1], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[1], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 30:
                     self.rr_percent_label.config(fg="#aef317")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[2])
-                    swapImages(self, listofreartyrestatus[2], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[2], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 40:
                     self.rr_percent_label.config(fg="#cff11b")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[3])
-                    swapImages(self, listofreartyrestatus[3], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[3], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 50:
                     self.rr_percent_label.config(fg="#ebef1f")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[4])
-                    swapImages(self, listofreartyrestatus[4], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[4], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 60:
                     self.rr_percent_label.config(fg="#fcee21")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[5])
-                    swapImages(self, listofreartyrestatus[5], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[5], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 70:
                     self.rr_percent_label.config(fg="#fccc1f")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[6])
-                    swapImages(self, listofreartyrestatus[6], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[6], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 80:
                     self.rr_percent_label.config(fg="#fda61d")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[7])
-                    swapImages(self, listofreartyrestatus[7], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[7], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 90:
                     self.rr_percent_label.config(fg="#fd7e1b")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[8])
-                    swapImages(self, listofreartyrestatus[8], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[8], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 elif rrtdamage < 100:
                     self.rr_percent_label.config(fg="#fe5519")
                     self.rr_percent_label.place(x=531, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[9])
-                    swapImages(self, listofreartyrestatus[9], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[9], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
                 else:
                     self.rr_percent_label.config(fg="#ff0015")
                     self.rr_percent_label.place(x=521, y=351)
                     #self.rear_right_tyre_damage(listofreartyrestatus[10])
-                    swapImages(self, listofreartyrestatus[10], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyrestatus[10], 32, 53, self.rearrighttyre, self.rearrighttyre_tk_image)
 
             if 'FLBrakeDamage' in data_dict_cardamage:
                 flbdamage = int(data_dict_cardamage['FLBrakeDamage'])
                 if flbdamage < 10:
                     #self.front_left_brake_damage(listofbrakestatus[0])
-                    swapImages(self, listofbrakestatus[0], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[0], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 20:
                     #self.front_left_brake_damage(listofbrakestatus[1])
-                    swapImages(self, listofbrakestatus[1], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[1], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 30:
                     #self.front_left_brake_damage(listofbrakestatus[2])
-                    swapImages(self, listofbrakestatus[2], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[2], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 40:
                     #self.front_left_brake_damage(listofbrakestatus[3])
-                    swapImages(self, listofbrakestatus[3], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[3], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 50:
                     #self.front_left_brake_damage(listofbrakestatus[4])
-                    swapImages(self, listofbrakestatus[4], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[4], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 60:
                     #self.front_left_brake_damage(listofbrakestatus[5])
-                    swapImages(self, listofbrakestatus[5], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[5], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 70:
                     #self.front_left_brake_damage(listofbrakestatus[6])
-                    swapImages(self, listofbrakestatus[6], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[6], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 80:
                     #self.front_left_brake_damage(listofbrakestatus[7])
-                    swapImages(self, listofbrakestatus[7], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[7], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 90:
                     #self.front_left_brake_damage(listofbrakestatus[8])
-                    swapImages(self, listofbrakestatus[8], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[8], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 elif flbdamage < 100:
                     #self.front_left_brake_damage(listofbrakestatus[9])
-                    swapImages(self, listofbrakestatus[9], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[9], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
                 else:
                     #self.front_left_brake_damage(listofbrakestatus[10])
-                    swapImages(self, listofbrakestatus[10], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[10], 10, 19, self.frontleftbrake, self.frontleftbrake_tk_image)
 
             if 'FRBrakeDamage' in data_dict_cardamage:
                 frbdamage = int(data_dict_cardamage['FRBrakeDamage'])
                 if frbdamage < 10:
                     #self.front_right_brake_damage(listofbrakestatus[0])
-                    swapImages(self, listofbrakestatus[0], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[0], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 20:
                     #self.front_right_brake_damage(listofbrakestatus[1])
-                    swapImages(self, listofbrakestatus[1], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[1], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 30:
                     #self.front_right_brake_damage(listofbrakestatus[2])
-                    swapImages(self, listofbrakestatus[2], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[2], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 40:
                     #self.front_right_brake_damage(listofbrakestatus[3])
-                    swapImages(self, listofbrakestatus[3], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[3], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 50:
                     #self.front_right_brake_damage(listofbrakestatus[4])
-                    swapImages(self, listofbrakestatus[4], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[4], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 60:
                     #self.front_right_brake_damage(listofbrakestatus[5])
-                    swapImages(self, listofbrakestatus[5], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[5], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 70:
                     #self.front_right_brake_damage(listofbrakestatus[6])
-                    swapImages(self, listofbrakestatus[6], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[6], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 80:
                     #self.front_right_brake_damage(listofbrakestatus[7])
-                    swapImages(self, listofbrakestatus[7], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[7], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 90:
                     #self.front_right_brake_damage(listofbrakestatus[8])
-                    swapImages(self, listofbrakestatus[8], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[8], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 elif frbdamage < 100:
                     #self.front_right_brake_damage(listofbrakestatus[9])
-                    swapImages(self, listofbrakestatus[9], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[9], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
                 else:
                     #self.front_right_brake_damage(listofbrakestatus[10])
-                    swapImages(self, listofbrakestatus[10], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[10], 10, 19, self.frontrightbrake, self.frontrightbrake_tk_image)
 
             if 'RLBrakeDamage' in data_dict_cardamage:
                 rlbdamage = int(data_dict_cardamage['RLBrakeDamage'])
                 if rlbdamage < 10:
                     #self.rear_left_brake_damage(listofbrakestatus[0])
-                    swapImages(self, listofbrakestatus[0], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[0], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 20:
                     #self.rear_left_brake_damage(listofbrakestatus[1])
-                    swapImages(self, listofbrakestatus[1], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[1], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 30:
                     #self.rear_left_brake_damage(listofbrakestatus[2])
-                    swapImages(self, listofbrakestatus[2], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[2], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 40:
                     #self.rear_left_brake_damage(listofbrakestatus[3])
-                    swapImages(self, listofbrakestatus[3], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[3], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 50:
                     #self.rear_left_brake_damage(listofbrakestatus[4])
-                    swapImages(self, listofbrakestatus[4], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[4], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 60:
                     #self.rear_left_brake_damage(listofbrakestatus[5])
-                    swapImages(self, listofbrakestatus[5], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[5], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 70:
                     #self.rear_left_brake_damage(listofbrakestatus[6])
-                    swapImages(self, listofbrakestatus[6], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[6], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 80:
                     #self.rear_left_brake_damage(listofbrakestatus[7])
-                    swapImages(self, listofbrakestatus[7], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[7], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 90:
                     #self.rear_left_brake_damage(listofbrakestatus[8])
-                    swapImages(self, listofbrakestatus[8], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[8], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 elif rlbdamage < 100:
                     #self.rear_left_brake_damage(listofbrakestatus[9])
-                    swapImages(self, listofbrakestatus[9], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[9], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
                 else:
                     #self.rear_left_brake_damage(listofbrakestatus[10])
-                    swapImages(self, listofbrakestatus[10], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[10], 10, 19, self.rearleftbrake, self.rearleftbrake_tk_image)
 
             if 'RRBrakeDamage' in data_dict_cardamage:
                 rrbdamage = int(data_dict_cardamage['RRBrakeDamage'])
                 if rrbdamage < 10:
                     #self.rear_right_brake_damage(listofbrakestatus[0])
-                    swapImages(self, listofbrakestatus[0], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[0], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 20:
                     #self.rear_right_brake_damage(listofbrakestatus[1])
-                    swapImages(self, listofbrakestatus[1], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[1], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 30:
                     #self.rear_right_brake_damage(listofbrakestatus[2])
-                    swapImages(self, listofbrakestatus[2], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[2], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 40:
                     #self.rear_right_brake_damage(listofbrakestatus[3])
-                    swapImages(self, listofbrakestatus[3], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[3], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 50:
                     #self.rear_right_brake_damage(listofbrakestatus[4])
-                    swapImages(self, listofbrakestatus[4], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[4], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 60:
                     #self.rear_right_brake_damage(listofbrakestatus[5])
-                    swapImages(self, listofbrakestatus[5], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[5], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 70:
                     #self.rear_right_brake_damage(listofbrakestatus[6])
-                    swapImages(self, listofbrakestatus[6], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[6], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 80:
                     #self.rear_right_brake_damage(listofbrakestatus[7])
-                    swapImages(self, listofbrakestatus[7], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[7], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 90:
                     #self.rear_right_brake_damage(listofbrakestatus[8])
-                    swapImages(self, listofbrakestatus[8], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[8], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 elif rrbdamage < 100:
                     #self.rear_right_brake_damage(listofbrakestatus[9])
-                    swapImages(self, listofbrakestatus[9], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[9], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
                 else:
                     #self.rear_right_brake_damage(listofbrakestatus[10])
-                    swapImages(self, listofbrakestatus[10], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakestatus[10], 10, 19, self.rearrightbrake, self.rearrightbrake_tk_image)
 
             if 'rearWingDamage' in data_dict_cardamage:
                 rwdamage = int(data_dict_cardamage['rearWingDamage'])
                 if rwdamage < 10:
                     #self.rear_wing_damage(listofrearwingstatus[0])
-                    swapImages(self, listofrearwingstatus[0], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[0], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 20:
                     #self.rear_wing_damage(listofrearwingstatus[1])
-                    swapImages(self, listofrearwingstatus[1], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[1], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 30:
                     #self.rear_wing_damage(listofrearwingstatus[2])
-                    swapImages(self, listofrearwingstatus[2], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[2], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 40:
                     #self.rear_wing_damage(listofrearwingstatus[3])
-                    swapImages(self, listofrearwingstatus[3], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[3], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 50:
                     #self.rear_wing_damage(listofrearwingstatus[4])
-                    swapImages(self, listofrearwingstatus[4], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[4], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 60:
                     #self.rear_wing_damage(listofrearwingstatus[5])
-                    swapImages(self, listofrearwingstatus[5], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[5], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 70:
                     #self.rear_wing_damage(listofrearwingstatus[6])
-                    swapImages(self, listofrearwingstatus[6], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[6], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 80:
                     #self.rear_wing_damage(listofrearwingstatus[7])
-                    swapImages(self, listofrearwingstatus[7], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[7], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 90:
                     #self.rear_wing_damage(listofrearwingstatus[8])
-                    swapImages(self, listofrearwingstatus[8], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[8], 91, 36, self.rearwing, self.rearwing_tk_image)
                 elif rwdamage < 100:
                     #self.rear_wing_damage(listofrearwingstatus[9])
-                    swapImages(self, listofrearwingstatus[9], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[9], 91, 36, self.rearwing, self.rearwing_tk_image)
                 else:
                     #self.rear_wing_damage(listofrearwingstatus[10])
-                    swapImages(self, listofrearwingstatus[10], 91, 36, self.rearwing, self.rearwing_tk_image)
+                    imgswp.swapImages(self.canvas, listofrearwingstatus[10], 91, 36, self.rearwing, self.rearwing_tk_image)
 
             if 'floorDamage' in data_dict_cardamage:
                 lfdamage = int(data_dict_cardamage['floorDamage'])
                 if lfdamage < 10:
                     #self.left_floor_damage(listoffloorleftstatus[0])
-                    swapImages(self, listoffloorleftstatus[0], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[0], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[0], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[0], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 20:
                     #self.left_floor_damage(listoffloorleftstatus[1])
-                    swapImages(self, listoffloorleftstatus[1], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[1], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[1], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[1], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 30:
                     #self.left_floor_damage(listoffloorleftstatus[2])
-                    swapImages(self, listoffloorleftstatus[2], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[2], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[2], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[2], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 40:
                     #self.left_floor_damage(listoffloorleftstatus[3])
-                    swapImages(self, listoffloorleftstatus[3], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[3], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[3], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[3], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 50:
                     #self.left_floor_damage(listoffloorleftstatus[4])
-                    swapImages(self, listoffloorleftstatus[4], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[4], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[4], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[4], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 60:
                     #self.left_floor_damage(listoffloorleftstatus[5])
-                    swapImages(self, listoffloorleftstatus[5], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[5], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[5], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[5], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 70:
                     #self.left_floor_damage(listoffloorleftstatus[6])
-                    swapImages(self, listoffloorleftstatus[6], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[6], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[6], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[6], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 80:
                     #self.left_floor_damage(listoffloorleftstatus[7])
-                    swapImages(self, listoffloorleftstatus[7], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[7], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[7], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[7], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 90:
                     #self.left_floor_damage(listoffloorleftstatus[8])
-                    swapImages(self, listoffloorleftstatus[8], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[8], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[8], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[8], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 elif lfdamage < 100:
                     #self.left_floor_damage(listoffloorleftstatus[9])
-                    swapImages(self, listoffloorleftstatus[9], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[9], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[9], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[9], 45, 182, self.rightfloor, self.rightfloor_tk_image)
                 else:
                     #self.left_floor_damage(listoffloorleftstatus[10])
-                    swapImages(self, listoffloorleftstatus[10], 45, 182, self.leftfloor, self.leftfloor_tk_image)
-                    swapImages(self, listoffloorrightstatus[10], 45, 182, self.rightfloor, self.rightfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorleftstatus[10], 45, 182, self.leftfloor, self.leftfloor_tk_image)
+                    imgswp.swapImages(self.canvas, listoffloorrightstatus[10], 45, 182, self.rightfloor, self.rightfloor_tk_image)
 
             if 'sidepodDamage' in data_dict_cardamage:
                 lsddamage = int(data_dict_cardamage['sidepodDamage'])
                 if lsddamage < 10:
                     #self.left_sidepod_damage(listofsidepodleftstatus[0])
-                    swapImages(self, listofsidepodleftstatus[0], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[0], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[0], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[0], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 20:
                     #self.left_sidepod_damage(listofsidepodleftstatus[1])
-                    swapImages(self, listofsidepodleftstatus[1], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[1], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[1], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[1], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 30:
                     #self.left_sidepod_damage(listofsidepodleftstatus[2])
-                    swapImages(self, listofsidepodleftstatus[2], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[2], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[2], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[2], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 40:
                     #self.left_sidepod_damage(listofsidepodleftstatus[3])
-                    swapImages(self, listofsidepodleftstatus[3], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[3], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[3], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[3], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 50:
                     #self.left_sidepod_damage(listofsidepodleftstatus[4])
-                    swapImages(self, listofsidepodleftstatus[4], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[4], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[4], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[4], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 60:
                     #self.left_sidepod_damage(listofsidepodleftstatus[5])
-                    swapImages(self, listofsidepodleftstatus[5], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[5], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[5], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[5], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 70:
                     #self.left_sidepod_damage(listofsidepodleftstatus[6])
-                    swapImages(self, listofsidepodleftstatus[6], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[6], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[6], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[6], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 80:
                     #self.left_sidepod_damage(listofsidepodleftstatus[7])
-                    swapImages(self, listofsidepodleftstatus[7], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[7], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[7], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[7], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 90:
                     #self.left_sidepod_damage(listofsidepodleftstatus[8])
-                    swapImages(self, listofsidepodleftstatus[8], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[8], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[8], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[8], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 elif lsddamage < 100:
                     #self.left_sidepod_damage(listofsidepodleftstatus[9])
-                    swapImages(self, listofsidepodleftstatus[9], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[9], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[9], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[9], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
                 else:
                     #self.left_sidepod_damage(listofsidepodleftstatus[10])
-                    swapImages(self, listofsidepodleftstatus[10], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
-                    swapImages(self, listofsidepodrightstatus[10], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodleftstatus[10], 37, 124, self.leftsidepod, self.leftsidepod_tk_image)
+                    imgswp.swapImages(self.canvas, listofsidepodrightstatus[10], 37, 124, self.rightsidepod, self.rightsidepod_tk_image)
 
             if 'engineDamage' in data_dict_cardamage:
                 edamage = int(data_dict_cardamage['engineDamage'])
                 if edamage < 10:
                     #self.engine_damage(listofenginestatus[0])
-                    swapImages(self, listofenginestatus[0], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[0], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 20:
                     #self.engine_damage(listofenginestatus[1])
-                    swapImages(self, listofenginestatus[1], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[1], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 30:
                     #self.engine_damage(listofenginestatus[2])
-                    swapImages(self, listofenginestatus[2], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[2], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 40:
                     #self.engine_damage(listofenginestatus[3])
-                    swapImages(self, listofenginestatus[3], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[3], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 50:
                     #self.engine_damage(listofenginestatus[4])
-                    swapImages(self, listofenginestatus[4], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[4], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 60:
                     #self.engine_damage(listofenginestatus[5])
-                    swapImages(self, listofenginestatus[5], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[5], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 70:
                     #self.engine_damage(listofenginestatus[6])
-                    swapImages(self, listofenginestatus[6], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[6], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 80:
                     #self.engine_damage(listofenginestatus[7])
-                    swapImages(self, listofenginestatus[7], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[7], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 90:
                     #self.engine_damage(listofenginestatus[8])
-                    swapImages(self, listofenginestatus[8], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[8], 51, 60, self.engine, self.engine_tk_image)
                 elif edamage < 100:
                     #self.engine_damage(listofenginestatus[9])
-                    swapImages(self, listofenginestatus[9], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[9], 51, 60, self.engine, self.engine_tk_image)
                 else:
                     #self.engine_damage(listofenginestatus[10])
-                    swapImages(self, listofenginestatus[10], 51, 60, self.engine, self.engine_tk_image)
+                    imgswp.swapImages(self.canvas, listofenginestatus[10], 51, 60, self.engine, self.engine_tk_image)
 
             if 'gearBoxDamage' in data_dict_cardamage:
                 gdamage = int(data_dict_cardamage['gearBoxDamage'])
                 if gdamage < 10:
                     #self.gearbox_damage(listofgearboxstatus[0])
-                    swapImages(self, listofgearboxstatus[0], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[0], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 20:
                     #self.gearbox_damage(listofgearboxstatus[1])
-                    swapImages(self, listofgearboxstatus[1], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[1], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 30:
                     #self.gearbox_damage(listofgearboxstatus[2])
-                    swapImages(self, listofgearboxstatus[2], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[2], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 40:
                     #self.gearbox_damage(listofgearboxstatus[3])
-                    swapImages(self, listofgearboxstatus[3], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[3], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 50:
                     #self.gearbox_damage(listofgearboxstatus[4])
-                    swapImages(self, listofgearboxstatus[4], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[4], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 60:
                     #self.gearbox_damage(listofgearboxstatus[5])
-                    swapImages(self, listofgearboxstatus[5], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[5], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 70:
                     #self.gearbox_damage(listofgearboxstatus[6])
-                    swapImages(self, listofgearboxstatus[6], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[6], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 80:
                     #self.gearbox_damage(listofgearboxstatus[7])
-                    swapImages(self, listofgearboxstatus[7], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[7], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 90:
                     #self.gearbox_damage(listofgearboxstatus[8])
-                    swapImages(self, listofgearboxstatus[8], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[8], 14, 47, self.gearbox, self.gearbox_tk_image)
                 elif gdamage < 100:
                     #self.gearbox_damage(listofgearboxstatus[9])
-                    swapImages(self, listofgearboxstatus[9], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[9], 14, 47, self.gearbox, self.gearbox_tk_image)
                 else:
                     #self.gearbox_damage(listofgearboxstatus[10])
-                    swapImages(self, listofgearboxstatus[10], 14, 47, self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImages(self.canvas, listofgearboxstatus[10], 14, 47, self.gearbox, self.gearbox_tk_image)
 
             if 'diffuserDamage' in data_dict_cardamage:
                 ddamage = int(data_dict_cardamage['diffuserDamage'])
                 if ddamage < 10:
                     #self.diffuser_damage(listofdiffuserstatus[0])
-                    swapImages(self, listofdiffuserstatus[0], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[0], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 20:
                     #self.diffuser_damage(listofdiffuserstatus[1])
-                    swapImages(self, listofdiffuserstatus[1], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[1], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 30:
                     #self.diffuser_damage(listofdiffuserstatus[2])
-                    swapImages(self, listofdiffuserstatus[2], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[2], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 40:
                     #self.diffuser_damage(listofdiffuserstatus[3])
-                    swapImages(self, listofdiffuserstatus[3], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[3], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 50:
                     #self.diffuser_damage(listofdiffuserstatus[4])
-                    swapImages(self, listofdiffuserstatus[4], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[4], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 60:
                     #self.diffuser_damage(listofdiffuserstatus[5])
-                    swapImages(self, listofdiffuserstatus[5], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[5], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 70:
                     #self.diffuser_damage(listofdiffuserstatus[6])
-                    swapImages(self, listofdiffuserstatus[6], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[6], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 80:
                     #self.diffuser_damage(listofdiffuserstatus[7])
-                    swapImages(self, listofdiffuserstatus[7], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[7], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 90:
                     #self.diffuser_damage(listofdiffuserstatus[8])
-                    swapImages(self, listofdiffuserstatus[8], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[8], 53, 18, self.diffuser, self.diffuser_tk_image)
                 elif ddamage < 100:
                     #self.diffuser_damage(listofdiffuserstatus[9])
-                    swapImages(self, listofdiffuserstatus[9], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[9], 53, 18, self.diffuser, self.diffuser_tk_image)
                 else:
                     #self.diffuser_damage(listofdiffuserstatus[10])
-                    swapImages(self, listofdiffuserstatus[10], 53, 18, self.diffuser, self.diffuser_tk_image)
+                    imgswp.swapImages(self.canvas, listofdiffuserstatus[10], 53, 18, self.diffuser, self.diffuser_tk_image)
 
             if 'ersFault' in data_dict_cardamage:
                 ersdamage = int(data_dict_cardamage['ersFault'])
                 if ersdamage == 0:
                     #self.ers_update('car_damage_pngs/ERS_good.png')
-                    swapImages(self, 'car_damage_pngs/ERS_good.png', 150, 76, self.ers, self.ers_tk_image)
+                    imgswp.swapImages(self.canvas, 'car_damage_pngs/ERS_good.png', 150, 76, self.ers, self.ers_tk_image)
                 else:
                     #self.ers_update('car_damage_pngs/ERS_fault.png')
-                    swapImages(self, 'car_damage_pngs/ERS_fault.png', 150, 76, self.ers, self.ers_tk_image)
+                    imgswp.swapImages(self.canvas, 'car_damage_pngs/ERS_fault.png', 150, 76, self.ers, self.ers_tk_image)
 
             if 'drsFault' in data_dict_cardamage:
                 drsdamage = int(data_dict_cardamage['drsFault'])
                 if drsdamage == 0:
                     #self.drs_update('car_damage_pngs/DRS_good.png')
-                    swapImages(self, 'car_damage_pngs/DRS_good.png', 150, 76, self.drs, self.drs_tk_image)
+                    imgswp.swapImages(self.canvas, 'car_damage_pngs/DRS_good.png', 150, 76, self.drs, self.drs_tk_image)
                 else:
                     #self.drs_update('car_damage_pngs/DRS_fault.png')
-                    swapImages(self, 'car_damage_pngs/DRS_fault.png', 150, 76, self.drs, self.drs_tk_image)
+                    imgswp.swapImages(self.canvas, 'car_damage_pngs/DRS_fault.png', 150, 76, self.drs, self.drs_tk_image)
 
             self.root.after(5, self.update_damage_display)
 class Engine:
@@ -1488,6 +1489,7 @@ class Engine:
 
     def update_engine_display(self):
         global data_dict_cardamage
+        imgswp = ImageSwapper()
         if self.canvas is not None and self.canvas.winfo_exists():
             if 'engineMGUHWear' in data_dict_cardamage:
                 mguh = int(data_dict_cardamage['engineMGUHWear'])
@@ -1496,57 +1498,57 @@ class Engine:
                     self.mguh_percent_label.config(fg="#00ff00")
                     self.mguh_percent_label.place(x = 280, y = 60)
                     #self.update_mguh_img(listofmguhwear[0])
-                    swapImageWithoutResize(self, listofmguhwear[0], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[0], self.mguh, self.mguh_tk_image)
                 elif mguh < 20:
                     self.mguh_percent_label.config(fg="#88f612")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[1])
-                    swapImageWithoutResize(self, listofmguhwear[1], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[1], self.mguh, self.mguh_tk_image)
                 elif mguh < 30:
                     self.mguh_percent_label.config(fg="#aef317")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[2])
-                    swapImageWithoutResize(self, listofmguhwear[2], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[2], self.mguh, self.mguh_tk_image)
                 elif mguh < 40:
                     self.mguh_percent_label.config(fg="#cff11b")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[3])
-                    swapImageWithoutResize(self, listofmguhwear[3], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[3], self.mguh, self.mguh_tk_image)
                 elif mguh < 50:
                     self.mguh_percent_label.config(fg="#ebef1f")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[4])
-                    swapImageWithoutResize(self, listofmguhwear[4], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[4], self.mguh, self.mguh_tk_image)
                 elif mguh < 60:
                     self.mguh_percent_label.config(fg="#fcee21")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[5])
-                    swapImageWithoutResize(self, listofmguhwear[5], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[5], self.mguh, self.mguh_tk_image)
                 elif mguh < 70:
                     self.mguh_percent_label.config(fg="#fccc1f")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[6])
-                    swapImageWithoutResize(self, listofmguhwear[6], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[6], self.mguh, self.mguh_tk_image)
                 elif mguh < 80:
                     self.mguh_percent_label.config(fg="#fda61d")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[7])
-                    swapImageWithoutResize(self, listofmguhwear[7], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[7], self.mguh, self.mguh_tk_image)
                 elif mguh < 90:
                     self.mguh_percent_label.config(fg="#fd7e1b")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[8])
-                    swapImageWithoutResize(self, listofmguhwear[8], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[8], self.mguh, self.mguh_tk_image)
                 elif mguh < 100:
                     self.mguh_percent_label.config(fg="#fe5519")
                     self.mguh_percent_label.place(x=260, y=60)
                     #self.update_mguh_img(listofmguhwear[9])
-                    swapImageWithoutResize(self, listofmguhwear[9], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[9], self.mguh, self.mguh_tk_image)
                 else:
                     self.mguh_percent_label.config(fg="#ff0015")
                     self.mguh_percent_label.place(x=230, y=60)
                     #self.update_mguh_img(listofmguhwear[10])
-                    swapImageWithoutResize(self, listofmguhwear[10], self.mguh, self.mguh_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmguhwear[10], self.mguh, self.mguh_tk_image)
 
             if 'engineMGUKWear' in data_dict_cardamage:
                 mguk = int(data_dict_cardamage['engineMGUKWear'])
@@ -1555,57 +1557,57 @@ class Engine:
                     self.mguk_percent_label.config(fg="#00ff00")
                     self.mguk_percent_label.place(x=280, y=272)
                     #self.update_mguk_img(listofmgukwear[0])
-                    swapImageWithoutResize(self, listofmgukwear[0], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[0], self.mguk, self.mguk_tk_image)
                 elif mguk < 20:
                     self.mguk_percent_label.config(fg="#88f612")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[1])
-                    swapImageWithoutResize(self, listofmgukwear[1], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[1], self.mguk, self.mguk_tk_image)
                 elif mguk < 30:
                     self.mguk_percent_label.config(fg="#aef317")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[2])
-                    swapImageWithoutResize(self, listofmgukwear[2], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[2], self.mguk, self.mguk_tk_image)
                 elif mguk < 40:
                     self.mguk_percent_label.config(fg="#cff11b")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[3])
-                    swapImageWithoutResize(self, listofmgukwear[3], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[3], self.mguk, self.mguk_tk_image)
                 elif mguk < 50:
                     self.mguh_percent_label.config(fg="#ebef1f")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[4])
-                    swapImageWithoutResize(self, listofmgukwear[4], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[4], self.mguk, self.mguk_tk_image)
                 elif mguk < 60:
                     self.mguk_percent_label.config(fg="#fcee21")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[5])
-                    swapImageWithoutResize(self, listofmgukwear[5], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[5], self.mguk, self.mguk_tk_image)
                 elif mguk < 70:
                     self.mguk_percent_label.config(fg="#fccc1f")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[6])
-                    swapImageWithoutResize(self, listofmgukwear[6], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[6], self.mguk, self.mguk_tk_image)
                 elif mguk < 80:
                     self.mguk_percent_label.config(fg="#fda61d")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[7])
-                    swapImageWithoutResize(self, listofmgukwear[7], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[7], self.mguk, self.mguk_tk_image)
                 elif mguk < 90:
                     self.mguh_percent_label.config(fg="#fd7e1b")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[8])
-                    swapImageWithoutResize(self, listofmgukwear[8], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[8], self.mguk, self.mguk_tk_image)
                 elif mguk < 100:
                     self.mguk_percent_label.config(fg="#fe5519")
                     self.mguk_percent_label.place(x=260, y=272)
                     #self.update_mguk_img(listofmgukwear[9])
-                    swapImageWithoutResize(self, listofmgukwear[9], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[9], self.mguk, self.mguk_tk_image)
                 else:
                     self.mguk_percent_label.config(fg="#ff0015")
                     self.mguk_percent_label.place(x=230, y=272)
                     #self.update_mguk_img(listofmgukwear[10])
-                    swapImageWithoutResize(self, listofmgukwear[10], self.mguk, self.mguk_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofmgukwear[10], self.mguk, self.mguk_tk_image)
 
             if 'engineESWear' in data_dict_cardamage:
                 es = int(data_dict_cardamage['engineESWear'])
@@ -1614,57 +1616,57 @@ class Engine:
                     self.es_percent_label.config(fg="#00ff00")
                     self.es_percent_label.place(x=280, y=114)
                     #self.update_es_img(listofeswear[0])
-                    swapImageWithoutResize(self, listofeswear[0], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[0], self.es, self.es_tk_image)
                 elif es < 20:
                     self.es_percent_label.config(fg="#88f612")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[1])
-                    swapImageWithoutResize(self, listofeswear[1], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[1], self.es, self.es_tk_image)
                 elif es < 30:
                     self.es_percent_label.config(fg="#aef317")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[2])
-                    swapImageWithoutResize(self, listofeswear[2], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[2], self.es, self.es_tk_image)
                 elif es < 40:
                     self.es_percent_label.config(fg="#cff11b")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[3])
-                    swapImageWithoutResize(self, listofeswear[3], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[3], self.es, self.es_tk_image)
                 elif es < 50:
                     self.es_percent_label.config(fg="#ebef1f")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[4])
-                    swapImageWithoutResize(self, listofeswear[4], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[4], self.es, self.es_tk_image)
                 elif es < 60:
                     self.es_percent_label.config(fg="#fcee21")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[5])
-                    swapImageWithoutResize(self, listofeswear[5], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[5], self.es, self.es_tk_image)
                 elif es < 70:
                     self.es_percent_label.config(fg="#fccc1f")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[6])
-                    swapImageWithoutResize(self, listofeswear[6], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[6], self.es, self.es_tk_image)
                 elif es < 80:
                     self.es_percent_label.config(fg="#fda61d")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[7])
-                    swapImageWithoutResize(self, listofeswear[7], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[7], self.es, self.es_tk_image)
                 elif es < 90:
                     self.es_percent_label.config(fg="#fd7e1b")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[8])
-                    swapImageWithoutResize(self, listofeswear[8], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[8], self.es, self.es_tk_image)
                 elif es < 100:
                     self.es_percent_label.config(fg="#fe5519")
                     self.es_percent_label.place(x=260, y=114)
                     #self.update_es_img(listofeswear[9])
-                    swapImageWithoutResize(self, listofeswear[9], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[9], self.es, self.es_tk_image)
                 else:
                     self.es_percent_label.config(fg="#ff0015")
                     self.es_percent_label.place(x=230, y=114)
                     #self.update_es_img(listofeswear[10])
-                    swapImageWithoutResize(self, listofeswear[10], self.es, self.es_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofeswear[10], self.es, self.es_tk_image)
 
             if 'engineICEWear' in data_dict_cardamage:
                 ice = int(data_dict_cardamage['engineICEWear'])
@@ -1673,57 +1675,57 @@ class Engine:
                     self.ice_percent_label.config(fg="#00ff00")
                     self.ice_percent_label.place(x=280, y=220)
                     #self.update_ice_img(listoficewear[0])
-                    swapImageWithoutResize(self, listoficewear[0], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[0], self.ice, self.ice_tk_image)
                 elif ice < 20:
                     self.ice_percent_label.config(fg="#88f612")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[1])
-                    swapImageWithoutResize(self, listoficewear[1], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[1], self.ice, self.ice_tk_image)
                 elif ice < 30:
                     self.ice_percent_label.config(fg="#aef317")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[2])
-                    swapImageWithoutResize(self, listoficewear[2], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[2], self.ice, self.ice_tk_image)
                 elif ice < 40:
                     self.ice_percent_label.config(fg="#cff11b")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[3])
-                    swapImageWithoutResize(self, listoficewear[3], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[3], self.ice, self.ice_tk_image)
                 elif ice < 50:
                     self.ice_percent_label.config(fg="#ebef1f")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[4])
-                    swapImageWithoutResize(self, listoficewear[4], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[4], self.ice, self.ice_tk_image)
                 elif ice < 60:
                     self.ice_percent_label.config(fg="#fcee21")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[5])
-                    swapImageWithoutResize(self, listoficewear[5], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[5], self.ice, self.ice_tk_image)
                 elif ice < 70:
                     self.ice_percent_label.config(fg="#fccc1f")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[6])
-                    swapImageWithoutResize(self, listoficewear[6], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[6], self.ice, self.ice_tk_image)
                 elif ice < 80:
                     self.ice_percent_label.config(fg="#fda61d")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[7])
-                    swapImageWithoutResize(self, listoficewear[7], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[7], self.ice, self.ice_tk_image)
                 elif ice < 90:
                     self.ice_percent_label.config(fg="#fd7e1b")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[8])
-                    swapImageWithoutResize(self, listoficewear[8], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[8], self.ice, self.ice_tk_image)
                 elif ice < 100:
                     self.ice_percent_label.config(fg="#fe5519")
                     self.ice_percent_label.place(x=260, y=220)
                     #self.update_ice_img(listoficewear[9])
-                    swapImageWithoutResize(self, listoficewear[9], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[9], self.ice, self.ice_tk_image)
                 else:
                     self.ice_percent_label.config(fg="#ff0015")
                     self.ice_percent_label.place(x=230, y=220)
                     #self.update_ice_img(listoficewear[10])
-                    swapImageWithoutResize(self, listoficewear[10], self.ice, self.ice_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoficewear[10], self.ice, self.ice_tk_image)
 
             if 'engineCEWear' in data_dict_cardamage:
                 ce = int(data_dict_cardamage['engineCEWear'])
@@ -1732,57 +1734,57 @@ class Engine:
                     self.ce_percent_label.config(fg="#00ff00")
                     self.ce_percent_label.place(x=280, y=169)
                     #self.update_ce_img(listofcewear[0])
-                    swapImageWithoutResize(self, listofcewear[0], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[0], self.ce, self.ce_tk_image)
                 elif ce < 20:
                     self.ce_percent_label.config(fg="#88f612")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[1])
-                    swapImageWithoutResize(self, listofcewear[1], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[1], self.ce, self.ce_tk_image)
                 elif ce < 30:
                     self.ce_percent_label.config(fg="#aef317")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[2])
-                    swapImageWithoutResize(self, listofcewear[2], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[2], self.ce, self.ce_tk_image)
                 elif ce < 40:
                     self.ce_percent_label.config(fg="#cff11b")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[3])
-                    swapImageWithoutResize(self, listofcewear[3], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[3], self.ce, self.ce_tk_image)
                 elif ce < 50:
                     self.ce_percent_label.config(fg="#ebef1f")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[4])
-                    swapImageWithoutResize(self, listofcewear[4], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[4], self.ce, self.ce_tk_image)
                 elif ce < 60:
                     self.ce_percent_label.config(fg="#fcee21")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[5])
-                    swapImageWithoutResize(self, listofcewear[5], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[5], self.ce, self.ce_tk_image)
                 elif ce < 70:
                     self.ce_percent_label.config(fg="#fccc1f")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[6])
-                    swapImageWithoutResize(self, listofcewear[6], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[6], self.ce, self.ce_tk_image)
                 elif ce < 80:
                     self.ce_percent_label.config(fg="#fda61d")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[7])
-                    swapImageWithoutResize(self, listofcewear[7], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[7], self.ce, self.ce_tk_image)
                 elif ce < 90:
                     self.ce_percent_label.config(fg="#fd7e1b")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[8])
-                    swapImageWithoutResize(self, listofcewear[8], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[8], self.ce, self.ce_tk_image)
                 elif ce < 100:
                     self.ce_percent_label.config(fg="#fe5519")
                     self.ce_percent_label.place(x=260, y=169)
                     #self.update_ce_img(listofcewear[9])
-                    swapImageWithoutResize(self, listofcewear[9], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[9], self.ce, self.ce_tk_image)
                 else:
                     self.ce_percent_label.config(fg="#ff0015")
                     self.ce_percent_label.place(x=230, y=169)
                     #self.update_ce_img(listofcewear[10])
-                    swapImageWithoutResize(self, listofcewear[10], self.ce, self.ce_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofcewear[10], self.ce, self.ce_tk_image)
 
             if 'engineTCWear' in data_dict_cardamage:
                 tc = int(data_dict_cardamage['engineTCWear'])
@@ -1791,57 +1793,57 @@ class Engine:
                     self.tc_percent_label.config(fg="#00ff00")
                     self.tc_percent_label.place(x=280, y=325)
                     #self.update_tc_img(listoftcwear[0])
-                    swapImageWithoutResize(self, listoftcwear[0], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[0], self.tc, self.tc_tk_image)
                 elif tc < 20:
                     self.tc_percent_label.config(fg="#88f612")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[1])
-                    swapImageWithoutResize(self, listoftcwear[1], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[1], self.tc, self.tc_tk_image)
                 elif tc < 30:
                     self.tc_percent_label.config(fg="#aef317")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[2])
-                    swapImageWithoutResize(self, listoftcwear[2], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[2], self.tc, self.tc_tk_image)
                 elif tc < 40:
                     self.tc_percent_label.config(fg="#cff11b")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[3])
-                    swapImageWithoutResize(self, listoftcwear[3], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[3], self.tc, self.tc_tk_image)
                 elif tc < 50:
                     self.tc_percent_label.config(fg="#ebef1f")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[4])
-                    swapImageWithoutResize(self, listoftcwear[4], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[4], self.tc, self.tc_tk_image)
                 elif tc < 60:
                     self.tc_percent_label.config(fg="#fcee21")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[5])
-                    swapImageWithoutResize(self, listoftcwear[5], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[5], self.tc, self.tc_tk_image)
                 elif tc < 70:
                     self.tc_percent_label.config(fg="#fccc1f")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[6])
-                    swapImageWithoutResize(self, listoftcwear[6], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[6], self.tc, self.tc_tk_image)
                 elif tc < 80:
                     self.tc_percent_label.config(fg="#fda61d")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[7])
-                    swapImageWithoutResize(self, listoftcwear[7], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[7], self.tc, self.tc_tk_image)
                 elif tc < 90:
                     self.tc_percent_label.config(fg="#fd7e1b")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[8])
-                    swapImageWithoutResize(self, listoftcwear[8], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[8], self.tc, self.tc_tk_image)
                 elif tc < 100:
                     self.tc_percent_label.config(fg="#fe5519")
                     self.tc_percent_label.place(x=260, y=325)
                     #self.update_tc_img(listoftcwear[9])
-                    swapImageWithoutResize(self, listoftcwear[9], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[9], self.tc, self.tc_tk_image)
                 else:
                     self.tc_percent_label.config(fg="#ff0015")
                     self.tc_percent_label.place(x=230, y=325)
                     #self.update_tc_img(listoftcwear[10])
-                    swapImageWithoutResize(self, listoftcwear[10], self.tc, self.tc_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listoftcwear[10], self.tc, self.tc_tk_image)
 
             if 'gearBoxDamage' in data_dict_cardamage:
                 gb = int(data_dict_cardamage['gearBoxDamage'])
@@ -1850,57 +1852,57 @@ class Engine:
                     self.gearbox_percent_label.config(fg="#00ff00")
                     self.gearbox_percent_label.place(x=280, y=378)
                     #self.update_gearbox_img(listofgearboxwear[0])
-                    swapImageWithoutResize(self, listofgearboxwear[0], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[0], self.gearbox, self.gearbox_tk_image)
                 elif gb < 20:
                     self.gearbox_percent_label.config(fg="#88f612")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[1])
-                    swapImageWithoutResize(self, listofgearboxwear[1], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[1], self.gearbox, self.gearbox_tk_image)
                 elif gb < 30:
                     self.gearbox_percent_label.config(fg="#aef317")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[2])
-                    swapImageWithoutResize(self, listofgearboxwear[2], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[2], self.gearbox, self.gearbox_tk_image)
                 elif gb < 40:
                     self.gearbox_percent_label.config(fg="#cff11b")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[3])
-                    swapImageWithoutResize(self, listofgearboxwear[3], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[3], self.gearbox, self.gearbox_tk_image)
                 elif gb < 50:
                     self.gearbox_percent_label.config(fg="#ebef1f")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[4])
-                    swapImageWithoutResize(self, listofgearboxwear[4], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[4], self.gearbox, self.gearbox_tk_image)
                 elif gb < 60:
                     self.gearbox_percent_label.config(fg="#fcee21")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[5])
-                    swapImageWithoutResize(self, listofgearboxwear[5], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[5], self.gearbox, self.gearbox_tk_image)
                 elif gb < 70:
                     self.gearbox_percent_label.config(fg="#fccc1f")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[6])
-                    swapImageWithoutResize(self, listofgearboxwear[6], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[6], self.gearbox, self.gearbox_tk_image)
                 elif gb < 80:
                     self.gearbox_percent_label.config(fg="#fda61d")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[7])
-                    swapImageWithoutResize(self, listofgearboxwear[7], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[7], self.gearbox, self.gearbox_tk_image)
                 elif gb < 90:
                     self.gearbox_percent_label.config(fg="#fd7e1b")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[8])
-                    swapImageWithoutResize(self, listofgearboxwear[8], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[8], self.gearbox, self.gearbox_tk_image)
                 elif gb < 100:
                     self.gearbox_percent_label.config(fg="#fe5519")
                     self.gearbox_percent_label.place(x=260, y=378)
                     #self.update_gearbox_img(listofgearboxwear[9])
-                    swapImageWithoutResize(self, listofgearboxwear[9], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[9], self.gearbox, self.gearbox_tk_image)
                 else:
                     self.gearbox_percent_label.config(fg="#ff0015")
                     self.gearbox_percent_label.place(x=230, y=378)
                     #self.update_gearbox_img(listofgearboxwear[10])
-                    swapImageWithoutResize(self, listofgearboxwear[10], self.gearbox, self.gearbox_tk_image)
+                    imgswp.swapImageWithoutResize(self.canvas, listofgearboxwear[10], self.gearbox, self.gearbox_tk_image)
 
             self.root.after(5, self.update_engine_display)
 class CarTemperature:
@@ -2039,27 +2041,28 @@ class CarTemperature:
     def update_temp_labels(self):
         if self.canvas is not None and self.canvas.winfo_exists():
             global data_dict_cartelemetry
+            imgswp = ImageSwapper()
             if 'FLTyreInnerTemperature' in data_dict_cartelemetry:
                 self.fl_inner_temp_label.config(text=f"{data_dict_cartelemetry['FLTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 70:
                     #self.update_fl_tyre(listoffronttyres[0])
-                    swapImages(self, listoffronttyres[0],29,53,self.frontleft, self.fl_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[0],29,53,self.frontleft, self.fl_tk_image)
                     self.fl_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 90:
                     #self.update_fl_tyre(listoffronttyres[1])
-                    swapImages(self, listoffronttyres[1], 29, 53, self.frontleft, self.fl_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[1], 29, 53, self.frontleft, self.fl_tk_image)
                     self.fl_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 105:
                     #self.update_fl_tyre(listoffronttyres[2])
-                    swapImages(self, listoffronttyres[2], 29, 53, self.frontleft, self.fl_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[2], 29, 53, self.frontleft, self.fl_tk_image)
                     self.fl_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 110:
                     #self.update_fl_tyre(listoffronttyres[3])
-                    swapImages(self, listoffronttyres[3], 29, 53, self.frontleft, self.fl_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[3], 29, 53, self.frontleft, self.fl_tk_image)
                     self.fl_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) > 110:
                     #self.update_fl_tyre(listoffronttyres[4])
-                    swapImages(self, listoffronttyres[4], 29, 53, self.frontleft, self.fl_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[4], 29, 53, self.frontleft, self.fl_tk_image)
                     self.fl_inner_temp_label.config(fg="#fe2b17")
 
             if 'FLTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2079,46 +2082,46 @@ class CarTemperature:
                 self.fl_brake_temp_label.config(text=f"{data_dict_cartelemetry['FLBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['FLBrakeTemperature']) <= 350:
                     #self.update_fl_brake(listofbrakes[0])
-                    swapImages(self, listofbrakes[0], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[0], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
                     self.fl_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 450:
                     #self.update_fl_brake(listofbrakes[1])
-                    swapImages(self, listofbrakes[1], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[1], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
                     self.fl_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 750:
                     #self.update_fl_brake(listofbrakes[2])
-                    swapImages(self, listofbrakes[2], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[2], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
                     self.fl_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 950:
                     #self.update_fl_brake(listofbrakes[3])
-                    swapImages(self, listofbrakes[3], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[3], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
                     self.fl_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) > 950:
                     #self.update_fl_brake(listofbrakes[4])
-                    swapImages(self, listofbrakes[4], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[4], 10, 19, self.frontleftbrake, self.fl_brake_tk_image)
                     self.fl_brake_temp_label.config(fg="#fe2b17")
 
             if 'RLTyreInnerTemperature' in data_dict_cartelemetry:
                 self.rl_inner_temp_label.config(text=f"{data_dict_cartelemetry['RLTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 70:
                     #self.update_rl_tyre(listofreartyres[0])
-                    swapImages(self, listofreartyres[0], 32, 53, self.rearleft, self.rl_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[0], 32, 53, self.rearleft, self.rl_tk_image)
                     self.rl_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 90:
                     #self.update_rl_tyre(listofreartyres[1])
-                    swapImages(self, listofreartyres[1], 32, 53, self.rearleft, self.rl_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[1], 32, 53, self.rearleft, self.rl_tk_image)
                     self.rl_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 105:
                     #self.update_rl_tyre(listofreartyres[2])
-                    swapImages(self, listofreartyres[2], 32, 53, self.rearleft, self.rl_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[2], 32, 53, self.rearleft, self.rl_tk_image)
                     self.rl_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 110:
                     #self.update_rl_tyre(listofreartyres[3])
-                    swapImages(self, listofreartyres[3], 32, 53, self.rearleft, self.rl_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[3], 32, 53, self.rearleft, self.rl_tk_image)
                     self.rl_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) > 110:
                     #self.update_rl_tyre(listofreartyres[4])
-                    swapImages(self, listofreartyres[4], 32, 53, self.rearleft, self.rl_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[4], 32, 53, self.rearleft, self.rl_tk_image)
                     self.rl_inner_temp_label.config(fg="#fe2b17")
 
             if 'RLTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2138,46 +2141,46 @@ class CarTemperature:
                 self.rl_brake_temp_label.config(text=f"{data_dict_cartelemetry['RLBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['RLBrakeTemperature']) <= 350:
                     #self.update_rl_brake(listofbrakes[0])
-                    swapImages(self, listofbrakes[0], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[0], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
                     self.rl_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 450:
                     #self.update_rl_brake(listofbrakes[1])
-                    swapImages(self, listofbrakes[1], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[1], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
                     self.rl_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 750:
                     #self.update_rl_brake(listofbrakes[2])
-                    swapImages(self, listofbrakes[2], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[2], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
                     self.rl_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 950:
                     #self.update_rl_brake(listofbrakes[3])
-                    swapImages(self, listofbrakes[3], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[3], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
                     self.rl_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) > 950:
                     #self.update_rl_brake(listofbrakes[4])
-                    swapImages(self, listofbrakes[4], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[4], 10, 19, self.rearleftbrake, self.rl_brake_tk_image)
                     self.rl_brake_temp_label.config(fg="#fe2b17")
 
             if 'FRTyreInnerTemperature' in data_dict_cartelemetry:
                 self.fr_inner_temp_label.config(text=f"{data_dict_cartelemetry['FRTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 70:
                     #self.update_fr_tyre(listoffronttyres[0])
-                    swapImages(self, listoffronttyres[0], 29, 53, self.frontright, self.fr_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[0], 29, 53, self.frontright, self.fr_tk_image)
                     self.fr_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 90:
                     #self.update_fr_tyre(listoffronttyres[1])
-                    swapImages(self, listoffronttyres[1], 29, 53, self.frontright, self.fr_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[1], 29, 53, self.frontright, self.fr_tk_image)
                     self.fr_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 105:
                     #self.update_fr_tyre(listoffronttyres[2])
-                    swapImages(self, listoffronttyres[2], 29, 53, self.frontright, self.fr_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[2], 29, 53, self.frontright, self.fr_tk_image)
                     self.fr_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 110:
                     #self.update_fr_tyre(listoffronttyres[3])
-                    swapImages(self, listoffronttyres[3], 29, 53, self.frontright, self.fr_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[3], 29, 53, self.frontright, self.fr_tk_image)
                     self.fr_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) > 110:
                     #self.update_fr_tyre(listoffronttyres[4])
-                    swapImages(self, listoffronttyres[4], 29, 53, self.frontright, self.fr_tk_image)
+                    imgswp.swapImages(self.canvas, listoffronttyres[4], 29, 53, self.frontright, self.fr_tk_image)
                     self.fr_inner_temp_label.config(fg="#fe2b17")
 
             if 'FRTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2197,46 +2200,46 @@ class CarTemperature:
                 self.fr_brake_temp_label.config(text=f"{data_dict_cartelemetry['FRBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['FRBrakeTemperature']) <= 350:
                     #self.update_fr_brake(listofbrakes[0])
-                    swapImages(self, listofbrakes[0], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[0], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
                     self.fr_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 450:
                     #self.update_fr_brake(listofbrakes[1])
-                    swapImages(self, listofbrakes[1], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[1], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
                     self.fr_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 750:
                     #self.update_fr_brake(listofbrakes[2])
-                    swapImages(self, listofbrakes[2], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[2], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
                     self.fr_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 950:
                     #self.update_fr_brake(listofbrakes[3])
-                    swapImages(self, listofbrakes[3], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[3], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
                     self.fr_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) > 950:
                     #self.update_fr_brake(listofbrakes[4])
-                    swapImages(self, listofbrakes[4], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[4], 10, 19, self.frontrightbrake, self.fr_brake_tk_image)
                     self.fr_brake_temp_label.config(fg="#fe2b17")
 
             if 'RRTyreInnerTemperature' in data_dict_cartelemetry:
                 self.rr_inner_temp_label.config(text=f"{data_dict_cartelemetry['RRTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 70:
                     #self.update_rr_tyre(listofreartyres[0])
-                    swapImages(self, listofreartyres[0], 32, 53, self.rearright, self.rr_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[0], 32, 53, self.rearright, self.rr_tk_image)
                     self.rr_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 90:
                     #self.update_rr_tyre(listofreartyres[1])
-                    swapImages(self, listofreartyres[1], 32, 53, self.rearright, self.rr_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[1], 32, 53, self.rearright, self.rr_tk_image)
                     self.rr_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 105:
                     #self.update_rr_tyre(listofreartyres[2])
-                    swapImages(self, listofreartyres[2], 32, 53, self.rearright, self.rr_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[2], 32, 53, self.rearright, self.rr_tk_image)
                     self.rr_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 110:
                     #self.update_rr_tyre(listofreartyres[3])
-                    swapImages(self, listofreartyres[3], 32, 53, self.rearright, self.rr_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[3], 32, 53, self.rearright, self.rr_tk_image)
                     self.rr_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) > 110:
                     #self.update_rr_tyre(listofreartyres[4])
-                    swapImages(self, listofreartyres[4], 32, 53, self.rearright, self.rr_tk_image)
+                    imgswp.swapImages(self.canvas, listofreartyres[4], 32, 53, self.rearright, self.rr_tk_image)
                     self.rr_inner_temp_label.config(fg="#fe2b17")
 
             if 'RRTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2256,46 +2259,46 @@ class CarTemperature:
                 self.rr_brake_temp_label.config(text=f"{data_dict_cartelemetry['RRBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['RRBrakeTemperature']) <= 350:
                     #self.update_rr_brake(listofbrakes[0])
-                    swapImages(self, listofbrakes[0], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[0], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
                     self.rr_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 450:
                     #self.update_rr_brake(listofbrakes[1])
-                    swapImages(self, listofbrakes[1], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[1], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
                     self.rr_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 750:
                     #self.update_rr_brake(listofbrakes[2])
-                    swapImages(self, listofbrakes[2], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[2], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
                     self.rr_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 950:
                     #self.update_rr_brake(listofbrakes[3])
-                    swapImages(self, listofbrakes[3], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[3], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
                     self.rr_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) > 950:
                     #self.update_rr_brake(listofbrakes[4])
-                    swapImages(self, listofbrakes[4], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
+                    imgswp.swapImages(self.canvas, listofbrakes[4], 10, 19, self.rearrightbrake, self.rr_brake_tk_image)
                     self.rr_brake_temp_label.config(fg="#fe2b17")
 
             if 'engineTemperature' in data_dict_cartelemetry:
                 self.motor_temp_label.config(text=f"{data_dict_cartelemetry['engineTemperature']}°C")
                 if int(data_dict_cartelemetry['engineTemperature']) <= 80:
                     #self.update_engine(listofengine[0])
-                    swapImages(self, listofengine[0], 51, 60, self.engine, self.tk_image)
+                    imgswp.swapImages(self.canvas, listofengine[0], 51, 60, self.engine, self.tk_image)
                     self.motor_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 100:
                     #self.update_engine(listofengine[1])
-                    swapImages(self, listofengine[1], 51, 60, self.engine, self.tk_image)
+                    imgswp.swapImages(self.canvas, listofengine[1], 51, 60, self.engine, self.tk_image)
                     self.motor_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 130:
                     #self.update_engine(listofengine[2])
-                    swapImages(self, listofengine[2], 51, 60, self.engine, self.tk_image)
+                    imgswp.swapImages(self.canvas, listofengine[2], 51, 60, self.engine, self.tk_image)
                     self.motor_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 140:
                     #self.update_engine(listofengine[3])
-                    swapImages(self, listofengine[3], 51, 60, self.engine, self.tk_image)
+                    imgswp.swapImages(self.canvas, listofengine[3], 51, 60, self.engine, self.tk_image)
                     self.motor_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['engineTemperature']) > 140:
                     #self.update_engine(listofengine[4])
-                    swapImages(self, listofengine[4], 51, 60, self.engine, self.tk_image)
+                    imgswp.swapImages(self.canvas, listofengine[4], 51, 60, self.engine, self.tk_image)
                     self.motor_temp_label.config(fg="#fe2b17")
 
             self.root.after(5, self.update_temp_labels)
