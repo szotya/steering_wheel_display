@@ -28,5 +28,4 @@ jobs:
 
     - name: Run Pylint
       run: |
-        cd app
-        pylint --fail-under=8.5 --rcfile .pylintrc main.py modules/ tests/
+        pylint --fail-under=8.5 --rcfile .pylintrc app.py modules/ tests/
