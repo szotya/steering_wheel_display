@@ -13,5 +13,5 @@ class TestUnpackSpeed(unittest.TestCase):
         def wrapper() -> None:
             time.sleep(1)
 
-        delta: float = stopper()
+        delta: float = stopper(wrapper)
         self.assertTrue(delta <= float)
