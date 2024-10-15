@@ -1,3 +1,5 @@
+import time
+
 """
 Stopper modul megadott callback függvény lefutási idejének méréséhez.
 A visszatérített érték miliszekundumban van.

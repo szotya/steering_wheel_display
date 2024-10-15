@@ -1,6 +1,6 @@
 import tkinter as tk
 from PIL import Image as PilImage, ImageTk
-from App import *
+from app import *
 from SharedVars import *
 from listsandconstants import *
 

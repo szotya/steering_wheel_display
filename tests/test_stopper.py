@@ -3,7 +3,7 @@ from modules.stopper import stopper
 
 class TestUnpackSpeed(unittest.IsolatedAsyncioTestCase):
     """
-    Csomagok kicsomagolásának idejét mérő teszt. Sikeres, ha adott időn belül csomagol ki egy üzenetet.
+    Stopper modul működőképességét tesztelő tesztek.
     """
 
     async def test(self) -> None:
