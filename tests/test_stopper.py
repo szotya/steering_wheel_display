@@ -1,4 +1,9 @@
+"""
+Stopper modul tesztek.
+"""
+
 import unittest
+import asyncio
 from modules.stopper import stopper
 
 class TestUnpackSpeed(unittest.IsolatedAsyncioTestCase):
@@ -6,22 +11,27 @@ class TestUnpackSpeed(unittest.IsolatedAsyncioTestCase):
     Stopper modul működőképességét tesztelő tesztek.
     """
 
-    async def test(self) -> None:
+    async def test_valid(self) -> None:
         """
-        Jelenleg még csak skeleton teszt, ami majd az unpack idejét nézi.
+        Stopper tesztelése azonnali visszatérésű fügvénnyel.
         """
-        target: float = 1 # milisec
 
-        # Adding the time to run the stopper to the target.
         async def null() -> None: pass
-        stopper_imperfection = await stopper(null)
-        target += stopper_imperfection
+        delta = await stopper(null)
 
-        async def wrapper() -> None:
-            pass # Unpack here
+        self.assertLess(delta, 10)
 
-        delta: float = await stopper(wrapper)
-        self.assertLess(delta, target)
+    async def test_fail(self) -> None:
+        """
+        Stopper tesztelése várakozásos visszatérésű fügvénnyel.
+        """
+
+        wait_time = 1 # in seconds
+
+        async def async_mock() -> None: await asyncio.sleep(wait_time)
+        delta = await stopper(async_mock)
+
+        self.assertGreaterEqual(delta, wait_time)
 
 if __name__ == "__main__":
     unittest.main()

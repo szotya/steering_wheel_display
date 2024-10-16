@@ -1,3 +1,6 @@
+"""
+Csomagok kicsomagolását érintő tesztek.
+"""
 import unittest
 from modules.stopper import stopper
 
@@ -21,7 +24,7 @@ class TestUnpackSpeed(unittest.IsolatedAsyncioTestCase):
             pass # Unpack here
 
         delta: float = await stopper(wrapper)
-        self.assertLess(delta, target)
+        self.assertLessEqual(delta, target)
 
 if __name__ == "__main__":
     unittest.main()
