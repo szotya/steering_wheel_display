@@ -1,0 +1,3 @@
+pytz==2024.2
+pillow==10.4.0
+rawutil==2.8.1
