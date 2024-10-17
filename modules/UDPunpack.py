@@ -1,14 +1,14 @@
 import rawutil
-from EventPacket import *
-from SessionPacket import MarshalZone, WeatherForecastSample, SessionPacket
-from LapDataPacket import LapData, LapDataPacket
-from CarTelemetryDataPacket import CarTelemetryData, CarTelemetryDataPacket
-from CarStatusPacket import CarStatusData, CarStatusPacket
-from CarDamagePacket import CarDamageData, CarDamagePacket
-from SessionHistoryPacket import LapHistoryData, SessionHistoryPacket
-from TyreSetsPacket import TyreSetData, TyreSetsPacket
-from CarSetupPacket import CarSetupData, CarSetupPacket
-from Header import Header
+from modules.EventPacket import FastestLap, Retirement, DRSStatus, TeamMateInPits, RaceWinner, Penalty, SpeedTrap, StartLights, LightsOut, DriveThroughPenaltyServed, StopGoPenaltyServed, Flashback, Buttons, RedFlag, Overtake, EventPacket, EventStringCode
+from modules.SessionPacket import MarshalZone, WeatherForecastSample, SessionPacket
+from modules.LapDataPacket import LapData, LapDataPacket
+from modules.CarTelemetryDataPacket import CarTelemetryData, CarTelemetryDataPacket
+from modules.CarStatusPacket import CarStatusData, CarStatusPacket
+from modules.CarDamagePacket import CarDamageData, CarDamagePacket
+from modules.SessionHistoryPacket import LapHistoryData, SessionHistoryPacket
+from modules.TyreSetsPacket import TyreSetData, TyreSetsPacket
+from modules.CarSetupPacket import CarSetupData, CarSetupPacket
+from modules.Header import Header
 
 
 def unpack_header(header: bytes):
@@ -227,7 +227,7 @@ def unpack_button(telemetry: bytes):
     b.field1 = rawutil.unpack('<f', telemetry[0:4])
     return b
 
-def unpack_redflag(telemetry: bytes):
+def unpack_redflag():
     rf = RedFlag()
     rf.field1 = 1
     return rf

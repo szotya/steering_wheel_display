@@ -1,14 +1,10 @@
-"""
-Entrypoint az alkalmazáshoz.
-"""
-
-from tkinter import *
 import tkinter as tk
 import threading
 import socket
-from Graphics import *
-from UDPunpack import unpack_carsetupdatapacket, unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
-from SharedVars import *
+from modules.Graphics import ConnectDisplay, DefaultDisplay, PitStop, CarDamage, Engine, CarTemperature
+from modules.UDPunpack import unpack_carsetupdatapacket, unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
+import SharedVars
+from modules.logger import Logger
 
 ###Ez kell a ledekhez
 '''from rpi_ws281x import *'''
@@ -35,7 +31,9 @@ def get_my_ip():
 
 
 def udp_server(host='0.0.0.0', port=20777):
-    print("im starting the server")
+    logger: Logger = Logger("UDP_SERVER")
+    logger.info("Starting the server.")
+
     global data_dict_cartelemetry
     global mfdPanelIndex
     global mfdPanelIndex_isChanged
@@ -49,6 +47,7 @@ def udp_server(host='0.0.0.0', port=20777):
     global besttyresetslist
     global packetType
     global data_dict_flyingdelta
+
     data_dict_bestlap_meters = {}
     data_bestlap_sectors = {}
     data_dict_currentlap_sectors = {}
@@ -208,7 +207,7 @@ def udp_server(host='0.0.0.0', port=20777):
                     csd = unpack_carsetupdatapacket(telemetry, h.field11)
                     list = []
                     csd.item_from_carsetupdatapacket(list)
-                    data_dict_carsetup.update({
+                    SharedVars.data_dict_carsetup.update({
                         'frontWing': list[0],
                         'rearWing': list[1],
                         'onThrottle': list[2],
@@ -680,8 +679,11 @@ if __name__ == '__main__':
     ## Csak a kijelzőt mutatja, nincs ablakkeret
     #root.overrideredirect(True)
 
-    defdisplay = DefaultDisplay(root)
-    defdisplay.create_default_display()
+    #defdisplay = DefaultDisplay(root)
+    #defdisplay.create_default_display()
+
+    defdisplay = Engine(root)
+    defdisplay.create_engine_display()
 
     #M = Master(root)
     #M.__call__(mfdPanelIndex)
