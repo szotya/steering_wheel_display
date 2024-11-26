@@ -849,7 +849,7 @@ class CarDamage:
                 elif fltdamage < 30:
                     self.fl_percent_label.config(fg="#aef317")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listsandconstants.istoffronttyrestatus[2])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[2])
                 elif fltdamage < 40:
                     self.fl_percent_label.config(fg="#cff11b")
                     self.fl_percent_label.place(x=201.5, y=109.5)
