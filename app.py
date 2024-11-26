@@ -5,6 +5,7 @@ from modules.Graphics import ConnectDisplay, DefaultDisplay, PitStop, CarDamage,
 from modules.UDPunpack import unpack_carsetupdatapacket, unpack_header, unpack_eventpacket, unpack_sessionpacket, unpack_lapdatapacket, unpack_cartelemetrydatapacket, unpack_carstatuspacket, unpack_cardamagepacket,unpack_tyresetspacket, unpack_sessionhistorypacket
 import SharedVars
 from modules.logger import Logger
+from modules.storage import Storage
 
 ###Ez kell a ledekhez
 '''from rpi_ws281x import *'''
@@ -14,21 +15,6 @@ from modules.logger import Logger
 from SessionHistoryPacket import *
 from PIL import Image as PilImage, ImageTk
 import time'''
-
-### IP cím lekérdezése
-def get_my_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        # doesn't even have to be reachable
-        s.connect(('8.8.8.8', 1))
-        IP = s.getsockname()[0]
-    except Exception:
-        IP = '127.0.0.1'
-    finally:
-        s.close()
-    return IP
-
-
 
 def udp_server(host='0.0.0.0', port=20777):
     logger: Logger = Logger("UDP_SERVER")
@@ -456,182 +442,179 @@ def update_telemetry_data():
     # Other updates...
 
 class Master:
-    def __init__(self,root):
+    def __init__(self, root: tk.Tk, mfdnum: int):
         self.root = root
+        self.storage = Storage()
         self.displayed_canvas = None
-        self.connect = ConnectDisplay(root)
-        self.df = DefaultDisplay(root)
+        self.connect = ConnectDisplay(root, self.storage)
+        self.df = DefaultDisplay(root, self.storage)
         self.ps = PitStop(root)
         self.cd = CarDamage(root)
         self.ct = CarTemperature(root)
         self.e = Engine(root)
 
-    def __call__(self, mfdnum):
-        # Define what should happen when the object is "called"
         self.mfdnum = mfdnum
-        self.Master()
 
-    def Master(self):
+    def __call__(self):
         global data_dict_sessionpacket
-        mfdnum = self.mfdnum
 
         if 'sessionType' in data_dict_sessionpacket:
             if data_dict_sessionpacket['sessionType'] == 10 or data_dict_sessionpacket['sessionType'] == 11 or data_dict_sessionpacket['sessionType'] == 12:
-                if mfdnum == 6:
+                if self.mfdnum == 6:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.connect.create_connect_display()
                     self.root.after(5, self.connect.update_connection_display)
 
-                elif mfdnum == 255 or mfdnum == 0:
+                elif self.mfdnum == 255 or self.mfdnum == 0:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.df.create_default_display()
                     self.root.after(5, self.df.update_labels)
 
-                elif mfdnum == 1:
+                elif self.mfdnum == 1:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ps.create_pitstop_display()
                     self.root.after(5, self.ps.update_pitstop_labels)
 
-                elif mfdnum == 2:
+                elif self.mfdnum == 2:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.cd.create_cardamage_display()
                     self.root.after(5, self.cd.update_damage_display)
 
-                elif mfdnum == 3:
+                elif self.mfdnum == 3:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ct.create_cartemp_display()
                     self.root.after(5, self.ct.update_temp_labels)
 
-                elif mfdnum == 4:
+                elif self.mfdnum == 4:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.e.create_engine_display()
                     self.root.after(5, self.e.update_engine_display)
 
             elif data_dict_sessionpacket['sessionType'] >= 1 and data_dict_sessionpacket['sessionType'] <= 9:
-                if mfdnum == 6:
+                if self.mfdnum == 6:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.connect.create_connect_display()
                     self.root.after(5, self.connect.update_connection_display)
 
-                elif mfdnum == 255 or mfdnum == 0:
+                elif self.mfdnum == 255 or self.mfdnum == 0:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.df.create_default_display()
                     self.root.after(5, self.df.update_labels)
 
-                elif mfdnum == 1:
+                elif self.mfdnum == 1:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.cd.create_cardamage_display()
                     self.root.after(5, self.cd.update_damage_display)
 
-                elif mfdnum == 2:
+                elif self.mfdnum == 2:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ct.create_cartemp_display()
                     self.root.after(5, self.ct.update_temp_labels)
 
-                elif mfdnum == 3:
+                elif self.mfdnum == 3:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.e.create_engine_display()
                     self.root.after(5, self.e.update_engine_display)
 
             elif data_dict_sessionpacket['sessionType'] == 13:
-                if mfdnum == 6:
+                if self.mfdnum == 6:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.connect.create_connect_display()
                     self.root.after(5, self.connect.update_connection_display)
 
-                elif mfdnum == 255 or mfdnum == 0:
+                elif self.mfdnum == 255 or self.mfdnum == 0:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.df.create_default_display()
                     self.root.after(5, self.df.update_labels)
 
-                elif mfdnum == 1:
+                elif self.self.mfdnum == 1:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ct.create_cartemp_display()
                     self.root.after(5, self.ct.update_temp_labels)
 
             else:
-                if mfdnum == 6:
+                if self.mfdnum == 6:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.connect.create_connect_display()
                     self.root.after(5, self.connect.update_connection_display)
 
-                elif mfdnum == 255 or mfdnum == 0:
+                elif self.mfdnum == 255 or self.mfdnum == 0:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.df.create_default_display()
                     self.root.after(5, self.df.update_labels)
 
-                elif mfdnum == 1:
+                elif self.mfdnum == 1:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ps.create_pitstop_display()
                     self.root.after(5, self.ps.update_pitstop_labels)
 
-                elif mfdnum == 2:
+                elif self.mfdnum == 2:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.cd.create_cardamage_display()
                     self.root.after(5, self.cd.update_damage_display)
 
-                elif mfdnum == 3:
+                elif self.mfdnum == 3:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.ct.create_cartemp_display()
                     self.root.after(5, self.ct.update_temp_labels)
 
-                elif mfdnum == 4:
+                elif self.mfdnum == 4:
                     if self.displayed_canvas is not None:
                         self.displayed_canvas.destroy()
                     self.displayed_canvas = self.e.create_engine_display()
                     self.root.after(5, self.e.update_engine_display)
 
         else:
-            if mfdnum == 6:
+            if self.mfdnum == 6:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.connect.create_connect_display()
                 self.root.after(5, self.connect.update_connection_display)
 
-            elif mfdnum == 255 or mfdnum == 0:
+            elif self.mfdnum == 255 or self.mfdnum == 0:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.df.create_default_display()
                 self.root.after(5, self.df.update_labels)
 
-            elif mfdnum == 1:
+            elif self.mfdnum == 1:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.ps.create_pitstop_display()
                 self.root.after(5, self.ps.update_pitstop_labels)
 
-            elif mfdnum == 2:
+            elif self.mfdnum == 2:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.cd.create_cardamage_display()
                 self.root.after(5, self.cd.update_damage_display)
 
-            elif mfdnum == 3:
+            elif self.mfdnum == 3:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.ct.create_cartemp_display()
                 self.root.after(5, self.ct.update_temp_labels)
 
-            elif mfdnum == 4:
+            elif self.mfdnum == 4:
                 if self.displayed_canvas is not None:
                     self.displayed_canvas.destroy()
                 self.displayed_canvas = self.e.create_engine_display()
@@ -641,9 +624,9 @@ class Master:
         global mfdPanelIndex_isChanged
         global mfdPanelIndex
 
-        self.mfdnum = mfdPanelIndex
+        self.self.mfdnum = mfdPanelIndex
         if mfdPanelIndex_isChanged == True:
-            self.__call__(self.mfdnum)
+            self.__call__(self.self.mfdnum)
             mfdPanelIndex_isChanged = False
         else:
             pass
@@ -671,9 +654,8 @@ if __name__ == '__main__':
     root.geometry("800x480")
 
     #root.attributes('-fullscreen', True)
-    #root.bind("<F11>", lambda event: root.attributes("-fullscreen",
-    #                                                  not root.attributes("-fullscreen")))
-    #root.bind("<Escape>", lambda event: root.attributes("-fullscreen", False))
+    #root.bind("<F11>", lambda _: root.attributes("-fullscreen", not root.attributes("-fullscreen")))
+    #root.bind("<Escape>", lambda _: root.attributes("-fullscreen", False))
     # Call the update function periodically
     #root.after(1000, update_telemetry_data)
     ## Csak a kijelzőt mutatja, nincs ablakkeret
@@ -685,9 +667,9 @@ if __name__ == '__main__':
     defdisplay = Engine(root)
     defdisplay.create_engine_display()
 
-    #M = Master(root)
-    #M.__call__(mfdPanelIndex)
-    #root.after(5, M.update_mfd)
+    M = Master(root, 0)
+    M = Master(root, SharedVars.mfdPanelIndex)
+    root.after(5, M.update_mfd)
 
     # Run the Tkinter main loop
     root.mainloop()

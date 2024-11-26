@@ -6,15 +6,15 @@ from modules.CarTelemetryDataPacket import CarTelemetryData, CarTelemetryDataPac
 from modules.CarStatusPacket import CarStatusData, CarStatusPacket
 from modules.CarDamagePacket import CarDamageData, CarDamagePacket
 from modules.SessionHistoryPacket import LapHistoryData, SessionHistoryPacket
+from modules.storage import Storage
 from modules.TyreSetsPacket import TyreSetData, TyreSetsPacket
 from modules.CarSetupPacket import CarSetupData, CarSetupPacket
-from modules.Header import Header
 
 # <H means 2byte <B means 1byte <Q means 8byte <f means 4byte
 
 class UnpackUDPGame(ABC):
-	def __init__(self) -> None:
-		pass
+	def __init__(self, storage: Storage) -> None:
+		self.storage = storage
 
 	def unpack_package(self, telemetry: bytes):
 		header = self._unpack_header(telemetry)
@@ -32,7 +32,7 @@ class UnpackUDPGame(ABC):
 		return header, marshal_zone, weather_forecast, session_packet, lap_data, lap_data_packet, fastest_lap, retirement, drs_status, team_mate_in_pits, race_winner
 	
 	@abstractmethod
-	def _unpack_header(self, telemetry: bytes) -> Header:
+	def _unpack_header(self, telemetry: bytes) -> None:
 		pass
 
 	@abstractmethod

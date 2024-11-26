@@ -1,13 +1,15 @@
 import tkinter as tk
 from PIL import Image as PilImage, ImageTk
-from App import get_my_ip
+from modules.get_ip import get_current_ip
 import SharedVars
 import listsandconstants
+from modules.storage import SessionType, Storage, SupportedGames
 
 class ConnectDisplay:
 
-    def __init__(self, root):
+    def __init__(self, root,storage: Storage):
         self.root = root
+        self.storage = storage
 
     def create_connect_display(self):
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="white", highlightthickness=0)
@@ -18,7 +20,7 @@ class ConnectDisplay:
         self.logo_tk_image = ImageTk.PhotoImage(self.logo_resized)
         self.canvas.create_image(400, 200, image=self.logo_tk_image)
 
-        self.ip = tk.Label(self.root, text=f"IP: {get_my_ip()}", fg="black", bg="white", font=("Formula1", 20, "bold"))
+        self.ip = tk.Label(self.root, text=f"IP: {get_current_ip()}", fg="black", bg="white", font=("Formula1", 20, "bold"))
         self.ip.place(x=308, y=370)
 
         self.port = tk.Label(self.root, text="Port: 20777", fg="black", bg="white", font=("Formula1", 20, "bold"))
@@ -28,17 +30,17 @@ class ConnectDisplay:
 
     def update_connection_display(self):
         if self.canvas is not None and self.canvas.winfo_exists():
-            global data_dict_sessionpacket
 
-            if 'sessionType' in data_dict_sessionpacket:
+            if self.storage.read(["F1","_packet_session_data","_packet_session_data"]) != SessionType.UNKNOWN:
                 self.ip.config(fg="white")
                 self.port.config(fg="white")
 
             self.root.after(5, self.update_connection_display)
 
 class DefaultDisplay:
-    def __init__(self, root):
+    def __init__(self, root,storage:Storage):
         self.root = root
+        self.storage = storage
 
     def create_default_display(self):
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="white")
@@ -157,88 +159,110 @@ class DefaultDisplay:
 
     def update_labels(self):
         if self.canvas is not None and self.canvas.winfo_exists():
-            global data_dict_cartelemetry
-            global data_dict_sessionpacket
-            global data_dict_sessionhistory
-            global data_dict_carstatus
-            global data_dict_lapdata
-            global data_dict_flyingdelta
+            storage_path = [SupportedGames.FORMULA_1_2021, "_packet_car_setup_data", "_car_status_data", 0]
 
-            if 'onThrottle' in SharedVars.data_dict_carsetup:
-                self.differential_percentage_label.config(text=f"{SharedVars.data_dict_carsetup['onThrottle']}%")
+            #TODO hanyadik a mienk??
+            throttleOn = self.storage.read([*storage_path, "_throttle", "on"])
+            if throttleOn != -1:
+                self.differential_percentage_label.config(text=f"{throttleOn}%")
 
-            if 'frontBrakeBias' in data_dict_carstatus:
-                self.brake_bias_percentage_label.config(text=f"{data_dict_carstatus['frontBrakeBias']}%")
 
-            if 'speedUnit' in data_dict_sessionpacket:
-                if data_dict_sessionpacket['speedUnit'] == 0:
+            frontBrakeBias =  self.storage.read([*storage_path, "_front_brake_bias"])
+            if frontBrakeBias != -1:
+                self.brake_bias_percentage_label.config(text=f"{frontBrakeBias}%")
+
+            #TODO itt elmaradt egy index a _car_status_data után nem? meg mintha ez simán a _packet_session_databan lenne
+            #eredeti: speedUnit =  self.storage.read(["F1","_packet_session_data","_car_status_data","_speed_units_lead_player"])
+            speedUnit =  self.storage.read([*storage_path, "_speed_units_lead_player"])
+
+            if speedUnit != -1:
+                if speedUnit == 0:
                     self.kmph_text_label.config(text="MPH")
                 else:
                     self.kmph_text_label.config(text="KM/H")
 
-            if 'speed' in data_dict_cartelemetry:
-                self.kmph_label.config(text=f"{data_dict_cartelemetry['speed']}")
+            speed = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_speed"])
+            if speed != -1:
+                self.kmph_label.config(text=f"{speed}")
 
-            if 'gear' in data_dict_cartelemetry:
-                if data_dict_cartelemetry['gear'] == -1:
+            gear = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_gear"])
+            #TODO -1 nem lehet itt, valamit erre majd ki kéne találni
+            if gear != -2:
+                if gear == -1:
                     self.gear_label.config(text="R")
-                elif data_dict_cartelemetry['gear'] == 0:
+                elif gear == 0:
                     self.gear_label.config(text="N")
                 else:
-                    self.gear_label.config(text=f"{data_dict_cartelemetry['gear']}")
+                    self.gear_label.config(text=f"{gear}")
 
-            if 'throttle' in data_dict_cartelemetry:
-                self.acceleratorindicatorfillframe.config(width=float(data_dict_cartelemetry['throttle'] * 202))
+            throttle = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_throttle"])
+            if throttle != -1:
+                #TODO miért szoroza pont 202?
+                self.acceleratorindicatorfillframe.config(width=float(throttle * 202))
 
-            if 'brake' in data_dict_cartelemetry:
-                self.brakeindicatorfillframe.config(width=float(data_dict_cartelemetry['brake'] * 200))
+            brake = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_brake"])
+            if brake != -1:
+                self.brakeindicatorfillframe.config(width=float(brake * 200))
 
-            if 'ersStoreEnergy' in data_dict_carstatus:
-                stored_energy_in_percentage = data_dict_carstatus['ersStoreEnergy'] / listsandconstants.maximum_energy_storage * 100
+            ersStoreEnergy = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_ers_store_energy"])
+            if 'ersStoreEnergy' != -1:
+                stored_energy_in_percentage =ersStoreEnergy/ listsandconstants.maximum_energy_storage * 100
                 self.ersindicatorfillframe.config(
-                    width=float((data_dict_carstatus['ersStoreEnergy'] / listsandconstants.maximum_energy_storage) * 402))
+                    width=float((ersStoreEnergy / listsandconstants.maximum_energy_storage) * 402))
                 self.ers_percentage_label.config(text=f"{stored_energy_in_percentage:.0f}%", font=("Formula1", 35, "bold"))
 
-            if 'ersDeployMode' in data_dict_carstatus:
-                if data_dict_carstatus['ersDeployMode'] == 0:
+            ersDeployMode = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_ers_deploy_mode"])
+            if ersDeployMode != -1:
+                if ersDeployMode == 0:
                     self.ers_label.config(text="NONE")
                     self.ers_label.config(fg="white")
                     self.ers_label.config(bg="black")
                     self.ersframe.config(bg="black")
-                elif data_dict_carstatus['ersDeployMode'] == 1:
+                elif ersDeployMode== 1:
                     self.ers_label.config(text="MEDIUM")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#15F522")
                     self.ersframe.config(bg="#15F522")
-                elif data_dict_carstatus['ersDeployMode'] == 2:
+                elif ersDeployMode == 2:
                     self.ers_label.config(text="HOTLAP")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#F5F414")
                     self.ersframe.config(bg="#F5F414")
-                elif data_dict_carstatus['ersDeployMode'] == 3:
+                elif ersDeployMode == 3:
                     self.ers_label.config(text="OVERTAKE")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#E02900")
                     self.ersframe.config(bg="#E02900")
 
-            if 'RLTyreInnerTemperature' in data_dict_cartelemetry:
-                self.lefttyres_front_label.config(text=f"{data_dict_cartelemetry['FLTyreInnerTemperature']}°C")
-                self.lefttyres_rear_label.config(text=f"{data_dict_cartelemetry['RLTyreInnerTemperature']}°C")
-                self.righttyres_front_label.config(text=f"{data_dict_cartelemetry['FRTyreInnerTemperature']}°C")
-                self.righttyres_rear_label.config(text=f"{data_dict_cartelemetry['RRTyreInnerTemperature']}°C")
+            RLTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","rear_left"])
+            RRTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","front_left"])
+            FLTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","front_right"])
+            FRTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","rear_right"])
 
-            if 'fuelInTank' in data_dict_carstatus:
-                self.fuelplus_label.config(text=f"{data_dict_carstatus['fuelInTank']:.1f}l")
+            if RLTyreInnerTemperature != -1:
+                self.lefttyres_front_label.config(text=f"{RLTyreInnerTemperature}°C")
+                self.lefttyres_rear_label.config(text=f"{RRTyreInnerTemperature}°C")
+                self.righttyres_front_label.config(text=f"{FLTyreInnerTemperature}°C")
+                self.righttyres_rear_label.config(text=f"{FRTyreInnerTemperature}°C")
 
-            if 'fuelRemainingLaps' in data_dict_carstatus:
-                if data_dict_carstatus['fuelRemainingLaps'] > 0:
-                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+            fuelInTank = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_fuel_in_tank"])
+            if fuelInTank != -1:
+                self.fuelplus_label.config(text=f"{fuelInTank:.1f}l")
+
+            fuelRemainingLaps = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_fuel_remaining_laps"])
+            #TODO és itt mi legyen? -1 valid érték
+            if fuelRemainingLaps != -1:
+                if fuelRemainingLaps > 0:
+                    self.fuelpluslaps_label.config(text=f"(+{fuelRemainingLaps:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="#00ff00")
                 else:
-                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+                    self.fuelpluslaps_label.config(text=f"(+{fuelRemainingLaps:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="red")
 
-            if 'delta' in data_dict_flyingdelta and data_dict_carstatus['pitLimiterStatus'] == 0:
+            pitLimiterStatus = self.storage.read(["F1", "_packet_car_status_data", "_car_status_data", 0, "_pit_limiter_status"])
+
+            #TODO itt mi a delta?? data_dict_flyingdelta nem egy F1-től kapott adatokat tarltamazó lista??
+            if 'delta' in data_dict_flyingdelta and pitLimiterStatus== 0:
                 flyingdelta = data_dict_flyingdelta['delta']
                 if flyingdelta == -100.000:
                     self.laptime_delta_label.config(text="error", fg="red")
@@ -249,22 +273,23 @@ class DefaultDisplay:
                 else:
                     self.laptime_delta_label.config(text=f"+{flyingdelta:.3f}",fg="red")
 
-            if 'pitLimiterStatus' in data_dict_carstatus and data_dict_carstatus['pitLimiterStatus'] == 1:
+            if pitLimiterStatus != -1 and pitLimiterStatus == 1:
                 self.laptime_label.config(fg="black")
                 self.laptime_delta_label.config(fg="black")
                 self.pitlimiter_label.config(fg="white")
             else:
                 self.pitlimiter_label.config(fg="black")
 
-            if 'currentLapTimeInMs' in data_dict_lapdata:
-                laptime = data_dict_lapdata['currentLapTimeInMs']
-                if laptime < 59999:
-                    seconds = float(laptime / 1000)
+
+            currentLapTimeInMs = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_time_in_ms"])
+            if currentLapTimeInMs != 1:
+                if currentLapTimeInMs < 59999:
+                    seconds = float(currentLapTimeInMs / 1000)
                     self.laptime_label.config(text=f"{seconds:.3f}")
-                elif 59999 < laptime and laptime < 69999:
-                    minutes = int(laptime / 60000)
+                elif 59999 < currentLapTimeInMs and currentLapTimeInMs < 69999:
+                    minutes = int(currentLapTimeInMs / 60000)
                     # seconds = float(laptime - minutes * 60000) / 1000
-                    string_representation = str(laptime - minutes * 60000)
+                    string_representation = str(currentLapTimeInMs - minutes * 60000)
 
                     # Insert decimal point at the appropriate position
                     formatted_string = string_representation[:-3] + '.' + string_representation[-3:]
@@ -273,23 +298,29 @@ class DefaultDisplay:
                     result = '0' + formatted_string
                     self.laptime_label.config(text=f"{minutes}:{result}")
                 else:
-                    minutes = int(laptime / 60000)
-                    seconds = float(laptime - minutes * 60000) / 1000
+                    minutes = int(currentLapTimeInMs / 60000)
+                    seconds = float(currentLapTimeInMs - minutes * 60000) / 1000
                     self.laptime_label.config(text=f"{minutes}:{seconds:.3f}")
 
-            if 'currentLapInvalid' in data_dict_lapdata and data_dict_carstatus['pitLimiterStatus'] == 0:
-                if data_dict_lapdata['currentLapInvalid'] == 1:
+            currentLapInvalid = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_invalid"])
+            if currentLapInvalid!= -1 and pitLimiterStatus == 0:
+                if currentLapInvalid == 1:
                     print("Lap Invalid")
                     self.laptime_label.config(fg="red")
                 else:
                     self.laptime_label.config(fg="white")
 
-            if 'currentLapNum' in data_dict_lapdata:
-                self.lapnum_label.config(text=f"L{data_dict_lapdata['currentLapNum']}")
-            if 'carPosition' in data_dict_lapdata:
-                self.place_label.config(text=f"P{data_dict_lapdata['carPosition']}")
+
+            currentLapNum = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_num"])
+            if currentLapNum != -1:
+                self.lapnum_label.config(text=f"L{currentLapNum}")
+
+            carPosition = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_car_position"])
+            if carPosition != -1:
+                self.place_label.config(text=f"P{carPosition}")
 
             self.root.after(5, self.update_labels)
+
 class PitStop:
     def __init__(self, root):
         self.root = root
