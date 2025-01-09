@@ -1,0 +1,3 @@
+- font file is never used
+- use trasnaprent assets with bg fill from a gradient
+- eszköz 19 ugyan az mint help lines

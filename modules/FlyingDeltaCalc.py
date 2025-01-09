@@ -1,4 +1,3 @@
-from SharedVars import *
 import threading
 
 class ThreadControllerByEvent(threading.Thread):

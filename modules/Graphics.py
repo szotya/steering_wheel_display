@@ -1,24 +1,26 @@
 import tkinter as tk
 from PIL import Image as PilImage, ImageTk
-from App import *
-from SharedVars import *
-from listsandconstants import *
+from modules.get_ip import get_current_ip
+import SharedVars
+import listsandconstants
+from modules.storage import SessionType, Storage, SupportedGames
 
 class ConnectDisplay:
 
-    def __init__(self, root):
+    def __init__(self, root,storage: Storage):
         self.root = root
+        self.storage = storage
 
     def create_connect_display(self):
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="white", highlightthickness=0)
         self.canvas.pack()
 
-        self.logo = PilImage.open("Full_logo-06.png")
+        self.logo = PilImage.open("assets/Full_logo-06.png")
         self.logo_resized = self.logo.resize((460,259))
         self.logo_tk_image = ImageTk.PhotoImage(self.logo_resized)
         self.canvas.create_image(400, 200, image=self.logo_tk_image)
 
-        self.ip = tk.Label(self.root, text=f"IP: {get_my_ip()}", fg="black", bg="white", font=("Formula1", 20, "bold"))
+        self.ip = tk.Label(self.root, text=f"IP: {get_current_ip()}", fg="black", bg="white", font=("Formula1", 20, "bold"))
         self.ip.place(x=308, y=370)
 
         self.port = tk.Label(self.root, text="Port: 20777", fg="black", bg="white", font=("Formula1", 20, "bold"))
@@ -28,17 +30,17 @@ class ConnectDisplay:
 
     def update_connection_display(self):
         if self.canvas is not None and self.canvas.winfo_exists():
-            global data_dict_sessionpacket
 
-            if 'sessionType' in data_dict_sessionpacket:
+            if self.storage.read(["F1","_packet_session_data","_packet_session_data"]) != SessionType.UNKNOWN:
                 self.ip.config(fg="white")
                 self.port.config(fg="white")
 
             self.root.after(5, self.update_connection_display)
 
 class DefaultDisplay:
-    def __init__(self, root):
+    def __init__(self, root,storage:Storage):
         self.root = root
+        self.storage = storage
 
     def create_default_display(self):
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="white")
@@ -157,88 +159,110 @@ class DefaultDisplay:
 
     def update_labels(self):
         if self.canvas is not None and self.canvas.winfo_exists():
-            global data_dict_cartelemetry
-            global data_dict_sessionpacket
-            global data_dict_sessionhistory
-            global data_dict_carstatus
-            global data_dict_lapdata
-            global data_dict_flyingdelta
+            storage_path = [SupportedGames.FORMULA_1_2021, "_packet_car_setup_data", "_car_status_data", 0]
 
-            if 'onThrottle' in data_dict_carsetup:
-                self.differential_percentage_label.config(text=f"{data_dict_carsetup['onThrottle']}%")
+            #TODO hanyadik a mienk??
+            throttleOn = self.storage.read([*storage_path, "_throttle", "on"])
+            if throttleOn != -1:
+                self.differential_percentage_label.config(text=f"{throttleOn}%")
 
-            if 'frontBrakeBias' in data_dict_carstatus:
-                self.brake_bias_percentage_label.config(text=f"{data_dict_carstatus['frontBrakeBias']}%")
 
-            if 'speedUnit' in data_dict_sessionpacket:
-                if data_dict_sessionpacket['speedUnit'] == 0:
+            frontBrakeBias =  self.storage.read([*storage_path, "_front_brake_bias"])
+            if frontBrakeBias != -1:
+                self.brake_bias_percentage_label.config(text=f"{frontBrakeBias}%")
+
+            #TODO itt elmaradt egy index a _car_status_data után nem? meg mintha ez simán a _packet_session_databan lenne
+            #eredeti: speedUnit =  self.storage.read(["F1","_packet_session_data","_car_status_data","_speed_units_lead_player"])
+            speedUnit =  self.storage.read([*storage_path, "_speed_units_lead_player"])
+
+            if speedUnit != -1:
+                if speedUnit == 0:
                     self.kmph_text_label.config(text="MPH")
                 else:
                     self.kmph_text_label.config(text="KM/H")
 
-            if 'speed' in data_dict_cartelemetry:
-                self.kmph_label.config(text=f"{data_dict_cartelemetry['speed']}")
+            speed = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_speed"])
+            if speed != -1:
+                self.kmph_label.config(text=f"{speed}")
 
-            if 'gear' in data_dict_cartelemetry:
-                if data_dict_cartelemetry['gear'] == -1:
+            gear = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_gear"])
+            #TODO -1 nem lehet itt, valamit erre majd ki kéne találni
+            if gear != -2:
+                if gear == -1:
                     self.gear_label.config(text="R")
-                elif data_dict_cartelemetry['gear'] == 0:
+                elif gear == 0:
                     self.gear_label.config(text="N")
                 else:
-                    self.gear_label.config(text=f"{data_dict_cartelemetry['gear']}")
+                    self.gear_label.config(text=f"{gear}")
 
-            if 'throttle' in data_dict_cartelemetry:
-                self.acceleratorindicatorfillframe.config(width=float(data_dict_cartelemetry['throttle'] * 202))
+            throttle = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_throttle"])
+            if throttle != -1:
+                #TODO miért szoroza pont 202?
+                self.acceleratorindicatorfillframe.config(width=float(throttle * 202))
 
-            if 'brake' in data_dict_cartelemetry:
-                self.brakeindicatorfillframe.config(width=float(data_dict_cartelemetry['brake'] * 200))
+            brake = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_brake"])
+            if brake != -1:
+                self.brakeindicatorfillframe.config(width=float(brake * 200))
 
-            if 'ersStoreEnergy' in data_dict_carstatus:
-                stored_energy_in_percentage = data_dict_carstatus['ersStoreEnergy'] / maximum_energy_storage * 100
+            ersStoreEnergy = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_ers_store_energy"])
+            if 'ersStoreEnergy' != -1:
+                stored_energy_in_percentage =ersStoreEnergy/ listsandconstants.maximum_energy_storage * 100
                 self.ersindicatorfillframe.config(
-                    width=float((data_dict_carstatus['ersStoreEnergy'] / maximum_energy_storage) * 402))
+                    width=float((ersStoreEnergy / listsandconstants.maximum_energy_storage) * 402))
                 self.ers_percentage_label.config(text=f"{stored_energy_in_percentage:.0f}%", font=("Formula1", 35, "bold"))
 
-            if 'ersDeployMode' in data_dict_carstatus:
-                if data_dict_carstatus['ersDeployMode'] == 0:
+            ersDeployMode = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_ers_deploy_mode"])
+            if ersDeployMode != -1:
+                if ersDeployMode == 0:
                     self.ers_label.config(text="NONE")
                     self.ers_label.config(fg="white")
                     self.ers_label.config(bg="black")
                     self.ersframe.config(bg="black")
-                elif data_dict_carstatus['ersDeployMode'] == 1:
+                elif ersDeployMode== 1:
                     self.ers_label.config(text="MEDIUM")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#15F522")
                     self.ersframe.config(bg="#15F522")
-                elif data_dict_carstatus['ersDeployMode'] == 2:
+                elif ersDeployMode == 2:
                     self.ers_label.config(text="HOTLAP")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#F5F414")
                     self.ersframe.config(bg="#F5F414")
-                elif data_dict_carstatus['ersDeployMode'] == 3:
+                elif ersDeployMode == 3:
                     self.ers_label.config(text="OVERTAKE")
                     self.ers_label.config(fg="black")
                     self.ers_label.config(bg="#E02900")
                     self.ersframe.config(bg="#E02900")
 
-            if 'RLTyreInnerTemperature' in data_dict_cartelemetry:
-                self.lefttyres_front_label.config(text=f"{data_dict_cartelemetry['FLTyreInnerTemperature']}°C")
-                self.lefttyres_rear_label.config(text=f"{data_dict_cartelemetry['RLTyreInnerTemperature']}°C")
-                self.righttyres_front_label.config(text=f"{data_dict_cartelemetry['FRTyreInnerTemperature']}°C")
-                self.righttyres_rear_label.config(text=f"{data_dict_cartelemetry['RRTyreInnerTemperature']}°C")
+            RLTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","rear_left"])
+            RRTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","front_left"])
+            FLTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","front_right"])
+            FRTyreInnerTemperature = self.storage.read(["F1","_packet_car_telemtry_data","_car_telemetry_data",0,"_car_telemetry_data","rear_right"])
 
-            if 'fuelInTank' in data_dict_carstatus:
-                self.fuelplus_label.config(text=f"{data_dict_carstatus['fuelInTank']:.1f}l")
+            if RLTyreInnerTemperature != -1:
+                self.lefttyres_front_label.config(text=f"{RLTyreInnerTemperature}°C")
+                self.lefttyres_rear_label.config(text=f"{RRTyreInnerTemperature}°C")
+                self.righttyres_front_label.config(text=f"{FLTyreInnerTemperature}°C")
+                self.righttyres_rear_label.config(text=f"{FRTyreInnerTemperature}°C")
 
-            if 'fuelRemainingLaps' in data_dict_carstatus:
-                if data_dict_carstatus['fuelRemainingLaps'] > 0:
-                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+            fuelInTank = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_fuel_in_tank"])
+            if fuelInTank != -1:
+                self.fuelplus_label.config(text=f"{fuelInTank:.1f}l")
+
+            fuelRemainingLaps = self.storage.read(["F1","_packet_car_status_data","_car_status_data",0,"_fuel_remaining_laps"])
+            #TODO és itt mi legyen? -1 valid érték
+            if fuelRemainingLaps != -1:
+                if fuelRemainingLaps > 0:
+                    self.fuelpluslaps_label.config(text=f"(+{fuelRemainingLaps:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="#00ff00")
                 else:
-                    self.fuelpluslaps_label.config(text=f"(+{data_dict_carstatus['fuelRemainingLaps']:.2f} laps)")
+                    self.fuelpluslaps_label.config(text=f"(+{fuelRemainingLaps:.2f} laps)")
                     self.fuelpluslaps_label.config(fg="red")
 
-            if 'delta' in data_dict_flyingdelta and data_dict_carstatus['pitLimiterStatus'] == 0:
+            pitLimiterStatus = self.storage.read(["F1", "_packet_car_status_data", "_car_status_data", 0, "_pit_limiter_status"])
+
+            #TODO itt mi a delta?? data_dict_flyingdelta nem egy F1-től kapott adatokat tarltamazó lista??
+            if 'delta' in data_dict_flyingdelta and pitLimiterStatus== 0:
                 flyingdelta = data_dict_flyingdelta['delta']
                 if flyingdelta == -100.000:
                     self.laptime_delta_label.config(text="error", fg="red")
@@ -249,22 +273,23 @@ class DefaultDisplay:
                 else:
                     self.laptime_delta_label.config(text=f"+{flyingdelta:.3f}",fg="red")
 
-            if 'pitLimiterStatus' in data_dict_carstatus and data_dict_carstatus['pitLimiterStatus'] == 1:
+            if pitLimiterStatus != -1 and pitLimiterStatus == 1:
                 self.laptime_label.config(fg="black")
                 self.laptime_delta_label.config(fg="black")
                 self.pitlimiter_label.config(fg="white")
             else:
                 self.pitlimiter_label.config(fg="black")
 
-            if 'currentLapTimeInMs' in data_dict_lapdata:
-                laptime = data_dict_lapdata['currentLapTimeInMs']
-                if laptime < 59999:
-                    seconds = float(laptime / 1000)
+
+            currentLapTimeInMs = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_time_in_ms"])
+            if currentLapTimeInMs != 1:
+                if currentLapTimeInMs < 59999:
+                    seconds = float(currentLapTimeInMs / 1000)
                     self.laptime_label.config(text=f"{seconds:.3f}")
-                elif 59999 < laptime and laptime < 69999:
-                    minutes = int(laptime / 60000)
+                elif 59999 < currentLapTimeInMs and currentLapTimeInMs < 69999:
+                    minutes = int(currentLapTimeInMs / 60000)
                     # seconds = float(laptime - minutes * 60000) / 1000
-                    string_representation = str(laptime - minutes * 60000)
+                    string_representation = str(currentLapTimeInMs - minutes * 60000)
 
                     # Insert decimal point at the appropriate position
                     formatted_string = string_representation[:-3] + '.' + string_representation[-3:]
@@ -273,23 +298,29 @@ class DefaultDisplay:
                     result = '0' + formatted_string
                     self.laptime_label.config(text=f"{minutes}:{result}")
                 else:
-                    minutes = int(laptime / 60000)
-                    seconds = float(laptime - minutes * 60000) / 1000
+                    minutes = int(currentLapTimeInMs / 60000)
+                    seconds = float(currentLapTimeInMs - minutes * 60000) / 1000
                     self.laptime_label.config(text=f"{minutes}:{seconds:.3f}")
 
-            if 'currentLapInvalid' in data_dict_lapdata and data_dict_carstatus['pitLimiterStatus'] == 0:
-                if data_dict_lapdata['currentLapInvalid'] == 1:
+            currentLapInvalid = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_invalid"])
+            if currentLapInvalid!= -1 and pitLimiterStatus == 0:
+                if currentLapInvalid == 1:
                     print("Lap Invalid")
                     self.laptime_label.config(fg="red")
                 else:
                     self.laptime_label.config(fg="white")
 
-            if 'currentLapNum' in data_dict_lapdata:
-                self.lapnum_label.config(text=f"L{data_dict_lapdata['currentLapNum']}")
-            if 'carPosition' in data_dict_lapdata:
-                self.place_label.config(text=f"P{data_dict_lapdata['carPosition']}")
+
+            currentLapNum = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_current_lap_num"])
+            if currentLapNum != -1:
+                self.lapnum_label.config(text=f"L{currentLapNum}")
+
+            carPosition = self.storage.read(["F1", "_packet_lap_data", "_lap_data", 0, "_car_position"])
+            if carPosition != -1:
+                self.place_label.config(text=f"P{carPosition}")
 
             self.root.after(5, self.update_labels)
+
 class PitStop:
     def __init__(self, root):
         self.root = root
@@ -314,7 +345,7 @@ class PitStop:
         self.availablebest_text = tk.Label(self.canvas, text="Available Best Sets", fg="white", bg="black", font=("Formula1", 15, "bold"))
         self.availablebest_text.place(x=110, y=380, anchor="center")
 
-        self.soft_img = PilImage.open('tyres/soft.png')
+        self.soft_img = PilImage.open('assets/tyre/soft.png')
         self.soft_img_resized = self.soft_img.resize((55, 55))
         # Convert the image to a format Tkinter can use
         self.soft_tk_image = ImageTk.PhotoImage(self.soft_img_resized)
@@ -325,7 +356,7 @@ class PitStop:
         self.soft_best_percent = tk.Label(self.canvas, text="7%", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.soft_best_percent.place(x=82, y=427)
 
-        self.medium_img = PilImage.open('tyres/medium.png')
+        self.medium_img = PilImage.open('assets/tyre/medium.png')
         self.medium_img_resized = self.medium_img.resize((55, 55))
         # Convert the image to a format Tkinter can use
         self.medium_tk_image = ImageTk.PhotoImage(self.medium_img_resized)
@@ -336,7 +367,7 @@ class PitStop:
         self.medium_best_percent = tk.Label(self.canvas, text="12%", fg="white", bg="black", font=("Formula1", 20, "bold"))
         self.medium_best_percent.place(x=242, y=427)
 
-        self.hard_img = PilImage.open('tyres/hard.png')
+        self.hard_img = PilImage.open('assets/tyre/hard.png')
         self.hard_img_resized = self.hard_img.resize((55, 55))
         # Convert the image to a format Tkinter can use
         self.hard_tk_image = ImageTk.PhotoImage(self.hard_img_resized)
@@ -348,7 +379,7 @@ class PitStop:
                                             font=("Formula1", 20, "bold"))
         self.hard_best_percent.place(x=402, y=427)
 
-        self.inter_img = PilImage.open('tyres/inter.png')
+        self.inter_img = PilImage.open('assets/tyre/inter.png')
         self.inter_img_resized = self.inter_img.resize((55, 55))
         # Convert the image to a format Tkinter can use
         self.inter_tk_image = ImageTk.PhotoImage(self.inter_img_resized)
@@ -360,7 +391,7 @@ class PitStop:
                                           font=("Formula1", 20, "bold"))
         self.inter_best_percent.place(x=552, y=427)
 
-        self.wet_img = PilImage.open('tyres/wet.png')
+        self.wet_img = PilImage.open('assets/tyre/wet.png')
         self.wet_img_resized = self.wet_img.resize((55, 55))
         self.wet_tk_image = ImageTk.PhotoImage(self.wet_img_resized)
         self.canvas.create_image(670, 430, image=self.wet_tk_image)
@@ -437,140 +468,140 @@ class CarDamage:
         self.canvas.pack()
 
         #car siluett img
-        self.siluett_img = PilImage.open('car_damage_pngs/siluett.png')
+        self.siluett_img = PilImage.open('assets/car_damage/siluett.png')
         self.siluett_img_resized = self.siluett_img.resize((115, 196))
         # Convert the image to a format Tkinter can use
         self.siluett_tk_image = ImageTk.PhotoImage(self.siluett_img_resized)
         self.canvas.create_image(400, 150, image=self.siluett_tk_image)
 
         #front left wing
-        self.frontleft_img = PilImage.open('car_damage_pngs/frontleft0.png')
+        self.frontleft_img = PilImage.open('assets/car_damage/frontleft0.png')
         self.frontleft_img_resized = self.frontleft_img.resize((68, 60))
         # Convert the image to a format Tkinter can use
         self.frontleft_tk_image = ImageTk.PhotoImage(self.frontleft_img_resized)
         self.frontleft = self.canvas.create_image(362.5, 69, image=self.frontleft_tk_image)
 
         #front right wing
-        self.frontright_img = PilImage.open('car_damage_pngs/frontright0.png')
+        self.frontright_img = PilImage.open('assets/car_damage/frontright0.png')
         self.frontright_img_resized = self.frontright_img.resize((68, 60))
         # Convert the image to a format Tkinter can use
         self.frontright_tk_image = ImageTk.PhotoImage(self.frontright_img_resized)
         self.frontright = self.canvas.create_image(438, 69, image=self.frontright_tk_image)
 
         #front left tyre
-        self.frontlefttyre_img = PilImage.open('car_damage_pngs/fronttyre0.png')
+        self.frontlefttyre_img = PilImage.open('assets/car_damage/fronttyre0.png')
         self.frontlefttyre_img_resized = self.frontlefttyre_img.resize((29, 53))
         # Convert the image to a format Tkinter can use
         self.frontlefttyre_tk_image = ImageTk.PhotoImage(self.frontlefttyre_img_resized)
         self.frontlefttyre = self.canvas.create_image(342.5, 130.5, image=self.frontlefttyre_tk_image)
 
         #front left brake
-        self.frontleftbrake_img = PilImage.open('car_damage_pngs/brake0.png')
+        self.frontleftbrake_img = PilImage.open('assets/car_damage/brake0.png')
         self.frontleftbrake_img_resized = self.frontlefttyre_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.frontleftbrake_tk_image = ImageTk.PhotoImage(self.frontleftbrake_img_resized)
         self.frontleftbrake = self.canvas.create_image(364.5, 131, image=self.frontleftbrake_tk_image)
 
         #front right tyre
-        self.frontrighttyre_img = PilImage.open('car_damage_pngs/fronttyre0.png')
+        self.frontrighttyre_img = PilImage.open('assets/car_damage/fronttyre0.png')
         self.frontrighttyre_img_resized = self.frontrighttyre_img.resize((29, 53))
         # Convert the image to a format Tkinter can use
         self.frontrighttyre_tk_image = ImageTk.PhotoImage(self.frontrighttyre_img_resized)
         self.frontrighttyre = self.canvas.create_image(457, 130.5, image=self.frontrighttyre_tk_image)
 
         # front right brake
-        self.frontrightbrake_img = PilImage.open('car_damage_pngs/brake0.png')
+        self.frontrightbrake_img = PilImage.open('assets/car_damage/brake0.png')
         self.frontrightbrake_img_resized = self.frontrighttyre_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.frontrightbrake_tk_image = ImageTk.PhotoImage(self.frontrightbrake_img_resized)
         self.frontrightbrake = self.canvas.create_image(436, 131, image=self.frontrightbrake_tk_image)
 
         #left floor
-        self.leftfloor_img = PilImage.open('car_damage_pngs/floorleft0.png')
+        self.leftfloor_img = PilImage.open('assets/car_damage/floorleft0.png')
         self.leftfloor_img_resized = self.leftfloor_img.resize((45, 182))
         # Convert the image to a format Tkinter can use
         self.leftfloor_tk_image = ImageTk.PhotoImage(self.leftfloor_img_resized)
         self.leftfloor = self.canvas.create_image(363.6, 270, image=self.leftfloor_tk_image)
 
         # right floor
-        self.rightfloor_img = PilImage.open('car_damage_pngs/floorright0.png')
+        self.rightfloor_img = PilImage.open('assets/car_damage/floorright0.png')
         self.rightfloor_img_resized = self.rightfloor_img.resize((45, 182))
         # Convert the image to a format Tkinter can use
         self.rightfloor_tk_image = ImageTk.PhotoImage(self.rightfloor_img_resized)
         self.rightfloor = self.canvas.create_image(436, 270, image=self.rightfloor_tk_image)
 
         #left side pod
-        self.leftsidepod_img = PilImage.open('car_damage_pngs/sideleft0.png')
+        self.leftsidepod_img = PilImage.open('assets/car_damage/sideleft0.png')
         self.leftsidepod_img_resized = self.leftsidepod_img.resize((37, 124))
         # Convert the image to a format Tkinter can use
         self.leftsidepod_tk_image = ImageTk.PhotoImage(self.leftsidepod_img_resized)
         self.leftsidepod = self.canvas.create_image(371, 299, image=self.leftsidepod_tk_image)
 
         # right side pod
-        self.rightsidepod_img = PilImage.open('car_damage_pngs/sideright0.png')
+        self.rightsidepod_img = PilImage.open('assets/car_damage/sideright0.png')
         self.rightsidepod_img_resized = self.rightsidepod_img.resize((37, 124))
         # Convert the image to a format Tkinter can use
         self.rightsidepod_tk_image = ImageTk.PhotoImage(self.rightsidepod_img_resized)
         self.rightsidepod = self.canvas.create_image(428.5, 299.4, image=self.rightsidepod_tk_image)
 
         #engine
-        self.engine_img = PilImage.open('car_damage_pngs/engine0.png')
+        self.engine_img = PilImage.open('assets/car_damage/engine0.png')
         self.engine_img_resized = self.engine_img.resize((51, 60))
         # Convert the image to a format Tkinter can use
         self.engine_tk_image = ImageTk.PhotoImage(self.engine_img_resized)
         self.engine = self.canvas.create_image(400, 282, image=self.engine_tk_image)
 
         #gearbox
-        self.gearbox_img = PilImage.open('car_damage_pngs/gear0.png')
+        self.gearbox_img = PilImage.open('assets/car_damage/gear0.png')
         self.gearbox_img_resized = self.gearbox_img.resize((14, 47))
         # Convert the image to a format Tkinter can use
         self.gearbox_tk_image = ImageTk.PhotoImage(self.gearbox_img_resized)
         self.gearbox = self.canvas.create_image(400.5, 338.3, image=self.gearbox_tk_image)
 
         #diffuser
-        self.diffuser_img = PilImage.open('car_damage_pngs/diffuser0.png')
+        self.diffuser_img = PilImage.open('assets/car_damage/diffuser0.png')
         self.diffuser_img_resized = self.diffuser_img.resize((53, 18))
         # Convert the image to a format Tkinter can use
         self.diffuser_tk_image = ImageTk.PhotoImage(self.diffuser_img_resized)
         self.diffuser = self.canvas.create_image(400, 374, image=self.diffuser_tk_image)
 
         #rear left tyre
-        self.rearlefttyre_img = PilImage.open('car_damage_pngs/reartyre0.png')
+        self.rearlefttyre_img = PilImage.open('assets/car_damage/reartyre0.png')
         self.rearlefttyre_img_resized = self.rearlefttyre_img.resize((32, 53))
         # Convert the image to a format Tkinter can use
         self.rearlefttyre_tk_image = ImageTk.PhotoImage(self.rearlefttyre_img_resized)
         self.rearlefttyre = self.canvas.create_image(341.5, 372, image=self.rearlefttyre_tk_image)
 
         # rear left brake
-        self.rearleftbrake_img = PilImage.open('car_damage_pngs/brake0.png')
+        self.rearleftbrake_img = PilImage.open('assets/car_damage/brake0.png')
         self.rearleftbrake_img_resized = self.rearlefttyre_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.rearleftbrake_tk_image = ImageTk.PhotoImage(self.rearleftbrake_img_resized)
         self.rearleftbrake = self.canvas.create_image(365.5, 373, image=self.rearleftbrake_tk_image)
 
         #rear right tyre
-        self.rearrighttyre_img = PilImage.open('car_damage_pngs/reartyre0.png')
+        self.rearrighttyre_img = PilImage.open('assets/car_damage/reartyre0.png')
         self.rearrighttyre_img_resized = self.rearrighttyre_img.resize((32, 53))
         # Convert the image to a format Tkinter can use
         self.rearrighttyre_tk_image = ImageTk.PhotoImage(self.rearrighttyre_img_resized)
         self.rearrighttyre = self.canvas.create_image(459, 371.5, image=self.rearrighttyre_tk_image)
 
         # rear right brake
-        self.rearrightbrake_img = PilImage.open('car_damage_pngs/brake0.png')
+        self.rearrightbrake_img = PilImage.open('assets/car_damage/brake0.png')
         self.rearrightbrake_img_resized = self.rearrighttyre_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.rearrightbrake_tk_image = ImageTk.PhotoImage(self.rearrightbrake_img_resized)
         self.rearrightbrake = self.canvas.create_image(435.3, 373, image=self.rearrightbrake_tk_image)
 
         # rearwing
-        self.rearwing_img = PilImage.open('car_damage_pngs/rear0.png')
+        self.rearwing_img = PilImage.open('assets/car_damage/rear0.png')
         self.rearwing_img_resized = self.rearwing_img.resize((91, 36))
         # Convert the image to a format Tkinter can use
         self.rearwing_tk_image = ImageTk.PhotoImage(self.rearwing_img_resized)
         self.rearwing = self.canvas.create_image(400, 403, image=self.rearwing_tk_image)
 
         # percent circles
-        self.frontleftpercent_img = PilImage.open('car_damage_pngs/circle.png')
+        self.frontleftpercent_img = PilImage.open('assets/car_damage/circle.png')
         self.frontleftpercent_img_resized = self.frontleftpercent_img.resize((117, 117))
         # Convert the image to a format Tkinter can use
         self.frontleftpercent_tk_image = ImageTk.PhotoImage(self.frontleftpercent_img_resized)
@@ -596,14 +627,14 @@ class CarDamage:
         self.rr_percent_label.place(x=521, y=351)
 
         #ERS indicator
-        self.ers_img = PilImage.open('car_damage_pngs/ERS_good.png')
+        self.ers_img = PilImage.open('assets/car_damage/ERS_good.png')
         self.ers_img_resized = self.ers_img.resize((150, 76))
         # Convert the image to a format Tkinter can use
         self.ers_tk_image = ImageTk.PhotoImage(self.ers_img_resized)
         self.ers = self.canvas.create_image(90, 50, image=self.ers_tk_image)
 
         #DRS indicator
-        self.drs_img = PilImage.open('car_damage_pngs/DRS_good.png')
+        self.drs_img = PilImage.open('assets/car_damage/DRS_good.png')
         self.drs_img_resized = self.drs_img.resize((150, 76))
         # Convert the image to a format Tkinter can use
         self.drs_tk_image = ImageTk.PhotoImage(self.drs_img_resized)
@@ -757,52 +788,52 @@ class CarDamage:
             if 'frontLeftWingDamage' in data_dict_cardamage:
                 fldamage = int(data_dict_cardamage['frontLeftWingDamage'])
                 if fldamage < 10:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[0])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[0])
                 elif fldamage < 20:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[1])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[1])
                 elif fldamage < 30:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[2])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[2])
                 elif fldamage < 40:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[3])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[3])
                 elif fldamage < 50:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[4])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[4])
                 elif fldamage < 60:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[5])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[5])
                 elif fldamage < 70:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[6])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[6])
                 elif fldamage < 80:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[7])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[7])
                 elif fldamage < 90:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[8])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[8])
                 elif fldamage < 100:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[9])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[9])
                 else:
-                    self.front_wing_left_damage(listoffrontwingleftstatus[10])
+                    self.front_wing_left_damage(listsandconstants.listoffrontwingleftstatus[10])
 
             if 'frontRightWingDamage' in data_dict_cardamage:
                 frdamage = int(data_dict_cardamage['frontRightWingDamage'])
                 if frdamage < 10:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[0])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[0])
                 elif frdamage < 20:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[1])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[1])
                 elif frdamage < 30:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[2])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[2])
                 elif frdamage < 40:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[3])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[3])
                 elif frdamage < 50:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[4])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[4])
                 elif frdamage < 60:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[5])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[5])
                 elif frdamage < 70:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[6])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[6])
                 elif frdamage < 80:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[7])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[7])
                 elif frdamage < 90:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[8])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[8])
                 elif frdamage < 100:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[9])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[9])
                 else:
-                    self.front_wing_right_damage(listoffrontwingrightstatus[10])
+                    self.front_wing_right_damage(listsandconstants.listoffrontwingrightstatus[10])
 
             if 'FLTyreDamage' in data_dict_cardamage:
                 fltdamage = int(data_dict_cardamage['FLTyreDamage'])
@@ -810,47 +841,47 @@ class CarDamage:
                 if fltdamage < 10:
                     self.fl_percent_label.config(fg="#00ff00")
                     self.fl_percent_label.place(x=211.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[0])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[0])
                 elif fltdamage < 20:
                     self.fl_percent_label.config(fg="#88f612")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[1])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[1])
                 elif fltdamage < 30:
                     self.fl_percent_label.config(fg="#aef317")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[2])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[2])
                 elif fltdamage < 40:
                     self.fl_percent_label.config(fg="#cff11b")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[3])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[3])
                 elif fltdamage < 50:
                     self.fl_percent_label.config(fg="#ebef1f")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[4])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[4])
                 elif fltdamage < 60:
                     self.fl_percent_label.config(fg="#fcee21")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[5])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[5])
                 elif fltdamage < 70:
                     self.fl_percent_label.config(fg="#fccc1f")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[6])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[6])
                 elif fltdamage < 80:
                     self.fl_percent_label.config(fg="#fda61d")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[7])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[7])
                 elif fltdamage < 90:
                     self.fl_percent_label.config(fg="#fd7e1b")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[8])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[8])
                 elif fltdamage < 100:
                     self.fl_percent_label.config(fg="#fe5519")
                     self.fl_percent_label.place(x=201.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[9])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[9])
                 else:
                     self.fl_percent_label.config(fg="#ff0015")
                     self.fl_percent_label.place(x=191.5, y=109.5)
-                    self.front_left_tyre_damage(listoffronttyrestatus[10])
+                    self.front_left_tyre_damage(listsandconstants.listoffronttyrestatus[10])
 
             if 'FRTyreDamage' in data_dict_cardamage:
                 frtdamage = int(data_dict_cardamage['FRTyreDamage'])
@@ -858,47 +889,47 @@ class CarDamage:
                 if frtdamage < 10:
                     self.fr_percent_label.config(fg="#00ff00")
                     self.fr_percent_label.place(x=541, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[0])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[0])
                 elif frtdamage < 20:
                     self.fr_percent_label.config(fg="#88f612")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[1])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[1])
                 elif frtdamage < 30:
                     self.fr_percent_label.config(fg="#aef317")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[2])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[2])
                 elif frtdamage < 40:
                     self.fr_percent_label.config(fg="#cff11b")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[3])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[3])
                 elif frtdamage < 50:
                     self.fr_percent_label.config(fg="#ebef1f")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[4])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[4])
                 elif frtdamage < 60:
                     self.fr_percent_label.config(fg="#fcee21")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[5])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[5])
                 elif frtdamage < 70:
                     self.fr_percent_label.config(fg="#fccc1f")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[6])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[6])
                 elif frtdamage < 80:
                     self.fr_percent_label.config(fg="#fda61d")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[7])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[7])
                 elif frtdamage < 90:
                     self.fr_percent_label.config(fg="#fd7e1b")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[8])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[8])
                 elif frtdamage < 100:
                     self.fr_percent_label.config(fg="#fe5519")
                     self.fr_percent_label.place(x=531, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[9])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[9])
                 else:
                     self.fr_percent_label.config(fg="#ff0015")
                     self.fr_percent_label.place(x=521, y=109.5)
-                    self.front_right_tyre_damage(listoffronttyrestatus[10])
+                    self.front_right_tyre_damage(listsandconstants.listoffronttyrestatus[10])
 
             if 'RLTyreDamage' in data_dict_cardamage:
                 rltdamage = int(data_dict_cardamage['RLTyreDamage'])
@@ -906,47 +937,47 @@ class CarDamage:
                 if rltdamage < 10:
                     self.rl_percent_label.config(fg="#00ff00")
                     self.rl_percent_label.place(x=211.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[0])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[0])
                 elif rltdamage < 20:
                     self.rl_percent_label.config(fg="#88f612")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[1])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[1])
                 elif rltdamage < 30:
                     self.rl_percent_label.config(fg="#aef317")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[2])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[2])
                 elif rltdamage < 40:
                     self.rl_percent_label.config(fg="#cff11b")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[3])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[3])
                 elif rltdamage < 50:
                     self.rl_percent_label.config(fg="#ebef1f")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[4])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[4])
                 elif rltdamage < 60:
                     self.rl_percent_label.config(fg="#fcee21")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[5])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[5])
                 elif rltdamage < 70:
                     self.rl_percent_label.config(fg="#fccc1f")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[6])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[6])
                 elif rltdamage < 80:
                     self.rl_percent_label.config(fg="#fda61d")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[7])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[7])
                 elif rltdamage < 90:
                     self.rl_percent_label.config(fg="#fd7e1b")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[8])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[8])
                 elif rltdamage < 100:
                     self.rl_percent_label.config(fg="#fe5519")
                     self.rl_percent_label.place(x=201.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[9])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[9])
                 else:
                     self.rl_percent_label.config(fg="#ff0015")
                     self.rl_percent_label.place(x=191.5, y=351)
-                    self.rear_left_tyre_damage(listofreartyrestatus[10])
+                    self.rear_left_tyre_damage(listsandconstants.listofreartyrestatus[10])
 
             if 'RRTyreDamage' in data_dict_cardamage:
                 rrtdamage = int(data_dict_cardamage['RRTyreDamage'])
@@ -954,363 +985,363 @@ class CarDamage:
                 if rrtdamage < 10:
                     self.rr_percent_label.config(fg="#00ff00")
                     self.rr_percent_label.place(x=541, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[0])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[0])
                 elif rrtdamage < 20:
                     self.rr_percent_label.config(fg="#88f612")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[1])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[1])
                 elif rrtdamage < 30:
                     self.rr_percent_label.config(fg="#aef317")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[2])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[2])
                 elif rrtdamage < 40:
                     self.rr_percent_label.config(fg="#cff11b")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[3])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[3])
                 elif rrtdamage < 50:
                     self.rr_percent_label.config(fg="#ebef1f")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[4])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[4])
                 elif rrtdamage < 60:
                     self.rr_percent_label.config(fg="#fcee21")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[5])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[5])
                 elif rrtdamage < 70:
                     self.rr_percent_label.config(fg="#fccc1f")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[6])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[6])
                 elif rrtdamage < 80:
                     self.rr_percent_label.config(fg="#fda61d")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[7])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[7])
                 elif rrtdamage < 90:
                     self.rr_percent_label.config(fg="#fd7e1b")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[8])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[8])
                 elif rrtdamage < 100:
                     self.rr_percent_label.config(fg="#fe5519")
                     self.rr_percent_label.place(x=531, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[9])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[9])
                 else:
                     self.rr_percent_label.config(fg="#ff0015")
                     self.rr_percent_label.place(x=521, y=351)
-                    self.rear_right_tyre_damage(listofreartyrestatus[10])
+                    self.rear_right_tyre_damage(listsandconstants.listofreartyrestatus[10])
 
             if 'FLBrakeDamage' in data_dict_cardamage:
                 flbdamage = int(data_dict_cardamage['FLBrakeDamage'])
                 if flbdamage < 10:
-                    self.front_left_brake_damage(listofbrakestatus[0])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[0])
                 elif flbdamage < 20:
-                    self.front_left_brake_damage(listofbrakestatus[1])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[1])
                 elif flbdamage < 30:
-                    self.front_left_brake_damage(listofbrakestatus[2])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[2])
                 elif flbdamage < 40:
-                    self.front_left_brake_damage(listofbrakestatus[3])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[3])
                 elif flbdamage < 50:
-                    self.front_left_brake_damage(listofbrakestatus[4])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[4])
                 elif flbdamage < 60:
-                    self.front_left_brake_damage(listofbrakestatus[5])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[5])
                 elif flbdamage < 70:
-                    self.front_left_brake_damage(listofbrakestatus[6])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[6])
                 elif flbdamage < 80:
-                    self.front_left_brake_damage(listofbrakestatus[7])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[7])
                 elif flbdamage < 90:
-                    self.front_left_brake_damage(listofbrakestatus[8])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[8])
                 elif flbdamage < 100:
-                    self.front_left_brake_damage(listofbrakestatus[9])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[9])
                 else:
-                    self.front_left_brake_damage(listofbrakestatus[10])
+                    self.front_left_brake_damage(listsandconstants.listofbrakestatus[10])
 
             if 'FRBrakeDamage' in data_dict_cardamage:
                 frbdamage = int(data_dict_cardamage['FRBrakeDamage'])
                 if frbdamage < 10:
-                    self.front_right_brake_damage(listofbrakestatus[0])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[0])
                 elif frbdamage < 20:
-                    self.front_right_brake_damage(listofbrakestatus[1])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[1])
                 elif frbdamage < 30:
-                    self.front_right_brake_damage(listofbrakestatus[2])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[2])
                 elif frbdamage < 40:
-                    self.front_right_brake_damage(listofbrakestatus[3])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[3])
                 elif frbdamage < 50:
-                    self.front_right_brake_damage(listofbrakestatus[4])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[4])
                 elif frbdamage < 60:
-                    self.front_right_brake_damage(listofbrakestatus[5])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[5])
                 elif frbdamage < 70:
-                    self.front_right_brake_damage(listofbrakestatus[6])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[6])
                 elif frbdamage < 80:
-                    self.front_right_brake_damage(listofbrakestatus[7])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[7])
                 elif frbdamage < 90:
-                    self.front_right_brake_damage(listofbrakestatus[8])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[8])
                 elif frbdamage < 100:
-                    self.front_right_brake_damage(listofbrakestatus[9])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[9])
                 else:
-                    self.front_right_brake_damage(listofbrakestatus[10])
+                    self.front_right_brake_damage(listsandconstants.listofbrakestatus[10])
 
             if 'RLBrakeDamage' in data_dict_cardamage:
                 rlbdamage = int(data_dict_cardamage['RLBrakeDamage'])
                 if rlbdamage < 10:
-                    self.rear_left_brake_damage(listofbrakestatus[0])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[0])
                 elif rlbdamage < 20:
-                    self.rear_left_brake_damage(listofbrakestatus[1])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[1])
                 elif rlbdamage < 30:
-                    self.rear_left_brake_damage(listofbrakestatus[2])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[2])
                 elif rlbdamage < 40:
-                    self.rear_left_brake_damage(listofbrakestatus[3])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[3])
                 elif rlbdamage < 50:
-                    self.rear_left_brake_damage(listofbrakestatus[4])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[4])
                 elif rlbdamage < 60:
-                    self.rear_left_brake_damage(listofbrakestatus[5])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[5])
                 elif rlbdamage < 70:
-                    self.rear_left_brake_damage(listofbrakestatus[6])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[6])
                 elif rlbdamage < 80:
-                    self.rear_left_brake_damage(listofbrakestatus[7])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[7])
                 elif rlbdamage < 90:
-                    self.rear_left_brake_damage(listofbrakestatus[8])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[8])
                 elif rlbdamage < 100:
-                    self.rear_left_brake_damage(listofbrakestatus[9])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[9])
                 else:
-                    self.rear_left_brake_damage(listofbrakestatus[10])
+                    self.rear_left_brake_damage(listsandconstants.listofbrakestatus[10])
 
             if 'RRBrakeDamage' in data_dict_cardamage:
                 rrbdamage = int(data_dict_cardamage['RRBrakeDamage'])
                 if rrbdamage < 10:
-                    self.rear_right_brake_damage(listofbrakestatus[0])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[0])
                 elif rrbdamage < 20:
-                    self.rear_right_brake_damage(listofbrakestatus[1])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[1])
                 elif rrbdamage < 30:
-                    self.rear_right_brake_damage(listofbrakestatus[2])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[2])
                 elif rrbdamage < 40:
-                    self.rear_right_brake_damage(listofbrakestatus[3])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[3])
                 elif rrbdamage < 50:
-                    self.rear_right_brake_damage(listofbrakestatus[4])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[4])
                 elif rrbdamage < 60:
-                    self.rear_right_brake_damage(listofbrakestatus[5])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[5])
                 elif rrbdamage < 70:
-                    self.rear_right_brake_damage(listofbrakestatus[6])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[6])
                 elif rrbdamage < 80:
-                    self.rear_right_brake_damage(listofbrakestatus[7])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[7])
                 elif rrbdamage < 90:
-                    self.rear_right_brake_damage(listofbrakestatus[8])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[8])
                 elif rrbdamage < 100:
-                    self.rear_right_brake_damage(listofbrakestatus[9])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[9])
                 else:
-                    self.rear_right_brake_damage(listofbrakestatus[10])
+                    self.rear_right_brake_damage(listsandconstants.listofbrakestatus[10])
 
             if 'rearWingDamage' in data_dict_cardamage:
                 rwdamage = int(data_dict_cardamage['rearWingDamage'])
                 if rwdamage < 10:
-                    self.rear_wing_damage(listofrearwingstatus[0])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[0])
                 elif rwdamage < 20:
-                    self.rear_wing_damage(listofrearwingstatus[1])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[1])
                 elif rwdamage < 30:
-                    self.rear_wing_damage(listofrearwingstatus[2])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[2])
                 elif rwdamage < 40:
-                    self.rear_wing_damage(listofrearwingstatus[3])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[3])
                 elif rwdamage < 50:
-                    self.rear_wing_damage(listofrearwingstatus[4])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[4])
                 elif rwdamage < 60:
-                    self.rear_wing_damage(listofrearwingstatus[5])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[5])
                 elif rwdamage < 70:
-                    self.rear_wing_damage(listofrearwingstatus[6])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[6])
                 elif rwdamage < 80:
-                    self.rear_wing_damage(listofrearwingstatus[7])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[7])
                 elif rwdamage < 90:
-                    self.rear_wing_damage(listofrearwingstatus[8])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[8])
                 elif rwdamage < 100:
-                    self.rear_wing_damage(listofrearwingstatus[9])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[9])
                 else:
-                    self.rear_wing_damage(listofrearwingstatus[10])
+                    self.rear_wing_damage(listsandconstants.listofrearwingstatus[10])
 
             if 'floorDamage' in data_dict_cardamage:
                 lfdamage = int(data_dict_cardamage['floorDamage'])
                 if lfdamage < 10:
-                    self.left_floor_damage(listoffloorleftstatus[0])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[0])
                 elif lfdamage < 20:
-                    self.left_floor_damage(listoffloorleftstatus[1])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[1])
                 elif lfdamage < 30:
-                    self.left_floor_damage(listoffloorleftstatus[2])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[2])
                 elif lfdamage < 40:
-                    self.left_floor_damage(listoffloorleftstatus[3])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[3])
                 elif lfdamage < 50:
-                    self.left_floor_damage(listoffloorleftstatus[4])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[4])
                 elif lfdamage < 60:
-                    self.left_floor_damage(listoffloorleftstatus[5])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[5])
                 elif lfdamage < 70:
-                    self.left_floor_damage(listoffloorleftstatus[6])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[6])
                 elif lfdamage < 80:
-                    self.left_floor_damage(listoffloorleftstatus[7])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[7])
                 elif lfdamage < 90:
-                    self.left_floor_damage(listoffloorleftstatus[8])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[8])
                 elif lfdamage < 100:
-                    self.left_floor_damage(listoffloorleftstatus[9])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[9])
                 else:
-                    self.left_floor_damage(listoffloorleftstatus[10])
+                    self.left_floor_damage(listsandconstants.listoffloorleftstatus[10])
 
             if 'floorDamage' in data_dict_cardamage:
                 rfdamage = int(data_dict_cardamage['floorDamage'])
                 if rfdamage < 10:
-                    self.right_floor_damage(listoffloorrightstatus[0])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[0])
                 elif rfdamage < 20:
-                    self.right_floor_damage(listoffloorrightstatus[1])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[1])
                 elif rfdamage < 30:
-                    self.right_floor_damage(listoffloorrightstatus[2])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[2])
                 elif rfdamage < 40:
-                    self.right_floor_damage(listoffloorrightstatus[3])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[3])
                 elif rfdamage < 50:
-                    self.right_floor_damage(listoffloorrightstatus[4])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[4])
                 elif rfdamage < 60:
-                    self.right_floor_damage(listoffloorrightstatus[5])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[5])
                 elif rfdamage < 70:
-                    self.right_floor_damage(listoffloorrightstatus[6])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[6])
                 elif rfdamage < 80:
-                    self.right_floor_damage(listoffloorrightstatus[7])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[7])
                 elif rfdamage < 90:
-                    self.right_floor_damage(listoffloorrightstatus[8])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[8])
                 elif rfdamage < 100:
-                    self.right_floor_damage(listoffloorrightstatus[9])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[9])
                 else:
-                    self.right_floor_damage(listoffloorrightstatus[10])
+                    self.right_floor_damage(listsandconstants.listoffloorrightstatus[10])
 
             if 'sidepodDamage' in data_dict_cardamage:
                 lsddamage = int(data_dict_cardamage['sidepodDamage'])
                 if lsddamage < 10:
-                    self.left_sidepod_damage(listofsidepodleftstatus[0])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[0])
                 elif lsddamage < 20:
-                    self.left_sidepod_damage(listofsidepodleftstatus[1])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[1])
                 elif lsddamage < 30:
-                    self.left_sidepod_damage(listofsidepodleftstatus[2])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[2])
                 elif lsddamage < 40:
-                    self.left_sidepod_damage(listofsidepodleftstatus[3])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[3])
                 elif lsddamage < 50:
-                    self.left_sidepod_damage(listofsidepodleftstatus[4])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[4])
                 elif lsddamage < 60:
-                    self.left_sidepod_damage(listofsidepodleftstatus[5])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[5])
                 elif lsddamage < 70:
-                    self.left_sidepod_damage(listofsidepodleftstatus[6])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[6])
                 elif lsddamage < 80:
-                    self.left_sidepod_damage(listofsidepodleftstatus[7])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[7])
                 elif lsddamage < 90:
-                    self.left_sidepod_damage(listofsidepodleftstatus[8])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[8])
                 elif lsddamage < 100:
-                    self.left_sidepod_damage(listofsidepodleftstatus[9])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[9])
                 else:
-                    self.left_sidepod_damage(listofsidepodleftstatus[10])
+                    self.left_sidepod_damage(listsandconstants.listofsidepodleftstatus[10])
 
             if 'sidepodDamage' in data_dict_cardamage:
                 rsddamage = int(data_dict_cardamage['sidepodDamage'])
                 if rsddamage < 10:
-                    self.right_sidepod_damage(listofsidepodrightstatus[0])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[0])
                 elif rsddamage < 20:
-                    self.right_sidepod_damage(listofsidepodrightstatus[1])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[1])
                 elif rsddamage < 30:
-                    self.right_sidepod_damage(listofsidepodrightstatus[2])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[2])
                 elif rsddamage < 40:
-                    self.right_sidepod_damage(listofsidepodrightstatus[3])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[3])
                 elif rsddamage < 50:
-                    self.right_sidepod_damage(listofsidepodrightstatus[4])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[4])
                 elif rsddamage < 60:
-                    self.right_sidepod_damage(listofsidepodrightstatus[5])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[5])
                 elif rsddamage < 70:
-                    self.right_sidepod_damage(listofsidepodrightstatus[6])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[6])
                 elif rsddamage < 80:
-                    self.right_sidepod_damage(listofsidepodrightstatus[7])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[7])
                 elif rsddamage < 90:
-                    self.right_sidepod_damage(listofsidepodrightstatus[8])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[8])
                 elif rsddamage < 100:
-                    self.right_sidepod_damage(listofsidepodrightstatus[9])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[9])
                 else:
-                    self.right_sidepod_damage(listofsidepodrightstatus[10])
+                    self.right_sidepod_damage(listsandconstants.listofsidepodrightstatus[10])
 
             if 'engineDamage' in data_dict_cardamage:
                 edamage = int(data_dict_cardamage['engineDamage'])
                 if edamage < 10:
-                    self.engine_damage(listofenginestatus[0])
+                    self.engine_damage(listsandconstants.listofenginestatus[0])
                 elif edamage < 20:
-                    self.engine_damage(listofenginestatus[1])
+                    self.engine_damage(listsandconstants.listofenginestatus[1])
                 elif edamage < 30:
-                    self.engine_damage(listofenginestatus[2])
+                    self.engine_damage(listsandconstants.listofenginestatus[2])
                 elif edamage < 40:
-                    self.engine_damage(listofenginestatus[3])
+                    self.engine_damage(listsandconstants.listofenginestatus[3])
                 elif edamage < 50:
-                    self.engine_damage(listofenginestatus[4])
+                    self.engine_damage(listsandconstants.listofenginestatus[4])
                 elif edamage < 60:
-                    self.engine_damage(listofenginestatus[5])
+                    self.engine_damage(listsandconstants.listofenginestatus[5])
                 elif edamage < 70:
-                    self.engine_damage(listofenginestatus[6])
+                    self.engine_damage(listsandconstants.listofenginestatus[6])
                 elif edamage < 80:
-                    self.engine_damage(listofenginestatus[7])
+                    self.engine_damage(listsandconstants.listofenginestatus[7])
                 elif edamage < 90:
-                    self.engine_damage(listofenginestatus[8])
+                    self.engine_damage(listsandconstants.listofenginestatus[8])
                 elif edamage < 100:
-                    self.engine_damage(listofenginestatus[9])
+                    self.engine_damage(listsandconstants.listofenginestatus[9])
                 else:
-                    self.engine_damage(listofenginestatus[10])
+                    self.engine_damage(listsandconstants.listofenginestatus[10])
 
             if 'gearBoxDamage' in data_dict_cardamage:
                 gdamage = int(data_dict_cardamage['gearBoxDamage'])
                 if gdamage < 10:
-                    self.gearbox_damage(listofgearboxstatus[0])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[0])
                 elif gdamage < 20:
-                    self.gearbox_damage(listofgearboxstatus[1])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[1])
                 elif gdamage < 30:
-                    self.gearbox_damage(listofgearboxstatus[2])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[2])
                 elif gdamage < 40:
-                    self.gearbox_damage(listofgearboxstatus[3])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[3])
                 elif gdamage < 50:
-                    self.gearbox_damage(listofgearboxstatus[4])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[4])
                 elif gdamage < 60:
-                    self.gearbox_damage(listofgearboxstatus[5])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[5])
                 elif gdamage < 70:
-                    self.gearbox_damage(listofgearboxstatus[6])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[6])
                 elif gdamage < 80:
-                    self.gearbox_damage(listofgearboxstatus[7])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[7])
                 elif gdamage < 90:
-                    self.gearbox_damage(listofgearboxstatus[8])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[8])
                 elif gdamage < 100:
-                    self.gearbox_damage(listofgearboxstatus[9])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[9])
                 else:
-                    self.gearbox_damage(listofgearboxstatus[10])
+                    self.gearbox_damage(listsandconstants.listofgearboxstatus[10])
 
             if 'diffuserDamage' in data_dict_cardamage:
                 ddamage = int(data_dict_cardamage['diffuserDamage'])
                 if ddamage < 10:
-                    self.diffuser_damage(listofdiffuserstatus[0])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[0])
                 elif ddamage < 20:
-                    self.diffuser_damage(listofdiffuserstatus[1])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[1])
                 elif ddamage < 30:
-                    self.diffuser_damage(listofdiffuserstatus[2])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[2])
                 elif ddamage < 40:
-                    self.diffuser_damage(listofdiffuserstatus[3])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[3])
                 elif ddamage < 50:
-                    self.diffuser_damage(listofdiffuserstatus[4])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[4])
                 elif ddamage < 60:
-                    self.diffuser_damage(listofdiffuserstatus[5])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[5])
                 elif ddamage < 70:
-                    self.diffuser_damage(listofdiffuserstatus[6])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[6])
                 elif ddamage < 80:
-                    self.diffuser_damage(listofdiffuserstatus[7])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[7])
                 elif ddamage < 90:
-                    self.diffuser_damage(listofdiffuserstatus[8])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[8])
                 elif ddamage < 100:
-                    self.diffuser_damage(listofdiffuserstatus[9])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[9])
                 else:
-                    self.diffuser_damage(listofdiffuserstatus[10])
+                    self.diffuser_damage(listsandconstants.listofdiffuserstatus[10])
 
             #### ERS hibát meg kell írni
             if 'ersFault' in data_dict_cardamage:
                 ersdamage = int(data_dict_cardamage['ersFault'])
                 if ersdamage == 0:
-                    self.ers_update('car_damage_pngs/ERS_good.png')
+                    self.ers_update('assets/car_damage/ERS_good.png')
                 else:
-                    self.ers_update('car_damage_pngs/ERS_fault.png')
+                    self.ers_update('assets/car_damage/ERS_fault.png')
 
             #### DRS hibát meg kell írni
             if 'drsFault' in data_dict_cardamage:
                 drsdamage = int(data_dict_cardamage['drsFault'])
                 if drsdamage == 0:
-                    self.drs_update('car_damage_pngs/DRS_good.png')
+                    self.drs_update('assets/car_damage/DRS_good.png')
                 else:
-                    self.drs_update('car_damage_pngs/DRS_fault.png')
+                    self.drs_update('assets/car_damage/DRS_fault.png')
 
             self.root.after(5, self.update_damage_display)
 class Engine:
@@ -1322,35 +1353,35 @@ class Engine:
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="black", highlightthickness=0)
         self.canvas.pack()
 
-        self.es_img = PilImage.open('engine/ES_0.png')
+        self.es_img = PilImage.open('assets/engine/ES_0.png')
         self.es_tk_image = ImageTk.PhotoImage(self.es_img)
         self.es = self.canvas.create_image(599, 120, image=self.es_tk_image)
 
-        self.mguk_img = PilImage.open('engine/MGU-K_0.png')
+        self.mguk_img = PilImage.open('assets/engine/MGU-K_0.png')
         self.mguk_tk_image = ImageTk.PhotoImage(self.mguk_img)
         self.mguk = self.canvas.create_image(486, 213, image=self.mguk_tk_image)
 
-        self.mguh_img = PilImage.open('engine/MGU-H_0.png')
+        self.mguh_img = PilImage.open('assets/engine/MGU-H_0.png')
         self.mguh_tk_image = ImageTk.PhotoImage(self.mguh_img)
         self.mguh = self.canvas.create_image(700, 232, image=self.mguh_tk_image)
 
-        self.ice_img = PilImage.open('engine/ICE_0.png')
+        self.ice_img = PilImage.open('assets/engine/ICE_0.png')
         self.ice_tk_image = ImageTk.PhotoImage(self.ice_img)
         self.ice = self.canvas.create_image(599, 200, image=self.ice_tk_image)
 
-        self.ce_img = PilImage.open('engine/CE_0.png')
+        self.ce_img = PilImage.open('assets/engine/CE_0.png')
         self.ce_tk_image = ImageTk.PhotoImage(self.ce_img)
         self.ce = self.canvas.create_image(600, 198, image=self.ce_tk_image)
 
-        self.tc_img = PilImage.open('engine/TC_0.png')
+        self.tc_img = PilImage.open('assets/engine/TC_0.png')
         self.tc_tk_image = ImageTk.PhotoImage(self.tc_img)
         self.tc = self.canvas.create_image(599, 316.5, image=self.tc_tk_image)
 
-        self.gearbox_img = PilImage.open('engine/GearBox_0.png')
+        self.gearbox_img = PilImage.open('assets/engine/GearBox_0.png')
         self.gearbox_tk_image = ImageTk.PhotoImage(self.gearbox_img)
         self.gearbox = self.canvas.create_image(602, 365, image=self.gearbox_tk_image)
 
-        self.guidelines = PilImage.open('engine/help lines.png')
+        self.guidelines = PilImage.open('assets/engine/help lines.png')
         self.guidelines_tk_image = ImageTk.PhotoImage(self.guidelines)
         self.canvas.create_image(530, 242, image=self.guidelines_tk_image)
 
@@ -1443,47 +1474,47 @@ class Engine:
                 if mguh < 10:
                     self.mguh_percent_label.config(fg="#00ff00")
                     self.mguh_percent_label.place(x = 280, y = 60)
-                    self.update_mguh_img(listofmguhwear[0])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[0])
                 elif mguh < 20:
                     self.mguh_percent_label.config(fg="#88f612")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[1])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[1])
                 elif mguh < 30:
                     self.mguh_percent_label.config(fg="#aef317")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[2])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[2])
                 elif mguh < 40:
                     self.mguh_percent_label.config(fg="#cff11b")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[3])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[3])
                 elif mguh < 50:
                     self.mguh_percent_label.config(fg="#ebef1f")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[4])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[4])
                 elif mguh < 60:
                     self.mguh_percent_label.config(fg="#fcee21")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[5])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[5])
                 elif mguh < 70:
                     self.mguh_percent_label.config(fg="#fccc1f")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[6])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[6])
                 elif mguh < 80:
                     self.mguh_percent_label.config(fg="#fda61d")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[7])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[7])
                 elif mguh < 90:
                     self.mguh_percent_label.config(fg="#fd7e1b")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[8])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[8])
                 elif mguh < 100:
                     self.mguh_percent_label.config(fg="#fe5519")
                     self.mguh_percent_label.place(x=260, y=60)
-                    self.update_mguh_img(listofmguhwear[9])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[9])
                 else:
                     self.mguh_percent_label.config(fg="#ff0015")
                     self.mguh_percent_label.place(x=230, y=60)
-                    self.update_mguh_img(listofmguhwear[10])
+                    self.update_mguh_img(listsandconstants.listofmguhwear[10])
 
             if 'engineMGUKWear' in data_dict_cardamage:
                 mguk = int(data_dict_cardamage['engineMGUKWear'])
@@ -1491,47 +1522,47 @@ class Engine:
                 if mguk < 10:
                     self.mguk_percent_label.config(fg="#00ff00")
                     self.mguk_percent_label.place(x=280, y=272)
-                    self.update_mguk_img(listofmgukwear[0])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[0])
                 elif mguk < 20:
                     self.mguk_percent_label.config(fg="#88f612")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[1])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[1])
                 elif mguk < 30:
                     self.mguk_percent_label.config(fg="#aef317")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[2])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[2])
                 elif mguk < 40:
                     self.mguk_percent_label.config(fg="#cff11b")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[3])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[3])
                 elif mguk < 50:
                     self.mguh_percent_label.config(fg="#ebef1f")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[4])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[4])
                 elif mguk < 60:
                     self.mguk_percent_label.config(fg="#fcee21")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[5])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[5])
                 elif mguk < 70:
                     self.mguk_percent_label.config(fg="#fccc1f")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[6])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[6])
                 elif mguk < 80:
                     self.mguk_percent_label.config(fg="#fda61d")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[7])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[7])
                 elif mguk < 90:
                     self.mguh_percent_label.config(fg="#fd7e1b")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[8])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[8])
                 elif mguk < 100:
                     self.mguk_percent_label.config(fg="#fe5519")
                     self.mguk_percent_label.place(x=260, y=272)
-                    self.update_mguk_img(listofmgukwear[9])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[9])
                 else:
                     self.mguk_percent_label.config(fg="#ff0015")
                     self.mguk_percent_label.place(x=230, y=272)
-                    self.update_mguk_img(listofmgukwear[10])
+                    self.update_mguk_img(listsandconstants.listofmgukwear[10])
 
             if 'engineESWear' in data_dict_cardamage:
                 es = int(data_dict_cardamage['engineESWear'])
@@ -1539,47 +1570,47 @@ class Engine:
                 if es < 10:
                     self.es_percent_label.config(fg="#00ff00")
                     self.es_percent_label.place(x=280, y=114)
-                    self.update_es_img(listofeswear[0])
+                    self.update_es_img(listsandconstants.listofeswear[0])
                 elif es < 20:
                     self.es_percent_label.config(fg="#88f612")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[1])
+                    self.update_es_img(listsandconstants.listofeswear[1])
                 elif es < 30:
                     self.es_percent_label.config(fg="#aef317")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[2])
+                    self.update_es_img(listsandconstants.listofeswear[2])
                 elif es < 40:
                     self.es_percent_label.config(fg="#cff11b")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[3])
+                    self.update_es_img(listsandconstants.listofeswear[3])
                 elif es < 50:
                     self.es_percent_label.config(fg="#ebef1f")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[4])
+                    self.update_es_img(listsandconstants.listofeswear[4])
                 elif es < 60:
                     self.es_percent_label.config(fg="#fcee21")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[5])
+                    self.update_es_img(listsandconstants.listofeswear[5])
                 elif es < 70:
                     self.es_percent_label.config(fg="#fccc1f")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[6])
+                    self.update_es_img(listsandconstants.listofeswear[6])
                 elif es < 80:
                     self.es_percent_label.config(fg="#fda61d")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[7])
+                    self.update_es_img(listsandconstants.listofeswear[7])
                 elif es < 90:
                     self.es_percent_label.config(fg="#fd7e1b")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[8])
+                    self.update_es_img(listsandconstants.listofeswear[8])
                 elif es < 100:
                     self.es_percent_label.config(fg="#fe5519")
                     self.es_percent_label.place(x=260, y=114)
-                    self.update_es_img(listofeswear[9])
+                    self.update_es_img(listsandconstants.listofeswear[9])
                 else:
                     self.es_percent_label.config(fg="#ff0015")
                     self.es_percent_label.place(x=230, y=114)
-                    self.update_es_img(listofeswear[10])
+                    self.update_es_img(listsandconstants.listofeswear[10])
 
             if 'engineICEWear' in data_dict_cardamage:
                 ice = int(data_dict_cardamage['engineICEWear'])
@@ -1587,47 +1618,47 @@ class Engine:
                 if ice < 10:
                     self.ice_percent_label.config(fg="#00ff00")
                     self.ice_percent_label.place(x=280, y=220)
-                    self.update_ice_img(listoficewear[0])
+                    self.update_ice_img(listsandconstants.listoficewear[0])
                 elif ice < 20:
                     self.ice_percent_label.config(fg="#88f612")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[1])
+                    self.update_ice_img(listsandconstants.listoficewear[1])
                 elif ice < 30:
                     self.ice_percent_label.config(fg="#aef317")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[2])
+                    self.update_ice_img(listsandconstants.listoficewear[2])
                 elif ice < 40:
                     self.ice_percent_label.config(fg="#cff11b")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[3])
+                    self.update_ice_img(listsandconstants.listoficewear[3])
                 elif ice < 50:
                     self.ice_percent_label.config(fg="#ebef1f")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[4])
+                    self.update_ice_img(listsandconstants.listoficewear[4])
                 elif ice < 60:
                     self.ice_percent_label.config(fg="#fcee21")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[5])
+                    self.update_ice_img(listsandconstants.listoficewear[5])
                 elif ice < 70:
                     self.ice_percent_label.config(fg="#fccc1f")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[6])
+                    self.update_ice_img(listsandconstants.listoficewear[6])
                 elif ice < 80:
                     self.ice_percent_label.config(fg="#fda61d")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[7])
+                    self.update_ice_img(listsandconstants.listoficewear[7])
                 elif ice < 90:
                     self.ice_percent_label.config(fg="#fd7e1b")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[8])
+                    self.update_ice_img(listsandconstants.listoficewear[8])
                 elif ice < 100:
                     self.ice_percent_label.config(fg="#fe5519")
                     self.ice_percent_label.place(x=260, y=220)
-                    self.update_ice_img(listoficewear[9])
+                    self.update_ice_img(listsandconstants.listoficewear[9])
                 else:
                     self.ice_percent_label.config(fg="#ff0015")
                     self.ice_percent_label.place(x=230, y=220)
-                    self.update_ice_img(listoficewear[10])
+                    self.update_ice_img(listsandconstants.listoficewear[10])
 
             if 'engineCEWear' in data_dict_cardamage:
                 ce = int(data_dict_cardamage['engineCEWear'])
@@ -1635,47 +1666,47 @@ class Engine:
                 if ce < 10:
                     self.ce_percent_label.config(fg="#00ff00")
                     self.ce_percent_label.place(x=280, y=169)
-                    self.update_ce_img(listofcewear[0])
+                    self.update_ce_img(listsandconstants.listofcewear[0])
                 elif ce < 20:
                     self.ce_percent_label.config(fg="#88f612")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[1])
+                    self.update_ce_img(listsandconstants.listofcewear[1])
                 elif ce < 30:
                     self.ce_percent_label.config(fg="#aef317")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[2])
+                    self.update_ce_img(listsandconstants.listofcewear[2])
                 elif ce < 40:
                     self.ce_percent_label.config(fg="#cff11b")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[3])
+                    self.update_ce_img(listsandconstants.listofcewear[3])
                 elif ce < 50:
                     self.ce_percent_label.config(fg="#ebef1f")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[4])
+                    self.update_ce_img(listsandconstants.listofcewear[4])
                 elif ce < 60:
                     self.ce_percent_label.config(fg="#fcee21")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[5])
+                    self.update_ce_img(listsandconstants.listofcewear[5])
                 elif ce < 70:
                     self.ce_percent_label.config(fg="#fccc1f")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[6])
+                    self.update_ce_img(listsandconstants.listofcewear[6])
                 elif ce < 80:
                     self.ce_percent_label.config(fg="#fda61d")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[7])
+                    self.update_ce_img(listsandconstants.listofcewear[7])
                 elif ce < 90:
                     self.ce_percent_label.config(fg="#fd7e1b")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[8])
+                    self.update_ce_img(listsandconstants.listofcewear[8])
                 elif ce < 100:
                     self.ce_percent_label.config(fg="#fe5519")
                     self.ce_percent_label.place(x=260, y=169)
-                    self.update_ce_img(listofcewear[9])
+                    self.update_ce_img(listsandconstants.listofcewear[9])
                 else:
                     self.ce_percent_label.config(fg="#ff0015")
                     self.ce_percent_label.place(x=230, y=169)
-                    self.update_ce_img(listofcewear[10])
+                    self.update_ce_img(listsandconstants.listofcewear[10])
 
             if 'engineTCWear' in data_dict_cardamage:
                 tc = int(data_dict_cardamage['engineTCWear'])
@@ -1683,47 +1714,47 @@ class Engine:
                 if tc < 10:
                     self.tc_percent_label.config(fg="#00ff00")
                     self.tc_percent_label.place(x=280, y=325)
-                    self.update_tc_img(listoftcwear[0])
+                    self.update_tc_img(listsandconstants.listoftcwear[0])
                 elif tc < 20:
                     self.tc_percent_label.config(fg="#88f612")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[1])
+                    self.update_tc_img(listsandconstants.listoftcwear[1])
                 elif tc < 30:
                     self.tc_percent_label.config(fg="#aef317")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[2])
+                    self.update_tc_img(listsandconstants.listoftcwear[2])
                 elif tc < 40:
                     self.tc_percent_label.config(fg="#cff11b")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[3])
+                    self.update_tc_img(listsandconstants.listoftcwear[3])
                 elif tc < 50:
                     self.tc_percent_label.config(fg="#ebef1f")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[4])
+                    self.update_tc_img(listsandconstants.listoftcwear[4])
                 elif tc < 60:
                     self.tc_percent_label.config(fg="#fcee21")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[5])
+                    self.update_tc_img(listsandconstants.listoftcwear[5])
                 elif tc < 70:
                     self.tc_percent_label.config(fg="#fccc1f")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[6])
+                    self.update_tc_img(listsandconstants.listoftcwear[6])
                 elif tc < 80:
                     self.tc_percent_label.config(fg="#fda61d")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[7])
+                    self.update_tc_img(listsandconstants.listoftcwear[7])
                 elif tc < 90:
                     self.tc_percent_label.config(fg="#fd7e1b")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[8])
+                    self.update_tc_img(listsandconstants.listoftcwear[8])
                 elif tc < 100:
                     self.tc_percent_label.config(fg="#fe5519")
                     self.tc_percent_label.place(x=260, y=325)
-                    self.update_tc_img(listoftcwear[9])
+                    self.update_tc_img(listsandconstants.listoftcwear[9])
                 else:
                     self.tc_percent_label.config(fg="#ff0015")
                     self.tc_percent_label.place(x=230, y=325)
-                    self.update_tc_img(listoftcwear[10])
+                    self.update_tc_img(listsandconstants.listsandconstants.listoftcwear[10])
 
             if 'gearBoxDamage' in data_dict_cardamage:
                 gb = int(data_dict_cardamage['gearBoxDamage'])
@@ -1731,47 +1762,47 @@ class Engine:
                 if gb < 10:
                     self.gearbox_percent_label.config(fg="#00ff00")
                     self.gearbox_percent_label.place(x=280, y=378)
-                    self.update_gearbox_img(listofgearboxwear[0])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[0])
                 elif gb < 20:
                     self.gearbox_percent_label.config(fg="#88f612")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[1])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[1])
                 elif gb < 30:
                     self.gearbox_percent_label.config(fg="#aef317")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[2])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[2])
                 elif gb < 40:
                     self.gearbox_percent_label.config(fg="#cff11b")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[3])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[3])
                 elif gb < 50:
                     self.gearbox_percent_label.config(fg="#ebef1f")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[4])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[4])
                 elif gb < 60:
                     self.gearbox_percent_label.config(fg="#fcee21")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[5])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[5])
                 elif gb < 70:
                     self.gearbox_percent_label.config(fg="#fccc1f")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[6])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[6])
                 elif gb < 80:
                     self.gearbox_percent_label.config(fg="#fda61d")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[7])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[7])
                 elif gb < 90:
                     self.gearbox_percent_label.config(fg="#fd7e1b")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[8])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[8])
                 elif gb < 100:
                     self.gearbox_percent_label.config(fg="#fe5519")
                     self.gearbox_percent_label.place(x=260, y=378)
-                    self.update_gearbox_img(listofgearboxwear[9])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[9])
                 else:
                     self.gearbox_percent_label.config(fg="#ff0015")
                     self.gearbox_percent_label.place(x=230, y=378)
-                    self.update_gearbox_img(listofgearboxwear[10])
+                    self.update_gearbox_img(listsandconstants.listofgearboxwear[10])
 
             self.root.after(5, self.update_engine_display)
 class CarTemperature:
@@ -1782,7 +1813,7 @@ class CarTemperature:
         self.canvas = tk.Canvas(self.root, height=480, width=800, bg="black",highlightthickness=0)
         self.canvas.pack()
 
-        self.siluett_img = PilImage.open('car_temp_pngs/car_siluett.png')
+        self.siluett_img = PilImage.open('assets/car_temp/car_siluett.png')
         self.siluett_img_resized = self.siluett_img.resize((141, 382))
         # Convert the image to a format Tkinter can use
         self.siluett_tk_image = ImageTk.PhotoImage(self.siluett_img_resized)
@@ -1791,34 +1822,34 @@ class CarTemperature:
         #siluett = tk.Label(self.root, image=self.siluett_tk_image, bg="black")
         #siluett.place(x=86, y=35)
 
-        self.img = PilImage.open('car_temp_pngs/good_temp_motor.png')
+        self.img = PilImage.open('assets/car_temp/good_temp_motor.png')
         self.img_resized = self.img.resize((51, 60))
         # Convert the image to a format Tkinter can use
         self.tk_image = ImageTk.PhotoImage(self.img_resized)
         self.engine = self.canvas.create_image(408, 300, image=self.tk_image)
 
-        self.fl_img = PilImage.open('car_temp_pngs/good_temp_fronttyre.png')
+        self.fl_img = PilImage.open('assets/car_temp/good_temp_fronttyre.png')
         self.fl_img_resized = self.fl_img.resize((29, 53))
         # Convert the image to a format Tkinter can use
         self.fl_tk_image = ImageTk.PhotoImage(self.fl_img_resized)
         # Create a label in the Tkinter window
         self.frontleft = self.canvas.create_image(351, 147, image=self.fl_tk_image)
 
-        self.fl_brake_img = PilImage.open('car_temp_pngs/good_temp_brake.png')
+        self.fl_brake_img = PilImage.open('assets/car_temp/good_temp_brake.png')
         self.fl_brake_img_resized = self.fl_brake_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.fl_brake_tk_image = ImageTk.PhotoImage(self.fl_brake_img_resized)
         # Create a label in the Tkinter window
         self.frontleftbrake = self.canvas.create_image(373, 148, image=self.fl_brake_tk_image)
 
-        self.fr_img = PilImage.open('car_temp_pngs/good_temp_fronttyre.png')
+        self.fr_img = PilImage.open('assets/car_temp/good_temp_fronttyre.png')
         self.fr_img_resized = self.fr_img.resize((29, 53))
         # Convert the image to a format Tkinter can use
         self.fr_tk_image = ImageTk.PhotoImage(self.fr_img_resized)
         # Create a label in the Tkinter window
         self.frontright = self.canvas.create_image(465, 147, image=self.fr_tk_image)
 
-        self.fr_brake_img = PilImage.open('car_temp_pngs/good_temp_brake.png')
+        self.fr_brake_img = PilImage.open('assets/car_temp/good_temp_brake.png')
         self.fr_brake_img_resized = self.fr_brake_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.fr_brake_tk_image = ImageTk.PhotoImage(self.fr_brake_img_resized)
@@ -1826,50 +1857,50 @@ class CarTemperature:
         self.frontrightbrake =self.canvas.create_image(443, 148, image=self.fr_brake_tk_image)
 
 
-        self.rl_img = PilImage.open('car_temp_pngs/good_temp_reartyre.png')
+        self.rl_img = PilImage.open('assets/car_temp/good_temp_reartyre.png')
         self.rl_img_resized = self.fl_img.resize((32, 53))
         # Convert the image to a format Tkinter can use
         self.rl_tk_image = ImageTk.PhotoImage(self.rl_img_resized)
         # Create a label in the Tkinter window
         self.rearleft = self.canvas.create_image(350, 390, image=self.rl_tk_image)
 
-        self.rl_brake_img = PilImage.open('car_temp_pngs/good_temp_brake.png')
+        self.rl_brake_img = PilImage.open('assets/car_temp/good_temp_brake.png')
         self.rl_brake_img_resized = self.rl_brake_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.rl_brake_tk_image = ImageTk.PhotoImage(self.rl_brake_img_resized)
         # Create a label in the Tkinter window
         self.rearleftbrake = self.canvas.create_image(373, 391, image=self.rl_brake_tk_image)
 
-        self.rr_img = PilImage.open('car_temp_pngs/good_temp_reartyre.png')
+        self.rr_img = PilImage.open('assets/car_temp/good_temp_reartyre.png')
         self.rr_img_resized = self.rr_img.resize((32, 53))
         # Convert the image to a format Tkinter can use
         self.rr_tk_image = ImageTk.PhotoImage(self.rr_img_resized)
         # Create a label in the Tkinter window
         self.rearright = self.canvas.create_image(468, 390, image=self.rr_tk_image)
 
-        self.rr_brake_img = PilImage.open('car_temp_pngs/good_temp_brake.png')
+        self.rr_brake_img = PilImage.open('assets/car_temp/good_temp_brake.png')
         self.rr_brake_img_resized = self.rr_brake_img.resize((10, 19))
         # Convert the image to a format Tkinter can use
         self.rr_brake_tk_image = ImageTk.PhotoImage(self.rr_brake_img_resized)
         # Create a label in the Tkinter window
         self.rearrightbrake =self.canvas.create_image(444, 391, image=self.rr_brake_tk_image)
 
-        self.fl_symbols_img = PilImage.open('car_temp_pngs/symbol_def.png')
+        self.fl_symbols_img = PilImage.open('assets/car_temp/symbol_def.png')
         self.fl_symbols_img_resized = self.fl_symbols_img.resize((29, 101))
         self.fl_symbols_tk_image = ImageTk.PhotoImage(self.fl_symbols_img_resized)
         self.canvas.create_image(290, 148, image=self.fl_symbols_tk_image)
 
-        self.rl_symbols_img = PilImage.open('car_temp_pngs/symbol_def.png')
+        self.rl_symbols_img = PilImage.open('assets/car_temp/symbol_def.png')
         self.rl_symbols_img_resized = self.rl_symbols_img.resize((29, 101))
         self.rl_symbols_tk_image = ImageTk.PhotoImage(self.rl_symbols_img_resized)
         self.canvas.create_image(290, 390, image=self.rl_symbols_tk_image)
 
-        self.fr_symbols_img = PilImage.open('car_temp_pngs/symbol_def.png')
+        self.fr_symbols_img = PilImage.open('assets/car_temp/symbol_def.png')
         self.fr_symbols_img_resized = self.fr_symbols_img.resize((29, 101))
         self.fr_symbols_tk_image = ImageTk.PhotoImage(self.fr_symbols_img_resized)
         self.canvas.create_image(520, 148, image=self.fr_symbols_tk_image)
 
-        self.rr_symbols_img = PilImage.open('car_temp_pngs/symbol_def.png')
+        self.rr_symbols_img = PilImage.open('assets/car_temp/symbol_def.png')
         self.rr_symbols_img_resized = self.rr_symbols_img.resize((29, 101))
         self.rr_symbols_tk_image = ImageTk.PhotoImage(self.rr_symbols_img_resized)
         self.canvas.create_image(520, 390, image=self.rr_symbols_tk_image)
@@ -1977,19 +2008,19 @@ class CarTemperature:
             if 'FLTyreInnerTemperature' in data_dict_cartelemetry:
                 self.fl_inner_temp_label.config(text=f"{data_dict_cartelemetry['FLTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 70:
-                    self.update_fl_tyre(listoffronttyres[0])
+                    self.update_fl_tyre(listsandconstants.listoffronttyres[0])
                     self.fl_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 90:
-                    self.update_fl_tyre(listoffronttyres[1])
+                    self.update_fl_tyre(listsandconstants.listoffronttyres[1])
                     self.fl_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 105:
-                    self.update_fl_tyre(listoffronttyres[2])
+                    self.update_fl_tyre(listsandconstants.listoffronttyres[2])
                     self.fl_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) <= 110:
-                    self.update_fl_tyre(listoffronttyres[3])
+                    self.update_fl_tyre(listsandconstants.listoffronttyres[3])
                     self.fl_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FLTyreInnerTemperature']) > 110:
-                    self.update_fl_tyre(listoffronttyres[4])
+                    self.update_fl_tyre(listsandconstants.listoffronttyres[4])
                     self.fl_inner_temp_label.config(fg="#fe2b17")
 
             if 'FLTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2008,37 +2039,37 @@ class CarTemperature:
             if 'FLBrakeTemperature' in data_dict_cartelemetry:
                 self.fl_brake_temp_label.config(text=f"{data_dict_cartelemetry['FLBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['FLBrakeTemperature']) <= 350:
-                    self.update_fl_brake(listofbrakes[0])
+                    self.update_fl_brake(listsandconstants.listofbrakes[0])
                     self.fl_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 450:
-                    self.update_fl_brake(listofbrakes[1])
+                    self.update_fl_brake(listsandconstants.listofbrakes[1])
                     self.fl_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 750:
-                    self.update_fl_brake(listofbrakes[2])
+                    self.update_fl_brake(listsandconstants.listofbrakes[2])
                     self.fl_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) <= 950:
-                    self.update_fl_brake(listofbrakes[3])
+                    self.update_fl_brake(listsandconstants.listofbrakes[3])
                     self.fl_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FLBrakeTemperature']) > 950:
-                    self.update_fl_brake(listofbrakes[4])
+                    self.update_fl_brake(listsandconstants.listofbrakes[4])
                     self.fl_brake_temp_label.config(fg="#fe2b17")
 
             if 'RLTyreInnerTemperature' in data_dict_cartelemetry:
                 self.rl_inner_temp_label.config(text=f"{data_dict_cartelemetry['RLTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 70:
-                    self.update_rl_tyre(listofreartyres[0])
+                    self.update_rl_tyre(listsandconstants.listofreartyres[0])
                     self.rl_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 90:
-                    self.update_rl_tyre(listofreartyres[1])
+                    self.update_rl_tyre(listsandconstants.listofreartyres[1])
                     self.rl_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 105:
-                    self.update_rl_tyre(listofreartyres[2])
+                    self.update_rl_tyre(listsandconstants.listofreartyres[2])
                     self.rl_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) <= 110:
-                    self.update_rl_tyre(listofreartyres[3])
+                    self.update_rl_tyre(listsandconstants.listofreartyres[3])
                     self.rl_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RLTyreInnerTemperature']) > 110:
-                    self.update_rl_tyre(listofreartyres[4])
+                    self.update_rl_tyre(listsandconstants.listofreartyres[4])
                     self.rl_inner_temp_label.config(fg="#fe2b17")
 
             if 'RLTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2057,37 +2088,37 @@ class CarTemperature:
             if 'RLBrakeTemperature' in data_dict_cartelemetry:
                 self.rl_brake_temp_label.config(text=f"{data_dict_cartelemetry['RLBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['RLBrakeTemperature']) <= 350:
-                    self.update_rl_brake(listofbrakes[0])
+                    self.update_rl_brake(listsandconstants.listofbrakes[0])
                     self.rl_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 450:
-                    self.update_rl_brake(listofbrakes[1])
+                    self.update_rl_brake(listsandconstants.listofbrakes[1])
                     self.rl_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 750:
-                    self.update_rl_brake(listofbrakes[2])
+                    self.update_rl_brake(listsandconstants.listofbrakes[2])
                     self.rl_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) <= 950:
-                    self.update_rl_brake(listofbrakes[3])
+                    self.update_rl_brake(listsandconstants.listofbrakes[3])
                     self.rl_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RLBrakeTemperature']) > 950:
-                    self.update_rl_brake(listofbrakes[4])
+                    self.update_rl_brake(listsandconstants.listofbrakes[4])
                     self.rl_brake_temp_label.config(fg="#fe2b17")
 
             if 'FRTyreInnerTemperature' in data_dict_cartelemetry:
                 self.fr_inner_temp_label.config(text=f"{data_dict_cartelemetry['FRTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 70:
-                    self.update_fr_tyre(listoffronttyres[0])
+                    self.update_fr_tyre(listsandconstants.listoffronttyres[0])
                     self.fr_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 90:
-                    self.update_fr_tyre(listoffronttyres[1])
+                    self.update_fr_tyre(listsandconstants.listoffronttyres[1])
                     self.fr_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 105:
-                    self.update_fr_tyre(listoffronttyres[2])
+                    self.update_fr_tyre(listsandconstants.listoffronttyres[2])
                     self.fr_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) <= 110:
-                    self.update_fr_tyre(listoffronttyres[3])
+                    self.update_fr_tyre(listsandconstants.listoffronttyres[3])
                     self.fr_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FRTyreInnerTemperature']) > 110:
-                    self.update_fr_tyre(listoffronttyres[4])
+                    self.update_fr_tyre(listsandconstants.listoffronttyres[4])
                     self.fr_inner_temp_label.config(fg="#fe2b17")
 
             if 'FRTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2106,37 +2137,37 @@ class CarTemperature:
             if 'FRBrakeTemperature' in data_dict_cartelemetry:
                 self.fr_brake_temp_label.config(text=f"{data_dict_cartelemetry['FRBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['FRBrakeTemperature']) <= 350:
-                    self.update_fr_brake(listofbrakes[0])
+                    self.update_fr_brake(listsandconstants.listofbrakes[0])
                     self.fr_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 450:
-                    self.update_fr_brake(listofbrakes[1])
+                    self.update_fr_brake(listsandconstants.listofbrakes[1])
                     self.fr_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 750:
-                    self.update_fr_brake(listofbrakes[2])
+                    self.update_fr_brake(listsandconstants.listofbrakes[2])
                     self.fr_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) <= 950:
-                    self.update_fr_brake(listofbrakes[3])
+                    self.update_fr_brake(listsandconstants.listofbrakes[3])
                     self.fr_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['FRBrakeTemperature']) > 950:
-                    self.update_fr_brake(listofbrakes[4])
+                    self.update_fr_brake(listsandconstants.listofbrakes[4])
                     self.fr_brake_temp_label.config(fg="#fe2b17")
 
             if 'RRTyreInnerTemperature' in data_dict_cartelemetry:
                 self.rr_inner_temp_label.config(text=f"{data_dict_cartelemetry['RRTyreInnerTemperature']}°C")
                 if int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 70:
-                    self.update_rr_tyre(listofreartyres[0])
+                    self.update_rr_tyre(listsandconstants.listofreartyres[0])
                     self.rr_inner_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 90:
-                    self.update_rr_tyre(listofreartyres[1])
+                    self.update_rr_tyre(listsandconstants.listofreartyres[1])
                     self.rr_inner_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 105:
-                    self.update_rr_tyre(listofreartyres[2])
+                    self.update_rr_tyre(listsandconstants.listofreartyres[2])
                     self.rr_inner_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) <= 110:
-                    self.update_rr_tyre(listofreartyres[3])
+                    self.update_rr_tyre(listsandconstants.listofreartyres[3])
                     self.rr_inner_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RRTyreInnerTemperature']) > 110:
-                    self.update_rr_tyre(listofreartyres[4])
+                    self.update_rr_tyre(listsandconstants.listofreartyres[4])
                     self.rr_inner_temp_label.config(fg="#fe2b17")
 
             if 'RRTyreSurfaceTemperature' in data_dict_cartelemetry:
@@ -2155,37 +2186,37 @@ class CarTemperature:
             if 'RRBrakeTemperature' in data_dict_cartelemetry:
                 self.rr_brake_temp_label.config(text=f"{data_dict_cartelemetry['RRBrakeTemperature']}°C")
                 if int(data_dict_cartelemetry['RRBrakeTemperature']) <= 350:
-                    self.update_rr_brake(listofbrakes[0])
+                    self.update_rr_brake(listsandconstants.listofbrakes[0])
                     self.rr_brake_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 450:
-                    self.update_rr_brake(listofbrakes[1])
+                    self.update_rr_brake(listsandconstants.listofbrakes[1])
                     self.rr_brake_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 750:
-                    self.update_rr_brake(listofbrakes[2])
+                    self.update_rr_brake(listsandconstants.listofbrakes[2])
                     self.rr_brake_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) <= 950:
-                    self.update_rr_brake(listofbrakes[3])
+                    self.update_rr_brake(listsandconstants.listofbrakes[3])
                     self.rr_brake_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['RRBrakeTemperature']) > 950:
-                    self.update_rr_brake(listofbrakes[4])
+                    self.update_rr_brake(listsandconstants.listofbrakes[4])
                     self.rr_brake_temp_label.config(fg="#fe2b17")
 
             if 'engineTemperature' in data_dict_cartelemetry:
                 self.motor_temp_label.config(text=f"{data_dict_cartelemetry['engineTemperature']}°C")
                 if int(data_dict_cartelemetry['engineTemperature']) <= 80:
-                    self.update_engine(listofengine[0])
+                    self.update_engine(listsandconstants.listofengine[0])
                     self.motor_temp_label.config(fg="#00ffff")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 100:
-                    self.update_engine(listofengine[1])
+                    self.update_engine(listsandconstants.listofengine[1])
                     self.motor_temp_label.config(fg="#00ffaa")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 130:
-                    self.update_engine(listofengine[2])
+                    self.update_engine(listsandconstants.listofengine[2])
                     self.motor_temp_label.config(fg="#00ff00")
                 elif int(data_dict_cartelemetry['engineTemperature']) <= 140:
-                    self.update_engine(listofengine[3])
+                    self.update_engine(listsandconstants.listofengine[3])
                     self.motor_temp_label.config(fg="#fccc1f")
                 elif int(data_dict_cartelemetry['engineTemperature']) > 140:
-                    self.update_engine(listofengine[4])
+                    self.update_engine(listsandconstants.listofengine[4])
                     self.motor_temp_label.config(fg="#fe2b17")
 
             self.root.after(5, self.update_temp_labels)
